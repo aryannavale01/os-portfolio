@@ -188,7 +188,11 @@ export function ResumeApp({
   const [documents, setDocuments] = useState<PDFDocumentConfig[]>(BUILTIN_DOCUMENTS);
 
   const sidebarWidthClass =
-    sidebarWidth === 'compact' ? 'w-48' : sidebarWidth === 'wide' ? 'w-64' : 'w-56';
+    sidebarWidth === 'compact'
+      ? 'w-40 md:w-48'
+      : sidebarWidth === 'wide'
+        ? 'w-40 md:w-72'
+        : 'w-40 md:w-64';
 
   const iconSizeClass =
     sidebarIconSize === 'small' ? 'w-3.5 h-3.5' : sidebarIconSize === 'large' ? 'w-5 h-5' : 'w-4 h-4';
@@ -316,12 +320,11 @@ export function ResumeApp({
   };
 
   // When a specific PDF file was opened from the file system, render its real
-  // content. The built-in styled document is kept for the resume itself.
-  const isBuiltinResume = !fileData || fileData.id === 'desktop-resume-pdf';
+  // content. Desktop documents and project case studies carry a pdfUrl.
   if (fileData?.pdfUrl) {
     return <RealPdfViewer url={fileData.pdfUrl} title={fileData.name} size={fileData.size} />;
   }
-  if (fileData?.pdfData && !isBuiltinResume) {
+  if (fileData?.pdfData) {
     return <PDFViewer pdfData={fileData.pdfData} title={fileData.name} />;
   }
 
@@ -362,7 +365,7 @@ export function ResumeApp({
             <>
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className={`p-1.5 rounded-md transition-colors ${
+                className={`hidden md:inline-flex p-1.5 rounded-md transition-colors ${
                   isSidebarOpen
                     ? 'bg-slate-300 dark:bg-slate-800 text-slate-900 dark:text-white'
                     : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
@@ -540,9 +543,9 @@ export function ResumeApp({
 
       {/* Main Document Body Stage */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Sidebar: Documents & Page Thumbnails */}
+        {/* Sidebar: Documents & Page Thumbnails (hidden on mobile by default) */}
         {!minimal && isSidebarOpen && (
-          <div className={`${sidebarWidthClass} border-r border-slate-300 dark:border-slate-800 bg-slate-200/90 dark:bg-slate-900/90 flex flex-col p-2 gap-3 shrink-0 z-10 overflow-y-auto transition-all`}>
+          <div className={`hidden md:flex ${sidebarWidthClass} border-r border-slate-300 dark:border-slate-800 bg-slate-200/90 dark:bg-slate-900/90 flex flex-col p-2 gap-3 shrink-0 z-10 overflow-y-auto transition-all`}>
             {/* Document Library Section */}
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 block mb-1">

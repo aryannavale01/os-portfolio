@@ -104,27 +104,31 @@ export function Window({
         let newX = resizeStart.posX;
         let newY = resizeStart.posY;
 
-        const minW = 360;
-        const minH = 260;
+        const minW = Math.min(360, Math.max(220, window.innerWidth - 48));
+        const minH = Math.min(260, Math.max(160, window.innerHeight - 120));
+        const maxW = Math.max(minW, window.innerWidth - resizeStart.posX - 24);
+        const maxH = Math.max(minH, window.innerHeight - resizeStart.posY - 40);
 
         if (resizeDir.includes('e')) {
-          newW = Math.max(minW, resizeStart.width + deltaX);
+          newW = Math.min(maxW, Math.max(minW, resizeStart.width + deltaX));
         }
         if (resizeDir.includes('s')) {
-          newH = Math.max(minH, resizeStart.height + deltaY);
+          newH = Math.min(maxH, Math.max(minH, resizeStart.height + deltaY));
         }
         if (resizeDir.includes('w')) {
           const possibleW = resizeStart.width - deltaX;
-          if (possibleW >= minW) {
-            newW = possibleW;
+          if (possibleW >= minW && resizeStart.posX + deltaX >= 8) {
+            newW = Math.min(possibleW, window.innerWidth - (resizeStart.posX + deltaX) - 24);
             newX = resizeStart.posX + deltaX;
+            if (newW < minW) newW = Math.min(minW, resizeStart.width);
           }
         }
         if (resizeDir.includes('n')) {
           const possibleH = resizeStart.height - deltaY;
           if (possibleH >= minH && resizeStart.posY + deltaY >= 28) {
-            newH = possibleH;
+            newH = Math.min(possibleH, window.innerHeight - (resizeStart.posY + deltaY) - 40);
             newY = resizeStart.posY + deltaY;
+            if (newH < minH) newH = Math.min(minH, resizeStart.height);
           }
         }
 

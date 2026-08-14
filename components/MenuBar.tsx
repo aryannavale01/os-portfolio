@@ -237,7 +237,7 @@ export function MenuBar({
           <div className="relative">
             <button
               onClick={() => toggleTab('apple')}
-              className={`p-1 px-1.5 rounded-md transition-colors flex items-center justify-center ${
+              className={`p-0.5 px-1 rounded-md transition-colors flex items-center justify-center ${
                 openTab === 'apple' ? 'bg-black/10 dark:bg-white/25 text-slate-900 dark:text-white' : 'hover:bg-black/5 dark:hover:bg-white/15 text-slate-900 dark:text-white'
               }`}
               title="Apple Menu"
@@ -245,9 +245,9 @@ export function MenuBar({
               <Image
                 src="/logo.png"
                 alt="Aryan Navale"
-                width={16}
-                height={16}
-                className="w-4 h-4 rounded-[3px] object-cover"
+                width={24}
+                height={24}
+                className="w-6 h-6 rounded-[5px] object-cover"
               />
             </button>
 

@@ -56,9 +56,22 @@ export interface ProjectFolder {
   files: FileItem[];
 }
 
+export interface ResearchFolder {
+  id: string;
+  name: string;
+  date: string;
+  shortDesc: string;
+  files: FileItem[];
+}
+
 export type ThemeMode = 'dark' | 'light';
 
-export type WallpaperPreset = 'sonoma-purple' | 'sequoia-dusk' | 'cyber-navy' | 'glass-light';
+export type WallpaperPreset =
+  | 'workstation'
+  | 'sonoma-purple'
+  | 'sequoia-dusk'
+  | 'cyber-navy'
+  | 'glass-light';
 
 export type AccentColor = 'blue' | 'purple' | 'emerald' | 'orange';
 

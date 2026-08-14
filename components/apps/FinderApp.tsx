@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { FileItem } from '@/types/mac';
-import { PROJECT_CATEGORIES, PROJECTS_FS, DESKTOP_FILES } from '@/lib/projectsFS';
+import { FileItem, ProjectFolder, ResearchFolder } from '@/types/mac';
+import { PROJECT_CATEGORIES, PROJECTS_FS, RESEARCH_FS, DESKTOP_FILES } from '@/lib/projectsFS';
 import { getFileTypeLabel } from '@/lib/fileAssociations';
 import { ProjectGallery } from '@/components/ProjectGallery';
 import { useTheme } from '@/components/context/ThemeContext';
@@ -17,6 +17,7 @@ import {
   List,
   Info,
   ExternalLink,
+  Github,
   Database,
   Bot,
   Cpu,
@@ -38,14 +39,28 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
 interface FinderAppProps {
   onOpenFile?: (file: FileItem) => void;
   onQuickLook?: (images: FileItem[], index: number) => void;
+  initialRoot?: 'projects' | 'research';
+  initialFolderId?: string | null;
 }
 
-export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
+function isProjectFolder(
+  folder: ProjectFolder | ResearchFolder
+): folder is ProjectFolder {
+  return 'techStack' in folder;
+}
+
+export function FinderApp({
+  onOpenFile,
+  onQuickLook,
+  initialRoot = 'projects',
+  initialFolderId = null,
+}: FinderAppProps) {
   const { sidebarWidth, sidebarIconSize } = useTheme();
 
   // Navigation State
+  const [rootView, setRootView] = useState<'projects' | 'research'>(initialRoot);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null); // null = root Projects view
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(initialFolderId); // null = root view
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -62,15 +77,21 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
 
   // Responsive Sidebar Width
   const sidebarWidthClass =
-    sidebarWidth === 'compact' ? 'w-44' : sidebarWidth === 'wide' ? 'w-60' : 'w-52';
+    sidebarWidth === 'compact'
+      ? 'w-40 md:w-48'
+      : sidebarWidth === 'wide'
+        ? 'w-40 md:w-72'
+        : 'w-40 md:w-64';
   const sidebarIconClass =
     sidebarIconSize === 'small' ? 'w-3.5 h-3.5' : sidebarIconSize === 'large' ? 'w-5 h-5' : 'w-4 h-4';
 
-  // Current active project folder object (if inside a folder)
+  // Current active folder object (if inside a folder) — resolves from the
+  // active root (Projects Directory or Research library).
   const activeFolder = useMemo(() => {
     if (!currentFolderId) return null;
-    return PROJECTS_FS.find((f) => f.id === currentFolderId) || null;
-  }, [currentFolderId]);
+    const collection = rootView === 'research' ? RESEARCH_FS : PROJECTS_FS;
+    return collection.find((f) => f.id === currentFolderId) || null;
+  }, [currentFolderId, rootView]);
 
   // Filter project folders at root level by category & search
   const filteredProjectFolders = useMemo(() => {
@@ -86,6 +107,21 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
       );
     });
   }, [selectedCategory, searchQuery]);
+
+  // Filter research topics at root level by search
+  const filteredResearchFolders = useMemo(() => {
+    return RESEARCH_FS.filter((topic) => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        topic.name.toLowerCase().includes(q) ||
+        topic.shortDesc.toLowerCase().includes(q)
+      );
+    });
+  }, [searchQuery]);
+
+  // Root-level folders currently shown (drives grid/list rendering below)
+  const rootFolders = rootView === 'research' ? filteredResearchFolders : filteredProjectFolders;
 
   // Files inside current folder (if inside a project folder). Images are shown
   // through the gallery carousel above, so they are excluded from the flat list.
@@ -105,18 +141,23 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
     return activeFolder.files.filter((f) => !!f.imageUrl);
   }, [activeFolder]);
 
-  // All PDF documents across the desktop and every project
+  // All PDF documents across the desktop, research, and every project
   const allDocuments = useMemo(() => {
     const desktopPdfs = DESKTOP_FILES.filter((f) => f.type === 'pdf').map((file) => ({
       file,
       folderName: 'Desktop',
     }));
+    const researchPdfs = RESEARCH_FS.flatMap((topic) =>
+      topic.files
+        .filter((f) => f.type === 'pdf')
+        .map((file) => ({ file, folderName: topic.name }))
+    );
     const projectPdfs = PROJECTS_FS.flatMap((proj) =>
       proj.files
         .filter((f) => f.type === 'pdf')
         .map((file) => ({ file, folderName: proj.name }))
     );
-    return [...desktopPdfs, ...projectPdfs];
+    return [...desktopPdfs, ...researchPdfs, ...projectPdfs];
   }, []);
 
   // Handle Double Click Folder Navigation
@@ -128,6 +169,14 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
   // Navigate Up / Back
   const handleNavigateUp = () => {
     setCurrentFolderId(null);
+    setSelectedItemId(null);
+  };
+
+  // Switch between the Projects Directory and the Research library
+  const handleSelectRoot = (root: 'projects' | 'research') => {
+    setRootView(root);
+    setCurrentFolderId(null);
+    setSelectedCategory('all');
     setSelectedItemId(null);
   };
 
@@ -154,9 +203,9 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
       }}
       className="flex h-full w-full select-none bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 overflow-hidden font-sans relative"
     >
-      {/* COLUMN 1: Sidebar */}
+      {/* COLUMN 1: Sidebar (hidden on mobile so the content gets full width) */}
       <div
-        className={`${sidebarWidthClass} border-r border-slate-200 dark:border-slate-800 bg-slate-200/50 dark:bg-slate-950/60 p-3 flex flex-col justify-between shrink-0 text-xs overflow-y-auto`}
+        className={`hidden md:flex ${sidebarWidthClass} min-w-0 border-r border-slate-200 dark:border-slate-800 bg-slate-200/50 dark:bg-slate-950/60 p-3 flex flex-col justify-between shrink-0 text-xs overflow-y-auto`}
       >
         <div className="space-y-4">
           {/* Favorites Header */}
@@ -166,12 +215,9 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
             </div>
             <div className="space-y-0.5">
               <button
-                onClick={() => {
-                  setCurrentFolderId(null);
-                  setSelectedCategory('all');
-                }}
+                onClick={() => handleSelectRoot('projects')}
                 className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg font-medium transition-colors ${
-                  currentFolderId === null && selectedCategory === 'all'
+                  rootView === 'projects' && currentFolderId === null && selectedCategory === 'all'
                     ? 'bg-accent-600 text-white font-bold shadow-xs'
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-800/60'
                 }`}
@@ -179,10 +225,23 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
                 <Folder className={`${sidebarIconClass} text-blue-400 shrink-0`} />
                 <span className="truncate">Projects Directory</span>
               </button>
+
+              <button
+                onClick={() => handleSelectRoot('research')}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg font-medium transition-colors ${
+                  rootView === 'research' && currentFolderId === null
+                    ? 'bg-accent-600 text-white font-bold shadow-xs'
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-300/50 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <Folder className={`${sidebarIconClass} text-purple-400 shrink-0`} />
+                <span className="truncate">Research Library</span>
+              </button>
             </div>
           </div>
 
-          {/* Project Categories */}
+          {/* Project Categories (only for the Projects Directory root) */}
+          {rootView === 'projects' && (
           <div>
             <div className="px-2 pb-1.5 text-[10px] font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase">
               Categories
@@ -194,6 +253,7 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
                   <button
                     key={cat.id}
                     onClick={() => {
+                      setRootView('projects');
                       setSelectedCategory(cat.id);
                       setCurrentFolderId(null);
                     }}
@@ -217,6 +277,7 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
               })}
             </div>
           </div>
+          )}
 
           {/* Documents */}
           <div>
@@ -243,7 +304,7 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
 
         {/* Sidebar Footer */}
         <div className="pt-3 border-t border-slate-200 dark:border-slate-800/80 text-[10px] text-slate-400 text-center font-medium">
-          {PROJECTS_FS.length} Project Repositories
+          {PROJECTS_FS.length} Projects • {RESEARCH_FS.length} Research Topics
         </div>
       </div>
 
@@ -268,7 +329,7 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
                 onClick={handleNavigateUp}
                 className="hover:text-accent-500 font-bold hover:underline transition-colors"
               >
-                Projects
+                {rootView === 'research' ? 'Research' : 'Projects'}
               </button>
               {activeFolder && (
                 <>
@@ -330,23 +391,27 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
             <div>
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider text-[11px]">
-                  {selectedCategory === 'all'
-                    ? 'All Project Folders'
-                    : PROJECT_CATEGORIES.find((c) => c.id === selectedCategory)?.label}
+                  {rootView === 'research'
+                    ? 'Research Library'
+                    : selectedCategory === 'all'
+                      ? 'All Project Folders'
+                      : PROJECT_CATEGORIES.find((c) => c.id === selectedCategory)?.label}
                 </h2>
                 <span className="text-xs text-slate-400">
-                  {filteredProjectFolders.length} Folders
+                  {rootFolders.length} {rootView === 'research' ? 'Topics' : 'Folders'}
                 </span>
               </div>
 
-              {filteredProjectFolders.length === 0 ? (
+              {rootFolders.length === 0 ? (
                 <div className="py-20 text-center text-xs text-slate-400 italic">
-                  No project folders found matching filter.
+                  {rootView === 'research'
+                    ? 'No research topics found matching filter.'
+                    : 'No project folders found matching filter.'}
                 </div>
               ) : viewMode === 'grid' ? (
                 /* Folders Grid View */
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {filteredProjectFolders.map((folder) => {
+                  {rootFolders.map((folder) => {
                     const isSelected = selectedItemId === folder.id;
                     return (
                       <div
@@ -391,7 +456,7 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {filteredProjectFolders.map((folder) => {
+                      {rootFolders.map((folder) => {
                         const isSelected = selectedItemId === folder.id;
                         return (
                           <tr
@@ -414,7 +479,7 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
                               </div>
                             </td>
                             <td className="px-3 py-2 text-slate-500 dark:text-slate-400">
-                              {folder.categoryLabel}
+                              {isProjectFolder(folder) ? folder.categoryLabel : 'Research'}
                             </td>
                             <td className="px-3 py-2 text-slate-500 dark:text-slate-400">
                               {folder.files.length} files
@@ -429,31 +494,72 @@ export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
               )}
             </div>
           ) : (
-            /* INSIDE PROJECT FOLDER: Showing Folder Files */
+            /* INSIDE FOLDER: Showing Folder Files */
             <div>
               {/* Folder Details Banner */}
-              <div className="mb-5 p-4 rounded-2xl bg-accent-500/10 dark:bg-accent-500/15 border border-accent-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-accent-500/20 border border-accent-500/30 flex items-center justify-center shrink-0">
-                    <Folder className="w-7 h-7 text-blue-500 fill-blue-500/30" />
+              <div className="mb-5 p-4 rounded-2xl bg-accent-500/10 dark:bg-accent-500/15 border border-accent-500/20">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-accent-500/20 border border-accent-500/30 flex items-center justify-center shrink-0">
+                      <Folder className="w-7 h-7 text-blue-500 fill-blue-500/30" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                        {activeFolder.name}
+                      </h2>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                        {activeFolder.shortDesc}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
-                      {activeFolder.name}
-                    </h2>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                      {activeFolder.shortDesc}
-                    </p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {isProjectFolder(activeFolder) && activeFolder.githubUrl && (
+                      <a
+                        href={activeFolder.githubUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold hover:opacity-80 transition-opacity"
+                      >
+                        <Github className="w-3.5 h-3.5" /> GitHub
+                      </a>
+                    )}
+                    {isProjectFolder(activeFolder) && activeFolder.liveUrl && (
+                      <a
+                        href={activeFolder.liveUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent-600 text-white text-xs font-semibold hover:bg-accent-500 transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> Visit Project
+                      </a>
+                    )}
+                    <button
+                      onClick={handleNavigateUp}
+                      className="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      ← Back to Folders
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={handleNavigateUp}
-                    className="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    ← Back to Folders
-                  </button>
-                </div>
+
+                {isProjectFolder(activeFolder) && activeFolder.fullDesc && (
+                  <p className="mt-3 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                    {activeFolder.fullDesc}
+                  </p>
+                )}
+
+                {isProjectFolder(activeFolder) && activeFolder.techStack.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {activeFolder.techStack.map((tech) => (
+                      <span
+                        key={tech}
+                        className="text-[10px] font-semibold text-accent-700 dark:text-accent-400 bg-accent-100 dark:bg-accent-500/20 px-2 py-0.5 rounded-full"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Sliding Image Gallery */}

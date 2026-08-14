@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { FileItem } from '@/types/mac';
-import { DESKTOP_FILES, PROJECTS_FS } from '@/lib/projectsFS';
+import { DESKTOP_FILES, PROJECTS_FS, RESEARCH_FS } from '@/lib/projectsFS';
 import { MarkdownViewer } from '@/components/common/MarkdownViewer';
 import { PDFViewer } from '@/components/common/PDFViewer';
 import { RealPdfViewer } from '@/components/common/RealPdfViewer';
@@ -27,11 +27,16 @@ export function TextEditApp({ fileData }: TextEditAppProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const sidebarWidthClass =
-    sidebarWidth === 'compact' ? 'w-44' : sidebarWidth === 'wide' ? 'w-60' : 'w-56';
+    sidebarWidth === 'compact'
+      ? 'w-40 md:w-48'
+      : sidebarWidth === 'wide'
+        ? 'w-40 md:w-72'
+        : 'w-40 md:w-64';
 
   const documentGroups = useMemo(() => {
     const groups = [
       { folderName: 'Desktop', files: DESKTOP_FILES },
+      ...RESEARCH_FS.map((p) => ({ folderName: p.name, files: p.files })),
       ...PROJECTS_FS.map((p) => ({ folderName: p.name, files: p.files })),
     ];
     if (!searchQuery.trim()) return groups;
@@ -91,8 +96,8 @@ export function TextEditApp({ fileData }: TextEditAppProps) {
 
   return (
     <div className="flex h-full w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 overflow-hidden font-sans select-none">
-      {/* Sidebar: Document Library */}
-      <div className={`${sidebarWidthClass} border-r border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950/60 flex flex-col shrink-0`}>
+      {/* Sidebar: Document Library (hidden on mobile so content gets full width) */}
+      <div className={`hidden md:flex ${sidebarWidthClass} border-r border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950/60 flex flex-col shrink-0`}>
         <div className="p-3 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center">

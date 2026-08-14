@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { AppId, WindowState, WallpaperPreset, FileItem } from '@/types/mac';
+import { motion } from 'motion/react';
+import { AppId, WindowState, FileItem } from '@/types/mac';
 import { useTheme } from '@/components/context/ThemeContext';
+import { getWallpaperConfig } from '@/lib/wallpapers';
+import { DesktopIntro, IntroStage } from '@/components/DesktopIntro';
 import { MenuBar } from '@/components/MenuBar';
 import { Dock } from '@/components/Dock';
 import { Window } from '@/components/Window';
@@ -19,7 +22,7 @@ import { AskAIApp } from '@/components/apps/AskAIApp';
 import Image from 'next/image';
 import { FileText, Folder, Sparkles } from 'lucide-react';
 import { PORTFOLIO_INFO } from '@/lib/data';
-import { DESKTOP_FILES } from '@/lib/projectsFS';
+import { DESKTOP_FILES, RESEARCH_FS } from '@/lib/projectsFS';
 
 const DEFAULT_WINDOWS: WindowState[] = [
   {
@@ -42,7 +45,7 @@ const DEFAULT_WINDOWS: WindowState[] = [
     isMaximized: false,
     zIndex: 1,
     position: { x: 120, y: 70 },
-    size: { width: 660, height: 450 },
+    size: { width: 800, height: 540 },
   },
   {
     id: 'terminal',
@@ -74,8 +77,8 @@ const DEFAULT_WINDOWS: WindowState[] = [
     isMinimized: false,
     isMaximized: false,
     zIndex: 1,
-    position: { x: 140, y: 65 },
-    size: { width: 600, height: 420 },
+    position: { x: 120, y: 70 },
+    size: { width: 800, height: 540 },
   },
   {
     id: 'textedit',
@@ -101,30 +104,41 @@ const DEFAULT_WINDOWS: WindowState[] = [
   },
 ];
 
-const STORAGE_KEY_WINDOWS = 'macos_portfolio_windows_state_v6';
+const STORAGE_KEY_WINDOWS = 'macos_portfolio_windows_state_v9';
 
 const MAX_WINDOW_Z = 40;
 const APP_IDS: AppId[] = ['finder', 'terminal', 'notes', 'mail', 'settings', 'textedit', 'askai'];
 
-// Clamp a window size so it never overflows the viewport.
+// Clamp a window size so it fits the viewport (and never overflows it, even on
+// tiny screens where the requested width exceeds the usable space).
 const fitSize = (size: { width: number; height: number }) => {
   if (typeof window === 'undefined') return { ...size };
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const maxW = Math.max(260, vw - 32);
+  const maxH = Math.max(180, vh - 104);
+  const minW = Math.min(360, maxW);
+  const minH = Math.min(280, maxH);
   return {
-    width: Math.max(360, Math.min(size.width, window.innerWidth - 48)),
-    height: Math.max(200, Math.min(size.height, window.innerHeight - 120)),
+    width: Math.max(minW, Math.min(size.width, maxW)),
+    height: Math.max(minH, Math.min(size.height, maxH)),
   };
 };
 
-// Keep a restored window on screen.
+// Keep a window's position fully on screen (respecting the menu bar and dock).
 const clampPosition = (
   position: { x: number; y: number },
   size: { width: number; height: number }
 ) => {
   if (typeof window === 'undefined') return { ...position };
-  const maxX = Math.max(0, window.innerWidth - Math.min(size.width, window.innerWidth - 48) - 40);
-  const maxY = Math.max(28, window.innerHeight - Math.min(size.height, window.innerHeight - 120) - 40);
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const w = Math.min(size.width, vw - 32);
+  const h = Math.min(size.height, vh - 104);
+  const maxX = Math.max(0, vw - w - 32);
+  const maxY = Math.max(28, vh - h - 40);
   return {
-    x: Math.max(0, Math.min(position.x, maxX)),
+    x: Math.max(8, Math.min(position.x, maxX)),
     y: Math.max(28, Math.min(position.y, maxY)),
   };
 };
@@ -210,6 +224,28 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
     index: number;
   } | null>(null);
 
+  // Intro entrance: plays on every full page load (and boot replay), but never
+  // replays for window open/close since Desktop is not remounted for those.
+  const [introPlayed, setIntroPlayed] = useState(false);
+  const [introStage, setIntroStage] = useState<IntroStage>('pending');
+  useEffect(() => {
+    const enterTimer = window.setTimeout(() => setIntroStage('entering'), 30);
+    const doneTimer = window.setTimeout(() => {
+      setIntroPlayed(true);
+      setIntroStage('done');
+    }, 2100);
+    return () => {
+      window.clearTimeout(enterTimer);
+      window.clearTimeout(doneTimer);
+    };
+  }, []);
+
+  // Which Finder root the desktop folder icons should open (and a nonce so a
+  // repeated double-click on the same icon still re-mounts Finder at that root).
+  const [finderRoot, setFinderRoot] = useState<'projects' | 'research'>('projects');
+  const [finderFolderId, setFinderFolderId] = useState<string | null>(null);
+  const [finderRootNonce, setFinderRootNonce] = useState(0);
+
   // True while a MenuBar dropdown or modal is open so Escape/overlays behave
   const overlayOpenRef = useRef(false);
   useEffect(() => {
@@ -266,6 +302,38 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
     }
   }, [windows, restored]);
 
+  // Re-flow open windows whenever the viewport changes (rotate, split screen,
+  // resize the browser) so no window is ever clipped or stranded off-screen.
+  useEffect(() => {
+    let timer: number;
+    const onResize = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        setWindows((prev) =>
+          prev.map((w) => {
+            if (!w.isOpen) return w;
+            const size = fitSize(w.size);
+            const position = clampPosition(w.position, size);
+            if (
+              size.width === w.size.width &&
+              size.height === w.size.height &&
+              position.x === w.position.x &&
+              position.y === w.position.y
+            ) {
+              return w;
+            }
+            return { ...w, size, position };
+          })
+        );
+      }, 150);
+    };
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
   // Focus Window
   const handleFocusWindow = useCallback((id: AppId) => {
     setActiveAppId(id);
@@ -318,6 +386,18 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
 
     handleFocusWindow(id);
   }, [handleFocusWindow]);
+
+  // Open Finder at a specific root (Projects Directory or Research library),
+  // optionally deep-linking straight into one research topic folder.
+  const handleOpenFinderRoot = useCallback(
+    (root: 'projects' | 'research', folderId?: string | null) => {
+      setFinderRoot(root);
+      setFinderFolderId(folderId ?? null);
+      setFinderRootNonce((n) => n + 1);
+      handleOpenApp('finder');
+    },
+    [handleOpenApp]
+  );
 
   // Open File in Document Reader
   const handleOpenFile = useCallback((file: FileItem) => {
@@ -483,29 +563,46 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeAppId, isSpotlightOpen, handleCloseWindow, handleToggleMinimize, handleOpenApp]);
 
-  // Wallpaper CSS
-  const getWallpaperClass = (preset: WallpaperPreset) => {
-    switch (preset) {
-      case 'sonoma-purple':
-        return 'bg-gradient-to-br from-[#1e1b4b] via-[#3b0764] to-[#020617]';
-      case 'sequoia-dusk':
-        return 'bg-gradient-to-br from-[#0f172a] via-[#451a03] to-[#020617]';
-      case 'cyber-navy':
-        return 'bg-gradient-to-br from-[#0284c7] via-[#1e1b4b] to-[#020617]';
-      case 'glass-light':
-        return 'bg-gradient-to-br from-slate-200 via-purple-100 to-indigo-200';
-      default:
-        return 'bg-gradient-to-br from-[#1e1b4b] via-[#3b0764] to-[#020617]';
-    }
-  };
+  const wallpaperCfg = getWallpaperConfig(wallpaper);
 
   return (
     <div
       onClick={() => setSelectedIcon(null)}
-      className={`relative w-screen h-screen overflow-hidden select-none font-sans transition-all duration-500 ${labelTextClass} ${getWallpaperClass(
-        wallpaper
-      )}`}
+      className={`relative w-screen h-screen overflow-hidden select-none font-sans transition-all duration-500 ${labelTextClass} bg-slate-950`}
     >
+      {/* Wallpaper Layer (image or gradient) + legibility scrim */}
+      <motion.div
+        initial={introPlayed ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.9, ease: 'easeOut' }}
+        className="absolute inset-0 overflow-hidden"
+      >
+        {wallpaperCfg.type === 'image' && wallpaperCfg.imagePath ? (
+          <>
+            <Image
+              src={wallpaperCfg.imagePath}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+            {wallpaperCfg.scrim && (
+              <div className={`absolute inset-0 ${wallpaperCfg.scrim}`} />
+            )}
+          </>
+        ) : (
+          <>
+            <div className={`absolute inset-0 bg-gradient-to-br ${wallpaperCfg.gradient}`} />
+            {!isLightWallpaper && (
+              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/10" />
+            )}
+          </>
+        )}
+      </motion.div>
+
+      {/* Intro Overlay (name + cycling role taglines) */}
+      <DesktopIntro stage={introStage} playEntrance={!introPlayed} />
       {/* Lock Screen Overlay */}
       {isLocked && (
         <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-3xl text-white flex flex-col items-center justify-center p-4 animate-in fade-in duration-200">
@@ -534,11 +631,20 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
       <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Top MenuBar */}
-      <MenuBar
-        windows={windows}
-        activeAppId={activeAppId}
-        onOpenApp={handleOpenApp}
-        onOpenFile={handleOpenFile}
+      <motion.div
+        initial={introPlayed ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={
+          introPlayed
+            ? { duration: 0.3 }
+            : { duration: 0.6, ease: 'easeOut', delay: 1.5 }
+        }
+      >
+        <MenuBar
+          windows={windows}
+          activeAppId={activeAppId}
+          onOpenApp={handleOpenApp}
+          onOpenFile={handleOpenFile}
         onOpenSpotlight={() => setIsSpotlightOpen(true)}
         onTriggerBoot={() => onTriggerBoot?.()}
         onCloseWindow={handleCloseWindow}
@@ -548,31 +654,38 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
           setWindows((prev) => prev.map((w) => ({ ...w, isOpen: false })));
           setActiveAppId(null);
         }}
-      />
+        />
+      </motion.div>
 
-      {/* Desktop Icons (Top Left) */}
-      <div className="absolute top-12 left-6 flex flex-col items-center gap-6 z-10">
-        {/* Resume Icon */}
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            setSelectedIcon('resume');
-          }}
-          onDoubleClick={() => handleOpenFile(DESKTOP_FILES[0])}
-          className={`flex flex-col items-center gap-1.5 cursor-pointer group transition-transform hover:scale-105 ${
-            selectedIcon === 'resume' ? 'opacity-100 ring-2 ring-accent-400 rounded-2xl p-1' : ''
-          }`}
-        >
-          <div className={`${iconBoxSize} ${iconTileClass} flex items-center justify-center shadow-lg relative overflow-hidden group-hover:bg-white/20 transition-all`}>
-            <FileText className={`${iconInnerSize} text-blue-400`} />
-            <span className="absolute top-0.5 right-0.5 bg-blue-500/80 text-white text-[7px] font-bold px-1 rounded">
-              PDF
+      {/* Desktop Icons (Top-Left Grid) — bounded reserved region: icons stack
+          downward and wrap into a new column once the region fills, so they can
+          never expand into the centered intro zone regardless of how many are
+          added later. */}
+      <div className="absolute top-12 left-6 bottom-88 z-10 flex flex-col flex-wrap content-start items-start gap-6 overflow-hidden">
+        {/* Desktop Documents — every PDF from /content/documents becomes an icon */}
+        {DESKTOP_FILES.map((file) => (
+          <div
+            key={file.id}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedIcon(file.id);
+            }}
+            onDoubleClick={() => handleOpenFile(file)}
+            className={`flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group transition-transform hover:scale-105 ${
+              selectedIcon === file.id ? 'opacity-100 ring-2 ring-accent-400 rounded-2xl p-1' : ''
+            }`}
+          >
+            <div className={`${iconBoxSize} ${iconTileClass} flex items-center justify-center shadow-lg relative overflow-hidden group-hover:bg-white/20 transition-all`}>
+              <FileText className={`${iconInnerSize} text-blue-400`} />
+              <span className="absolute top-0.5 right-0.5 bg-blue-500/80 text-white text-[7px] font-bold px-1 rounded">
+                PDF
+              </span>
+            </div>
+            <span className={`text-[11px] font-medium ${labelTextClass} drop-shadow-md max-w-[110px] text-center truncate`}>
+              {file.name.replace(/\.pdf$/i, '')}
             </span>
           </div>
-          <span className={`text-[11px] font-medium ${labelTextClass} drop-shadow-md`}>
-            Resume.pdf
-          </span>
-        </div>
+        ))}
 
         {/* Research / About Icon */}
         <div
@@ -580,8 +693,8 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
             e.stopPropagation();
             setSelectedIcon('about');
           }}
-          onDoubleClick={() => handleOpenApp('notes')}
-          className={`flex flex-col items-center gap-1.5 cursor-pointer group transition-transform hover:scale-105 ${
+          onDoubleClick={() => handleOpenFinderRoot('research')}
+          className={`flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group transition-transform hover:scale-105 ${
             selectedIcon === 'about' ? 'opacity-100 ring-2 ring-accent-400 rounded-2xl p-1' : ''
           }`}
         >
@@ -593,14 +706,36 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
           </span>
         </div>
 
+        {/* Research Topics — one folder icon per topic from /content/research */}
+        {RESEARCH_FS.map((topic) => (
+          <div
+            key={topic.id}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedIcon(topic.id);
+            }}
+            onDoubleClick={() => handleOpenFinderRoot('research', topic.id)}
+            className={`flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group transition-transform hover:scale-105 ${
+              selectedIcon === topic.id ? 'opacity-100 ring-2 ring-accent-400 rounded-2xl p-1' : ''
+            }`}
+          >
+            <div className={`${iconBoxSize} ${iconTileClass} flex items-center justify-center shadow-lg group-hover:bg-white/20 transition-all`}>
+              <Folder className={`${iconInnerSize} text-fuchsia-400 fill-fuchsia-400/20`} />
+            </div>
+            <span className={`text-[11px] font-medium ${labelTextClass} drop-shadow-md max-w-[110px] text-center truncate`}>
+              {topic.name}
+            </span>
+          </div>
+        ))}
+
         {/* Projects Folder Icon */}
         <div
           onClick={(e) => {
             e.stopPropagation();
             setSelectedIcon('projects');
           }}
-          onDoubleClick={() => handleOpenApp('finder')}
-          className={`flex flex-col items-center gap-1.5 cursor-pointer group transition-transform hover:scale-105 ${
+          onDoubleClick={() => handleOpenFinderRoot('projects')}
+          className={`flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group transition-transform hover:scale-105 ${
             selectedIcon === 'projects' ? 'opacity-100 ring-2 ring-accent-400 rounded-2xl p-1' : ''
           }`}
         >
@@ -633,6 +768,9 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
               >
                 {win.id === 'finder' && (
                   <FinderApp
+                    key={finderRootNonce}
+                    initialRoot={finderRoot}
+                    initialFolderId={finderFolderId}
                     onOpenFile={handleOpenFile}
                     onQuickLook={(images, index) => setQuickLook({ images, index })}
                   />
@@ -657,12 +795,22 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
         })}
       </div>
       {/* Bottom Dock */}
-      <Dock
-        windows={windows}
-        activeAppId={activeAppId}
-        onOpenApp={handleOpenApp}
-        onToggleMinimize={handleToggleMinimize}
-      />
+      <motion.div
+        initial={introPlayed ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={
+          introPlayed
+            ? { duration: 0.3 }
+            : { duration: 0.6, ease: 'easeOut', delay: 1.5 }
+        }
+      >
+        <Dock
+          windows={windows}
+          activeAppId={activeAppId}
+          onOpenApp={handleOpenApp}
+          onToggleMinimize={handleToggleMinimize}
+        />
+      </motion.div>
 
       {/* Floating "Ask Ultron" Button */}
       <button

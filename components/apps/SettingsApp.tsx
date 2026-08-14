@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/components/context/ThemeContext';
-import { WallpaperPreset, AccentColor } from '@/types/mac';
+import { AccentColor } from '@/types/mac';
+import { WALLPAPERS } from '@/lib/wallpapers';
 import { PORTFOLIO_INFO } from '@/lib/data';
 import {
   Sun,
@@ -51,32 +52,9 @@ export function SettingsApp() {
   } = useTheme();
 
   const sidebarWidthClass =
-    sidebarWidth === 'compact' ? 'w-44' : sidebarWidth === 'wide' ? 'w-60' : 'w-52';
+    sidebarWidth === 'compact' ? 'w-48' : sidebarWidth === 'wide' ? 'w-72' : 'w-64';
   const sidebarIconClass =
     sidebarIconSize === 'small' ? 'w-3.5 h-3.5' : sidebarIconSize === 'large' ? 'w-5 h-5' : 'w-4 h-4';
-
-  const wallpapersList: { id: WallpaperPreset; title: string; gradient: string }[] = [
-    {
-      id: 'sonoma-purple',
-      title: 'Sonoma Purple',
-      gradient: 'from-slate-950 via-purple-950 to-indigo-950',
-    },
-    {
-      id: 'sequoia-dusk',
-      title: 'Sequoia Dusk',
-      gradient: 'from-slate-950 via-amber-950 to-indigo-950',
-    },
-    {
-      id: 'cyber-navy',
-      title: 'Cyber Deep Navy',
-      gradient: 'from-slate-950 via-cyan-950 to-blue-950',
-    },
-    {
-      id: 'glass-light',
-      title: 'macOS Light Glass',
-      gradient: 'from-slate-100 via-sky-100 to-indigo-100',
-    },
-  ];
 
   const accentsList: { id: AccentColor; name: string; bg: string }[] = [
     { id: 'blue', name: 'System Blue', bg: 'bg-blue-500' },
@@ -271,7 +249,7 @@ export function SettingsApp() {
                 Choose a dynamic gradient theme for your desktop workspace.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {wallpapersList.map((wp) => (
+                {WALLPAPERS.map((wp) => (
                   <button
                     key={wp.id}
                     onClick={() => setWallpaper(wp.id)}
@@ -281,7 +259,22 @@ export function SettingsApp() {
                         : 'border-slate-200 dark:border-slate-800 hover:border-slate-400'
                     }`}
                   >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${wp.gradient}`} />
+                    {wp.type === 'image' && wp.imagePath ? (
+                      <>
+                        <Image
+                          src={wp.imagePath}
+                          alt={wp.title}
+                          fill
+                          sizes="(max-width: 1024px) 50vw, 25vw"
+                          className="object-cover"
+                        />
+                        {wp.scrim && (
+                          <div className={`absolute inset-0 ${wp.scrim}`} />
+                        )}
+                      </>
+                    ) : (
+                      <div className={`absolute inset-0 bg-gradient-to-br ${wp.gradient}`} />
+                    )}
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-end p-2.5">
                       <span className="text-xs font-semibold text-white drop-shadow">
                         {wp.title}

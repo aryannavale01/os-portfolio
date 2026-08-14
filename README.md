@@ -1,20 +1,78 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# macOS AI Developer Portfolio
 
-# Run and deploy your AI Studio app
-
-This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/793d284f-d027-40b6-b970-38a5724f7134
+An interactive macOS desktop simulation portfolio — draggable windows, a dock,
+Spotlight, and a fully working **Finder** that is driven entirely by folders on
+disk. Built with Next.js, React, TypeScript, Tailwind CSS, and Framer Motion.
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+**Prerequisites:** Node.js
 
+```bash
+npm install
+npm run dev        # development server (regenerates project content first)
+npm run build      # production build (also regenerates content)
+npm run start      # serve the standalone production build
+npm run lint       # eslint
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+`npm run dev` and `npm run build` both run the project-content generator first
+(`predev`/`prebuild` hooks in `package.json`).
+
+## Filesystem-Driven Projects
+
+Projects are defined entirely by folders under [`content/projects/`](./content/projects):
+
+- Each folder's name is the project's slug.
+- `data.json` holds structured metadata, validated against a Zod schema
+  ([`content/schema.ts`](./content/schema.ts)).
+- `README.md` is the long-form case study, rendered in the Document Reader.
+- `NN-*.png|jpg|jpeg` images feed the sliding gallery (numeric prefixes control order).
+- `*.pdf` files open as downloadable case studies in Preview.
+
+**Adding a project requires zero code changes** — create one folder and re-run
+`npm run dev` or `npm run build`. The generator scans, validates, copies images/PDFs
+to `public/projects/<slug>/`, and emits `lib/projects.generated.ts`.
+
+Read **[`content/projects/README.md`](./content/projects/README.md)** for the full
+folder structure, schema table, and conventions.
+
+## Filesystem-Driven Documents (CV, Resume, Cover Letter)
+
+Documents shown on the desktop (and in Finder's Documents sidebar / the Document
+Reader / Preview) are also filesystem-driven — **no HTML-crafted PDFs**. Drop a
+real PDF into a folder under [`content/documents/`](./content/documents) and it
+appears on the desktop on the next `npm run dev`:
+
+- Each folder's name is the document's slug.
+- The first `*.pdf` inside becomes the document; the PDF filename is the label.
+- `scripts/generate-documents.ts` copies the PDF to `/public/documents/<slug>/`
+  and emits `lib/documents.generated.ts` (both gitignored).
+
+**You supply the PDFs** — the generator never creates placeholder files. Folders
+without a PDF are simply skipped. See
+**[`content/documents/README.md`](./content/documents/README.md)**.
+
+## Filesystem-Driven Research Library
+
+The **Research** folder on the desktop opens Finder at a research library driven
+entirely by [`content/research/`](./content/research):
+
+- Each folder's name becomes a research topic (kebab-case → Title Case).
+- `README.md` holds the notes; its first paragraph is the topic description.
+- Optional `*.pdf` files open in Preview; optional images feed the gallery.
+- `scripts/generate-research.ts` copies assets to `/public/research/<slug>/` and
+  emits `lib/research.generated.ts` (gitignored).
+
+Research topics also appear in Finder's Research Library favorite and the
+Document Reader. See
+**[`content/research/README.md`](./content/research/README.md)**.
+
+## Tech Stack
+
+- **Next.js 15** (App Router, `output: 'standalone'`)
+- **React 19**, TypeScript (strict)
+- **Tailwind CSS 4** + `@tailwindcss/typography`
+- **Framer Motion** (`motion`) for window/overlay/gallery animations
+- **Zod** for build-time data validation
+- **react-markdown** for README rendering

@@ -10,6 +10,5 @@ export default defineConfig([{
     extends: [...next],
     ignores: [
         "lib/projects.generated.ts",
-        "scripts/migration.mjs",
     ],
 }]);

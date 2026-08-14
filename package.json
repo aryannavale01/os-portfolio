@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "tsx scripts/generate-projects.ts",
-    "prebuild": "tsx scripts/generate-projects.ts",
+    "predev": "tsx scripts/generate-documents.ts && tsx scripts/generate-research.ts && tsx scripts/generate-projects.ts",
+    "prebuild": "tsx scripts/generate-documents.ts && tsx scripts/generate-research.ts && tsx scripts/generate-projects.ts",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "prestart": "node scripts/copy-standalone-assets.mjs",
+    "start": "node .next/standalone/server.js",
     "lint": "eslint .",
     "clean": "next clean"
   },

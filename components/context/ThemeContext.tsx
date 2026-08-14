@@ -32,9 +32,15 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'macos_portfolio_settings_v1';
 
+// Bump when stored payload shape changes. v1 payloads persisted the old
+// 'sonoma-purple' default as a real value, so on first v2 load we drop the
+// wallpaper field (falls back to the new 'workstation' default) while keeping
+// every other preference intact.
+const SETTINGS_SCHEMA_VERSION = 2;
+
 const DEFAULT_VALUES = {
   theme: 'dark' as ThemeMode,
-  wallpaper: 'sonoma-purple' as WallpaperPreset,
+  wallpaper: 'workstation' as WallpaperPreset,
   accentColor: 'blue' as AccentColor,
   isLocked: false as boolean,
   soundEnabled: true as boolean,
@@ -44,13 +50,23 @@ const DEFAULT_VALUES = {
   sidebarWidth: 'standard' as SidebarWidth,
 };
 
-function loadSettings(): Partial<typeof DEFAULT_VALUES> {
+type PersistedSettings = Partial<typeof DEFAULT_VALUES> & { __v?: number };
+
+function loadSettings(): PersistedSettings {
   if (typeof window === 'undefined') return {};
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object') return parsed as Partial<typeof DEFAULT_VALUES>;
+    if (parsed && typeof parsed === 'object') {
+      const settings = parsed as PersistedSettings;
+      if (settings.__v !== SETTINGS_SCHEMA_VERSION) {
+        // Legacy (v1) payload — reset the wallpaper to the new default but
+        // preserve the user's other preferences.
+        delete (settings as { wallpaper?: unknown }).wallpaper;
+      }
+      return settings;
+    }
     return {};
   } catch (err) {
     console.error('Failed to load appearance settings:', err);
@@ -111,6 +127,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
+          __v: SETTINGS_SCHEMA_VERSION,
           theme,
           wallpaper,
           accentColor,

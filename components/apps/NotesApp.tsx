@@ -100,7 +100,11 @@ export function NotesApp() {
 
   // Responsive Sidebar Classes
   const sidebarWidthClass =
-    sidebarWidth === 'compact' ? 'w-44' : sidebarWidth === 'wide' ? 'w-60' : 'w-52';
+    sidebarWidth === 'compact'
+      ? 'w-40 md:w-48'
+      : sidebarWidth === 'wide'
+        ? 'w-40 md:w-72'
+        : 'w-40 md:w-64';
 
   const iconSizeClass =
     sidebarIconSize === 'small' ? 'w-3.5 h-3.5' : sidebarIconSize === 'large' ? 'w-5 h-5' : 'w-4 h-4';
@@ -519,8 +523,8 @@ export function NotesApp() {
         </div>
       )}
 
-      {/* COLUMN 2: Note List */}
-      <div className="w-48 sm:w-56 border-r border-amber-200/50 dark:border-slate-800 bg-amber-100/20 dark:bg-slate-950/40 p-2.5 flex flex-col gap-2 shrink-0 overflow-hidden min-w-0">
+      {/* COLUMN 2: Note List (hidden on mobile so the editor gets full width) */}
+      <div className="hidden md:flex w-48 sm:w-56 border-r border-amber-200/50 dark:border-slate-800 bg-amber-100/20 dark:bg-slate-950/40 p-2.5 flex flex-col gap-2 shrink-0 overflow-hidden min-w-0">
         {/* Search Header */}
         <div className="flex items-center gap-1.5">
           <div className="relative flex-1">
