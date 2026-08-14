@@ -1,0 +1,22 @@
+{
+  "title": "NGO ERP System",
+  "category": "fullstack",
+  "techStack": [
+    "Next.js 15",
+    "Prisma",
+    "Supabase",
+    "Better Auth",
+    "PostgreSQL",
+    "Tailwind CSS"
+  ],
+  "githubUrl": "https://github.com/aryannavale01",
+  "liveUrl": null,
+  "highlights": [
+    "3 languages supported (EN/HI/MR)",
+    "Real-world NGO deployment"
+  ],
+  "shortDesc": "Full-stack ERP for Rupasri Mahila Vikas Sanstha with trilingual (Hindi, English, Marathi) support.",
+  "fullDesc": "A production-grade management system built for Rupasri Mahila Vikas Sanstha, a rural NGO. Handles member records, transactions, and reporting with role-based access via Better Auth, a Postgres/Supabase data layer with Prisma, and a responsive Next.js 15 dashboard that works in three languages.",
+  "date": "2026-04",
+  "featured": true
+}

@@ -1,0 +1,21 @@
+{
+  "title": "Real-Time Emergency Response System",
+  "category": "fullstack",
+  "techStack": [
+    "JavaScript",
+    "Firebase Realtime DB",
+    "Cloud Sync",
+    "Dashboard"
+  ],
+  "githubUrl": "https://github.com/aryannavale01",
+  "liveUrl": null,
+  "highlights": [
+    "Sub-200ms notification latency",
+    "99.9% uptime across 5+ hospital units",
+    "Zero data loss during network degradation"
+  ],
+  "shortDesc": "Hospital alert platform with sub-200ms notification latency across 5+ units.",
+  "fullDesc": "An end-to-end hospital alert platform using a dual-sync Firebase + local DB architecture. Live data streams synchronize between cloud and local databases in real time with zero data loss during network degradation, backed by a centralized dashboard for live resource tracking and emergency response allocation.",
+  "date": "2026-01",
+  "featured": true
+}

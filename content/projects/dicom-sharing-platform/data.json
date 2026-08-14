@@ -1,0 +1,21 @@
+{
+  "title": "Multi-Hospital DICOM Sharing Platform",
+  "category": "fullstack",
+  "techStack": [
+    "React.js",
+    "Firebase",
+    "MySQL",
+    "DICOM"
+  ],
+  "githubUrl": "https://github.com/aryannavale01",
+  "liveUrl": null,
+  "highlights": [
+    "Real-time DICOM sync across 5+ hospital nodes",
+    "35% lower image retrieval latency (O(log n) lookups)",
+    "HIPAA-aware security"
+  ],
+  "shortDesc": "HIPAA-aware healthcare platform for real-time DICOM image sync across hospitals.",
+  "fullDesc": "A secure, HIPAA-aware healthcare platform enabling real-time DICOM medical image synchronization across 5+ simulated hospital nodes, replacing manual USB/email transfers. Structured metadata indexing cut medical image retrieval latency by 35% and workflow digitization eliminated cross-departmental file transfer bottlenecks.",
+  "date": "2025-11",
+  "featured": true
+}

@@ -7,6 +7,7 @@ import { MenuBar } from '@/components/MenuBar';
 import { Dock } from '@/components/Dock';
 import { Window } from '@/components/Window';
 import { Spotlight } from '@/components/Spotlight';
+import { QuickLook } from '@/components/QuickLook';
 import { FinderApp } from '@/components/apps/FinderApp';
 import { TerminalApp } from '@/components/apps/TerminalApp';
 import { NotesApp } from '@/components/apps/NotesApp';
@@ -204,6 +205,10 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
   const [activeAppId, setActiveAppId] = useState<AppId | null>('notes');
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [isSpotlightOpen, setIsSpotlightOpen] = useState<boolean>(false);
+  const [quickLook, setQuickLook] = useState<{
+    images: FileItem[];
+    index: number;
+  } | null>(null);
 
   // True while a MenuBar dropdown or modal is open so Escape/overlays behave
   const overlayOpenRef = useRef(false);
@@ -629,6 +634,7 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
                 {win.id === 'finder' && (
                   <FinderApp
                     onOpenFile={handleOpenFile}
+                    onQuickLook={(images, index) => setQuickLook({ images, index })}
                   />
                 )}
                 {win.id === 'terminal' && <TerminalApp />}
@@ -681,6 +687,15 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
         onClose={() => setIsSpotlightOpen(false)}
         onOpenApp={handleOpenApp}
       />
+
+      {/* Quick Look Image Viewer */}
+      {quickLook && (
+        <QuickLook
+          images={quickLook.images}
+          initialIndex={quickLook.index}
+          onClose={() => setQuickLook(null)}
+        />
+      )}
     </div>
   );
 }

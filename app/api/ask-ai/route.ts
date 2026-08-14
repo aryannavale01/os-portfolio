@@ -3,11 +3,11 @@ import { NextRequest } from 'next/server';
 import {
   ARYAN_PROFILE,
   SKILLS_CATEGORIZED,
-  PROJECTS_DATA,
   EDUCATION,
   COURSEWORK,
   ACHIEVEMENTS,
 } from '@/content/aryan';
+import { PROJECTS_DATA } from '@/lib/data';
 
 export const runtime = 'nodejs';
 

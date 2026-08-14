@@ -6,6 +6,7 @@ import { FileItem } from '@/types/mac';
 import { DESKTOP_FILES, PROJECTS_FS } from '@/lib/projectsFS';
 import { MarkdownViewer } from '@/components/common/MarkdownViewer';
 import { PDFViewer } from '@/components/common/PDFViewer';
+import { RealPdfViewer } from '@/components/common/RealPdfViewer';
 import { useTheme } from '@/components/context/ThemeContext';
 import {
   BookOpen,
@@ -58,6 +59,9 @@ export function TextEditApp({ fileData }: TextEditAppProps) {
 
   const renderDocument = (file: FileItem) => {
     if (file.type === 'pdf') {
+      if (file.pdfUrl) {
+        return <RealPdfViewer url={file.pdfUrl} title={file.name} size={file.size} />;
+      }
       return <PDFViewer pdfData={file.pdfData} title={file.name} />;
     }
     if (file.type === 'md') {

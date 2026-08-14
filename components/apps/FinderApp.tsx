@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { FileItem } from '@/types/mac';
 import { PROJECT_CATEGORIES, PROJECTS_FS, DESKTOP_FILES } from '@/lib/projectsFS';
 import { getFileTypeLabel } from '@/lib/fileAssociations';
+import { ProjectGallery } from '@/components/ProjectGallery';
 import { useTheme } from '@/components/context/ThemeContext';
 import {
   Folder,
@@ -22,12 +23,24 @@ import {
   Layers,
   X,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+
+// Category icons are looked up by the iconName stored in content/schema.ts so
+// the sidebar never hardcodes an icon per category id.
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  Folder,
+  Database,
+  Bot,
+  Cpu,
+  Layers,
+};
 
 interface FinderAppProps {
   onOpenFile?: (file: FileItem) => void;
+  onQuickLook?: (images: FileItem[], index: number) => void;
 }
 
-export function FinderApp({ onOpenFile }: FinderAppProps) {
+export function FinderApp({ onOpenFile, onQuickLook }: FinderAppProps) {
   const { sidebarWidth, sidebarIconSize } = useTheme();
 
   // Navigation State
@@ -74,15 +87,23 @@ export function FinderApp({ onOpenFile }: FinderAppProps) {
     });
   }, [selectedCategory, searchQuery]);
 
-  // Files inside current folder (if inside a project folder)
+  // Files inside current folder (if inside a project folder). Images are shown
+  // through the gallery carousel above, so they are excluded from the flat list.
   const currentFolderFiles = useMemo(() => {
     if (!activeFolder) return [];
-    if (!searchQuery.trim()) return activeFolder.files;
+    const list = activeFolder.files.filter((f) => !f.imageUrl);
+    if (!searchQuery.trim()) return list;
     const q = searchQuery.toLowerCase();
-    return activeFolder.files.filter(
+    return list.filter(
       (f) => f.name.toLowerCase().includes(q) || f.type.toLowerCase().includes(q)
     );
   }, [activeFolder, searchQuery]);
+
+  // Sorted gallery images for the current project folder
+  const folderImages = useMemo(() => {
+    if (!activeFolder) return [];
+    return activeFolder.files.filter((f) => !!f.imageUrl);
+  }, [activeFolder]);
 
   // All PDF documents across the desktop and every project
   const allDocuments = useMemo(() => {
@@ -183,17 +204,12 @@ export function FinderApp({ onOpenFile }: FinderAppProps) {
                     }`}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      {cat.id === 'ai-rag' ? (
-                        <Database className={`${sidebarIconClass} text-blue-500 shrink-0`} />
-                      ) : cat.id === 'agents' ? (
-                        <Bot className={`${sidebarIconClass} text-purple-500 shrink-0`} />
-                      ) : cat.id === 'vision-ml' ? (
-                        <Cpu className={`${sidebarIconClass} text-emerald-500 shrink-0`} />
-                      ) : cat.id === 'fullstack' ? (
-                        <Layers className={`${sidebarIconClass} text-amber-500 shrink-0`} />
-                      ) : (
-                        <Folder className={`${sidebarIconClass} text-slate-400 shrink-0`} />
-                      )}
+                      {(() => {
+                        const Icon = CATEGORY_ICONS[cat.iconName] ?? Folder;
+                        return (
+                          <Icon className={`${sidebarIconClass} ${cat.accentClass} shrink-0`} />
+                        );
+                      })()}
                       <span className="truncate">{cat.label}</span>
                     </div>
                   </button>
@@ -439,6 +455,14 @@ export function FinderApp({ onOpenFile }: FinderAppProps) {
                   </button>
                 </div>
               </div>
+
+              {/* Sliding Image Gallery */}
+              {folderImages.length > 0 && (
+                <ProjectGallery
+                  images={folderImages}
+                  onOpenImage={(index) => onQuickLook?.(folderImages, index)}
+                />
+              )}
 
               {/* Files Grid or List */}
               {viewMode === 'grid' ? (

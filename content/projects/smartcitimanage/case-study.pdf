@@ -1,0 +1,141 @@
+%PDF-1.4
+1 0 obj
+<</Type/Catalog/Pages 2 0 R>>
+endobj
+2 0 obj
+<</Type/Pages/Kids[3 0 R 4 0 R]/Count 2>>
+endobj
+3 0 obj
+<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Resources<</Font<</F1 7 0 R>>>>/Contents 5 0 R>>
+endobj
+4 0 obj
+<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Resources<</Font<</F1 7 0 R>>>>/Contents 6 0 R>>
+endobj
+5 0 obj
+<</Length 846>>
+stream
+BT
+/F1 10 Tf
+50 730 Td
+14 TL
+(CASE STUDY) Tj
+T*
+(SMARTCITIMANAGE) Tj
+T*
+() Tj
+T*
+(--------------------------------------------------) Tj
+T*
+(Final-year multi-agent AI system combining RAG, IoT and Digital Twin technology for smart) Tj
+T*
+(cities.) Tj
+T*
+(Category: agents) Tj
+T*
+(Tech: RAG, IoT, Digital Twin, LangChain, AI Agents, Python) Tj
+T*
+() Tj
+T*
+(--------------------------------------------------) Tj
+T*
+() Tj
+T*
+(SYSTEM OVERVIEW) Tj
+T*
+(--------------------------------------------------) Tj
+T*
+() Tj
+T*
+(FUSING RAG, IOT & DIGITAL TWINS) Tj
+T*
+(IoT sensors stream live data while RAG grounds the AI agents in domain knowledge. A) Tj
+T*
+(Digital Twin visualizes the physical environment in real time.) Tj
+T*
+(* Agents: Multi-Agent) Tj
+T*
+(* Data: IoT Streams) Tj
+T*
+(* Model: Digital Twin) Tj
+T*
+() Tj
+T*
+(--- Page 1 of 2 ---) Tj
+T*
+ET
+
+endstream
+endobj
+6 0 obj
+<</Length 912>>
+stream
+BT
+/F1 10 Tf
+50 730 Td
+14 TL
+(CASE STUDY) Tj
+T*
+(SMARTCITIMANAGE) Tj
+T*
+() Tj
+T*
+(--------------------------------------------------) Tj
+T*
+(Final-year multi-agent AI system combining RAG, IoT and Digital Twin technology for smart) Tj
+T*
+(cities.) Tj
+T*
+(Category: agents) Tj
+T*
+(Tech: RAG, IoT, Digital Twin, LangChain, AI Agents, Python) Tj
+T*
+() Tj
+T*
+(--------------------------------------------------) Tj
+T*
+() Tj
+T*
+(AGENT ORCHESTRATION) Tj
+T*
+(--------------------------------------------------) Tj
+T*
+() Tj
+T*
+(SPECIALIZED AGENT ROLES) Tj
+T*
+(Each agent handles a domain monitoring, analysis, and recommendations coordinated to give) Tj
+T*
+(operators actionable insights.) Tj
+T*
+(- RAG-grounded knowledge retrieval for reliable answers.) Tj
+T*
+(- IoT anomaly detection across infrastructure.) Tj
+T*
+(- Digital Twin visualization for situational awareness.) Tj
+T*
+() Tj
+T*
+(--- Page 2 of 2 ---) Tj
+T*
+ET
+
+endstream
+endobj
+7 0 obj
+<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000054 00000 n 
+0000000111 00000 n 
+0000000223 00000 n 
+0000000335 00000 n 
+0000001230 00000 n 
+0000002191 00000 n 
+trailer
+<</Size 8/Root 1 0 R>>
+startxref
+2254
+%%EOF

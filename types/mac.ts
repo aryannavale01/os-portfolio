@@ -1,3 +1,5 @@
+import type { ProjectCategoryId } from '@/content/schema';
+
 export type AppId = 'finder' | 'terminal' | 'notes' | 'mail' | 'settings' | 'textedit' | 'askai';
 
 export type FileType = 'pdf' | 'png' | 'jpg' | 'md' | 'folder';
@@ -32,18 +34,25 @@ export interface FileItem {
   modifiedDate: string;
   content?: string; // Markdown text
   imageUrl?: string; // Image path or SVG data URL
-  pdfData?: PDFDocumentData;
+  pdfData?: PDFDocumentData; // Styled synthetic PDF document
+  pdfUrl?: string; // Path to a real PDF file served from /public
   parentFolderId?: string;
 }
 
 export interface ProjectFolder {
   id: string;
   name: string;
-  category: 'ai-rag' | 'agents' | 'vision-ml' | 'fullstack';
+  category: ProjectCategoryId;
   categoryLabel: string;
   icon: string;
   date: string;
   shortDesc: string;
+  fullDesc: string;
+  techStack: string[];
+  highlights: string[];
+  githubUrl: string | null;
+  liveUrl: string | null;
+  featured: boolean;
   files: FileItem[];
 }
 
@@ -69,7 +78,7 @@ export interface WindowState {
 export interface ProjectItem {
   id: string;
   title: string;
-  category: 'ai-rag' | 'agents' | 'vision-ml' | 'fullstack';
+  category: ProjectCategoryId;
   shortDesc: string;
   fullDesc: string;
   techStack: string[];

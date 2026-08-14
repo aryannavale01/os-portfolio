@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useTheme } from '@/components/context/ThemeContext';
 import { PORTFOLIO_INFO, SKILLS_CATEGORIZED, RESUME_PROJECTS, EDUCATION, COURSEWORK, ACHIEVEMENTS } from '@/lib/data';
 import { PDFViewer } from '@/components/common/PDFViewer';
+import { RealPdfViewer } from '@/components/common/RealPdfViewer';
 import { FileItem } from '@/types/mac';
 import {
   FileText,
@@ -317,6 +318,9 @@ export function ResumeApp({
   // When a specific PDF file was opened from the file system, render its real
   // content. The built-in styled document is kept for the resume itself.
   const isBuiltinResume = !fileData || fileData.id === 'desktop-resume-pdf';
+  if (fileData?.pdfUrl) {
+    return <RealPdfViewer url={fileData.pdfUrl} title={fileData.name} size={fileData.size} />;
+  }
   if (fileData?.pdfData && !isBuiltinResume) {
     return <PDFViewer pdfData={fileData.pdfData} title={fileData.name} />;
   }

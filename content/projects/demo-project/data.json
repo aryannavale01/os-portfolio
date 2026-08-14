@@ -1,0 +1,21 @@
+{
+  "title": "Demo Project — Web OS Showcase",
+  "category": "fullstack",
+  "techStack": [
+    "Next.js",
+    "TypeScript",
+    "Tailwind CSS",
+    "Framer Motion"
+  ],
+  "githubUrl": "https://github.com/aryannavale01",
+  "liveUrl": null,
+  "highlights": [
+    "Zero-code project onboarding from a single folder",
+    "Verifies gallery ordering, README rendering & PDF preview",
+    "Ships a real case-study.pdf opened via native Preview"
+  ],
+  "shortDesc": "A test project validating the filesystem-driven content pipeline.",
+  "fullDesc": "A throwaway project folder used to prove the core promise of this portfolio: adding a project requires zero code changes — just drop a folder with data.json, a README, and optional images + a case-study PDF. This project exercises gallery ordering (numeric prefixes), README rendering, and real-PDF preview in one shot.",
+  "date": "2026-08",
+  "featured": false
+}

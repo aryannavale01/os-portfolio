@@ -1,4 +1,4 @@
-import { NoteItem, ProjectItem } from '@/types/mac';
+import { NoteItem } from '@/types/mac';
 
 // Email is assembled from parts so a naive source/bundle scrape of the repo
 // does not pick up a contiguous address string (the UI still renders it whole).
@@ -99,100 +99,9 @@ export const RESUME_PROJECT_IDS = [
   'dicom-sharing-platform',
 ];
 
-export const PROJECTS_DATA: ProjectItem[] = [
-  {
-    id: 'intelligent-ai-assistant',
-    title: 'Intelligent AI Assistant',
-    category: 'agents',
-    shortDesc: 'Autonomous assistant using LLM function calling to automate 10+ daily tasks.',
-    fullDesc:
-      'An autonomous digital assistant orchestrated with complex LLM function calling that automates daily workflows — email synthesis, calendar management, and system-level control. Re-architected synchronous prompt chains into parallel async retrieval pipelines for faster responses, and integrated Google Vision API for multi-modal input.',
-    techStack: ['Python', 'LLM APIs', 'AI Agents', 'Function Calling', 'Google Vision API'],
-    metrics: [
-      'Automates 10+ daily tasks, 60% less manual effort',
-      'API response time reduced 25% (1.8s → 1.35s)',
-      '98% accuracy in visual data interpretation',
-    ],
-    githubUrl: 'https://github.com/aryannavale01',
-    featured: true,
-    date: '2026-03',
-  },
-  {
-    id: 'emergency-response-system',
-    title: 'Real-Time Emergency Response System',
-    category: 'fullstack',
-    shortDesc: 'Hospital alert platform with sub-200ms notification latency across 5+ units.',
-    fullDesc:
-      'An end-to-end hospital alert platform using a dual-sync Firebase + local DB architecture. Live data streams synchronize between cloud and local databases in real time with zero data loss during network degradation, backed by a centralized dashboard for live resource tracking and emergency response allocation.',
-    techStack: ['JavaScript', 'Firebase Realtime DB', 'Cloud Sync', 'Dashboard'],
-    metrics: [
-      'Sub-200ms notification latency',
-      '99.9% uptime across 5+ hospital units',
-      'Zero data loss during network degradation',
-    ],
-    githubUrl: 'https://github.com/aryannavale01',
-    featured: true,
-    date: '2026-01',
-  },
-  {
-    id: 'dicom-sharing-platform',
-    title: 'Multi-Hospital DICOM Sharing Platform',
-    category: 'fullstack',
-    shortDesc: 'HIPAA-aware healthcare platform for real-time DICOM image sync across hospitals.',
-    fullDesc:
-      'A secure, HIPAA-aware healthcare platform enabling real-time DICOM medical image synchronization across 5+ simulated hospital nodes, replacing manual USB/email transfers. Structured metadata indexing cut medical image retrieval latency by 35% and workflow digitization eliminated cross-departmental file transfer bottlenecks.',
-    techStack: ['React.js', 'Firebase', 'MySQL', 'DICOM'],
-    metrics: [
-      'Real-time DICOM sync across 5+ hospital nodes',
-      '35% lower image retrieval latency (O(log n) lookups)',
-      'HIPAA-aware security',
-    ],
-    githubUrl: 'https://github.com/aryannavale01',
-    featured: true,
-    date: '2025-11',
-  },
-  {
-    id: 'ngo-erp',
-    title: 'NGO ERP System',
-    category: 'fullstack',
-    shortDesc: 'Full-stack ERP for Rupasri Mahila Vikas Sanstha with trilingual (Hindi, English, Marathi) support.',
-    fullDesc:
-      'A production-grade management system built for Rupasri Mahila Vikas Sanstha, a rural NGO. Handles member records, transactions, and reporting with role-based access via Better Auth, a Postgres/Supabase data layer with Prisma, and a responsive Next.js 15 dashboard that works in three languages.',
-    techStack: ['Next.js 15', 'Prisma', 'Supabase', 'Better Auth', 'PostgreSQL', 'Tailwind CSS'],
-    metrics: ['3 languages supported (EN/HI/MR)', 'Real-world NGO deployment'],
-    githubUrl: 'https://github.com/aryannavale01',
-    featured: true,
-    date: '2026-04',
-  },
-  {
-    id: 'talktwin',
-    title: 'TalkTwin',
-    category: 'ai-rag',
-    shortDesc: 'AI app for text-to-speech, voice cloning, and lip-syncing across 13 languages.',
-    fullDesc:
-      'TalkTwin turns text into natural speech and cloned voices with synchronized lip-sync in 13 languages. Built for creators and accessibility use cases, it couples a modern app frontend with AI voice synthesis pipelines and a clean, usable interface.',
-    techStack: ['AI Voice Synthesis', 'Text-to-Speech', 'Lip-Sync', 'Flutter', 'Firebase'],
-    metrics: ['13 languages supported', 'Voice cloning from short samples'],
-    githubUrl: 'https://github.com/aryannavale01',
-    featured: true,
-    date: '2025-12',
-  },
-  {
-    id: 'smartcitimanage',
-    title: 'SmartCitiManage',
-    category: 'agents',
-    shortDesc: 'Final-year multi-agent AI system combining RAG, IoT and Digital Twin technology for smart cities.',
-    fullDesc:
-      'SmartCitiManage is a multi-agent AI platform for urban infrastructure monitoring. It fuses IoT sensor streams with RAG-powered knowledge retrieval and a Digital Twin visual model, letting a team of specialized AI agents detect issues and surface recommendations. Built with a team of four.',
-    techStack: ['RAG', 'IoT', 'Digital Twin', 'LangChain', 'AI Agents', 'Python'],
-    metrics: ['Team of 4 builders', 'RAG + IoT + Digital Twin fusion'],
-    githubUrl: 'https://github.com/aryannavale01',
-    featured: true,
-    date: '2026-08',
-  },
-];
-
-export const RESUME_PROJECTS = PROJECTS_DATA.filter((p) => RESUME_PROJECT_IDS.includes(p.id));
+// NOTE: project content no longer lives here. It is read from
+// /content/projects/<slug>/data.json at build time (see lib/getProjects.ts) and
+// surfaced to the UI as PROJECTS_DATA / RESUME_PROJECTS via lib/data.ts.
 
 export const NOTES_DATA: NoteItem[] = [
   {

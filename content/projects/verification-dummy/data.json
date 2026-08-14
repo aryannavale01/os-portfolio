@@ -1,0 +1,12 @@
+{
+  "title": "Verification Dummy — Content Pipeline Test",
+  "category": "fullstack",
+  "techStack": ["Next.js", "Zod", "TypeScript", "Framer Motion"],
+  "githubUrl": "https://github.com/aryannavale01",
+  "liveUrl": null,
+  "highlights": [
+    "Proves zero-code project onboarding from one folder",
+    "Verifies gallery ordering via numeric filename prefixes",
+    "Exercises README rendering and native PDF preview"
+  ]
+}

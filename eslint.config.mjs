@@ -8,4 +8,8 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig([{
     extends: [...next],
+    ignores: [
+        "lib/projects.generated.ts",
+        "scripts/migration.mjs",
+    ],
 }]);

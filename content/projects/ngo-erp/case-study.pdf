@@ -1,0 +1,149 @@
+%PDF-1.4
+1 0 obj
+<</Type/Catalog/Pages 2 0 R>>
+endobj
+2 0 obj
+<</Type/Pages/Kids[3 0 R 4 0 R]/Count 2>>
+endobj
+3 0 obj
+<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Resources<</Font<</F1 7 0 R>>>>/Contents 5 0 R>>
+endobj
+4 0 obj
+<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Resources<</Font<</F1 7 0 R>>>>/Contents 6 0 R>>
+endobj
+5 0 obj
+<</Length 1099>>
+stream
+BT
+/F1 10 Tf
+50 730 Td
+14 TL
+(CASE STUDY) Tj
+T*
+(NGO ERP SYSTEM) Tj
+T*
+() Tj
+T*
+(--------------------------------------------------) Tj
+T*
+(Full-stack ERP for Rupasri Mahila Vikas Sanstha with trilingual \(Hindi, English,) Tj
+T*
+(Marathi\) support.) Tj
+T*
+(Category: fullstack) Tj
+T*
+(Tech: Next.js 15, Prisma, Supabase, Better Auth, PostgreSQL, Tailwind CSS) Tj
+T*
+() Tj
+T*
+(--------------------------------------------------) Tj
+T*
+() Tj
+T*
+(PROBLEM & ARCHITECTURAL SOLUTION) Tj
+T*
+(--------------------------------------------------) Tj
+T*
+() Tj
+T*
+(1. PROBLEM OVERVIEW) Tj
+T*
+(Rupasri Mahila Vikas Sanstha needed a modern system to manage members, transactions, and) Tj
+T*
+(reporting usable by staff who work in Hindi, English, and Marathi.) Tj
+T*
+() Tj
+T*
+(2. ARCHITECTURAL SOLUTION) Tj
+T*
+(Built a Next.js 15 full-stack app with a Supabase/PostgreSQL data layer via Prisma, Better) Tj
+T*
+(Auth for role-based access, and a fully trilingual UI.) Tj
+T*
+(* Languages: EN / HI / MR) Tj
+T*
+(* Data Layer: Prisma + Supabase) Tj
+T*
+(* Auth: Better Auth) Tj
+T*
+() Tj
+T*
+(--- Page 1 of 2 ---) Tj
+T*
+ET
+
+endstream
+endobj
+6 0 obj
+<</Length 907>>
+stream
+BT
+/F1 10 Tf
+50 730 Td
+14 TL
+(CASE STUDY) Tj
+T*
+(NGO ERP SYSTEM) Tj
+T*
+() Tj
+T*
+(--------------------------------------------------) Tj
+T*
+(Full-stack ERP for Rupasri Mahila Vikas Sanstha with trilingual \(Hindi, English,) Tj
+T*
+(Marathi\) support.) Tj
+T*
+(Category: fullstack) Tj
+T*
+(Tech: Next.js 15, Prisma, Supabase, Better Auth, PostgreSQL, Tailwind CSS) Tj
+T*
+() Tj
+T*
+(--------------------------------------------------) Tj
+T*
+() Tj
+T*
+(KEY MODULES & RESULTS) Tj
+T*
+(--------------------------------------------------) Tj
+T*
+() Tj
+T*
+(CORE MODULES) Tj
+T*
+(Member registry, donation and transaction tracking, activity management, and role-based) Tj
+T*
+(dashboards.) Tj
+T*
+(- Trilingual content with instant language switching.) Tj
+T*
+(- Secure role-based access control across the organization.) Tj
+T*
+(- Responsive dashboard for desktop and mobile use.) Tj
+T*
+() Tj
+T*
+(--- Page 2 of 2 ---) Tj
+T*
+ET
+
+endstream
+endobj
+7 0 obj
+<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000054 00000 n 
+0000000111 00000 n 
+0000000223 00000 n 
+0000000335 00000 n 
+0000001484 00000 n 
+0000002440 00000 n 
+trailer
+<</Size 8/Root 1 0 R>>
+startxref
+2503
+%%EOF
