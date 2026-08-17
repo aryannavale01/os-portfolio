@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AppId } from '@/types/mac';
 import { PROJECTS_DATA } from '@/lib/data';
-import { Search, Command, Folder, Terminal, Edit3, Mail, Settings, Sparkles, ArrowRight } from 'lucide-react';
+import { Search, Command, Folder, Terminal, Edit3, Mail, Settings, Sparkles, ArrowRight, Music2, Compass } from 'lucide-react';
 
 interface SpotlightProps {
   isOpen: boolean;
@@ -53,6 +53,8 @@ export function Spotlight({ isOpen, onClose, onOpenApp }: SpotlightProps) {
     { id: 'mail', name: 'Mail — Contact', desc: 'Send direct message or inquiry', icon: <Mail className="w-4 h-4 text-sky-500" /> },
     { id: 'settings', name: 'System Settings', desc: 'Appearance, themes & wallpapers', icon: <Settings className="w-4 h-4 text-slate-400" /> },
     { id: 'askai', name: 'Ultron', desc: 'Chat about Aryan, his projects & skills', icon: <Sparkles className="w-4 h-4 text-fuchsia-500" /> },
+    { id: 'music', name: 'Music Player', desc: 'Play songs from the playlist', icon: <Music2 className="w-4 h-4 text-rose-500" /> },
+    { id: 'safari', name: 'Safari', desc: 'Browse the web', icon: <Compass className="w-4 h-4 text-sky-500" /> },
   ];
 
   const filteredApps = appActions.filter(

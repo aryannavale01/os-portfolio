@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import Image from 'next/image';
 import { useTheme } from '@/components/context/ThemeContext';
 import { AccentColor } from '@/types/mac';
@@ -28,7 +28,7 @@ import {
 
 type SettingsTab = 'appearance' | 'layout' | 'sound' | 'about';
 
-export function SettingsApp() {
+export const SettingsApp = memo(function SettingsApp() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('appearance');
 
   const {
@@ -566,5 +566,5 @@ export function SettingsApp() {
       </div>
     </div>
   );
-}
+});
 

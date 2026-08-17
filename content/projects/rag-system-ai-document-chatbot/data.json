@@ -1,0 +1,24 @@
+{
+  "title": "RAG System — AI Document Chatbot",
+  "category": "fullstack",
+  "techStack": [
+    "Python",
+    "LangChain",
+    "Streamlit",
+    "FAISS",
+    "Groq",
+    "Sentence Transformers",
+    "BM25"
+  ],
+  "githubUrl": "https://github.com/aryannavale01/RAG-Chatbot",
+  "liveUrl": null,
+  "highlights": [
+    "Chat with PDFs, Word, TXT, CSV, Excel, Markdown, HTML, XML, JSON, and PowerPoint documents",
+    "Hybrid retrieval combining BM25 keyword search with FAISS semantic search",
+    "Generates context-aware answers with Groq LLMs and source references"
+  ],
+  "shortDesc": "An AI-powered document assistant that enables users to chat with documents using Retrieval-Augmented Generation (RAG)",
+  "fullDesc": "An AI-powered document assistant that enables users to chat with PDFs, Word files, TXT files, CSVs, Excel files, Markdown, HTML, XML, JSON, PowerPoint files, and other documents using Retrieval-Augmented Generation (RAG). The system processes uploaded documents, splits them into chunks, generates embeddings using Sentence Transformers, stores vector embeddings in FAISS, combines semantic retrieval with BM25 keyword search through a hybrid retriever, and uses Groq LLMs to generate context-aware answers with source references.",
+  "date": "2026-08",
+  "featured": false
+}

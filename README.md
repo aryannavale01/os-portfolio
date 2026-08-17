@@ -76,3 +76,28 @@ Document Reader. See
 - **Framer Motion** (`motion`) for window/overlay/gallery animations
 - **Zod** for build-time data validation
 - **react-markdown** for README rendering
+
+## Production Deployment (Vercel)
+
+The repo is Vercel-ready (`vercel.json` included). Set these environment
+variables in the Vercel project dashboard:
+
+| Variable      | Required | Purpose                                                                 |
+| ------------- | :------: | ----------------------------------------------------------------------- |
+| `GROQ_API_KEY`| yes      | Powers the "Ask AI" assistant (create at https://console.groq.com)       |
+| `APP_URL`     | yes      | Canonical URL (Open Graph + sitemap). E.g. `https://your-site.vercel.app`|
+
+`vercel.json` opts the `/api/ask-ai` function into Fluid Compute with a 60s
+`maxDuration` safety margin for cold starts. No other config is needed — the
+content generators run as a `prebuild` hook on every build.
+
+## Local Production Run
+
+```bash
+npm run build      # runs content generators, then compiles
+npm run start      # runs prestart (copies public/ into standalone) + node server
+```
+
+> **Note:** the standalone server defaults to port `3000`. If that port is busy
+> locally, run with `$env:PORT=<other>` (PowerShell) or `PORT=<other> npm run
+> start`.

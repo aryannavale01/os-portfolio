@@ -27,7 +27,14 @@ function main(): void {
   });
 
   if (sync.skipped) {
-    console.warn(`[generate-research] WARNING: ${sync.reason}`);
+    if (topics.length > 0) {
+      // Topics can be README-only — no binary assets to copy. Not an error.
+      console.log(
+        `[generate-research] ${topics.length} topic(s) are README-only (no images/PDFs to sync).`
+      );
+    } else {
+      console.warn(`[generate-research] WARNING: ${sync.reason}`);
+    }
   } else {
     console.log(
       `[generate-research] Synced public/research/ (${topics.length} topic(s)): ${sync.added} added, ${sync.updated} updated, ${sync.stale} stale removed`

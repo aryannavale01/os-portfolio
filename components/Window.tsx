@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { WindowState } from '@/types/mac';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { motion, AnimatePresence } from 'motion/react';
@@ -29,7 +29,11 @@ type ResizeDirection =
   | 'sw'
   | null;
 
-export function Window({
+// Memoized so a drag/resize on one window never re-renders another window's
+// chrome. The per-window app content is memoized separately in Desktop.tsx
+// (WindowSlot), which is what actually keeps unrelated app bodies from
+// re-rendering at 60fps during a drag.
+export const Window = memo(function Window({
   windowState,
   isActive,
   onFocus,
@@ -88,7 +92,7 @@ export function Window({
         const minX = -windowState.size.width + 120;
         const maxX = window.innerWidth - 120;
         const minY = 28; // Menu bar height
-        const maxY = window.innerHeight - 40;
+        const maxY = window.innerHeight - 60;
 
         const newX = Math.max(minX, Math.min(maxX, e.clientX - dragOffset.x));
         const newY = Math.max(minY, Math.min(maxY, e.clientY - dragOffset.y));
@@ -104,10 +108,10 @@ export function Window({
         let newX = resizeStart.posX;
         let newY = resizeStart.posY;
 
-        const minW = Math.min(360, Math.max(220, window.innerWidth - 48));
-        const minH = Math.min(260, Math.max(160, window.innerHeight - 120));
-        const maxW = Math.max(minW, window.innerWidth - resizeStart.posX - 24);
-        const maxH = Math.max(minH, window.innerHeight - resizeStart.posY - 40);
+        const minW = Math.min(400, Math.max(300, window.innerWidth - 64));
+        const minH = Math.min(300, Math.max(250, window.innerHeight - 140));
+        const maxW = Math.max(minW, window.innerWidth - resizeStart.posX - 32);
+        const maxH = Math.max(minH, window.innerHeight - resizeStart.posY - 60);
 
         if (resizeDir.includes('e')) {
           newW = Math.min(maxW, Math.max(minW, resizeStart.width + deltaX));
@@ -118,7 +122,7 @@ export function Window({
         if (resizeDir.includes('w')) {
           const possibleW = resizeStart.width - deltaX;
           if (possibleW >= minW && resizeStart.posX + deltaX >= 8) {
-            newW = Math.min(possibleW, window.innerWidth - (resizeStart.posX + deltaX) - 24);
+            newW = Math.min(possibleW, window.innerWidth - (resizeStart.posX + deltaX) - 32);
             newX = resizeStart.posX + deltaX;
             if (newW < minW) newW = Math.min(minW, resizeStart.width);
           }
@@ -126,7 +130,7 @@ export function Window({
         if (resizeDir.includes('n')) {
           const possibleH = resizeStart.height - deltaY;
           if (possibleH >= minH && resizeStart.posY + deltaY >= 28) {
-            newH = Math.min(possibleH, window.innerHeight - (resizeStart.posY + deltaY) - 40);
+            newH = Math.min(possibleH, window.innerHeight - (resizeStart.posY + deltaY) - 60);
             newY = resizeStart.posY + deltaY;
             if (newH < minH) newH = Math.min(minH, resizeStart.height);
           }
@@ -215,8 +219,6 @@ export function Window({
         position: 'fixed',
         top: '28px',
         left: '0',
-        right: '0',
-        bottom: '76px',
         width: '100vw',
         height: 'calc(100vh - 104px)',
         zIndex: windowState.zIndex,
@@ -378,4 +380,4 @@ export function Window({
       )}
     </AnimatePresence>
   );
-}
+});

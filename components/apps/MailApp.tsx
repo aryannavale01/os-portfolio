@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { PORTFOLIO_INFO } from '@/lib/data';
 import { Send, CheckCircle2, Mail, User, AlertCircle } from 'lucide-react';
 
-export function MailApp() {
+export const MailApp = memo(function MailApp() {
   const [fromName, setFromName] = useState<string>('');
   const [fromEmail, setFromEmail] = useState<string>('');
   const [subject, setSubject] = useState<string>('Inquiry regarding AI/ML & Full-Stack Opportunities');
   const [body, setBody] = useState<string>(
-    `Hi Aryan,\n\nI was impressed by your NGO ERP and TalkTwin projects! I'd love to connect regarding an exciting opportunity at our team.\n\nBest regards,\n`
+    `Hi Aryan,\n\nI was impressed by your RAG chatbot and NGO ERP projects! I'd love to connect regarding an exciting opportunity at our team.\n\nBest regards,\n`
   );
   const [isSending, setIsSending] = useState<boolean>(false);
   const [isSent, setIsSent] = useState<boolean>(false);
@@ -182,4 +182,4 @@ export function MailApp() {
       </div>
     </div>
   );
-}
+});

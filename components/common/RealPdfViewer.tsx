@@ -49,6 +49,7 @@ export function RealPdfViewer({ url, title, size }: RealPdfViewerProps) {
           src={url}
           title={title}
           className="w-full h-full border-none"
+          style={{ minHeight: '100%', minWidth: '100%' }}
         />
       </div>
     </div>

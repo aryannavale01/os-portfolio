@@ -25,11 +25,11 @@ import {
   Maximize2,
   Music,
   Play,
-  Pause,
   Sparkles,
   Folder,
   Terminal,
   BookOpen,
+  Compass,
 } from 'lucide-react';
 
 interface MenuBarProps {
@@ -79,7 +79,6 @@ export function MenuBar({
   const [airdropEnabled, setAirdropEnabled] = useState<boolean>(true);
   const [brightness, setBrightness] = useState<number>(90);
   const [volume, setVolume] = useState<number>(80);
-  const [isPlayingMusic, setIsPlayingMusic] = useState<boolean>(true);
 
   // Modals
   const [showShortcutsModal, setShowShortcutsModal] = useState<boolean>(false);
@@ -175,6 +174,10 @@ export function MenuBar({
         return 'Document Reader';
       case 'askai':
         return 'Ultron';
+      case 'music':
+        return 'Music';
+      case 'safari':
+        return 'Safari';
       default:
         return 'Finder';
     }
@@ -465,6 +468,26 @@ export function MenuBar({
                   >
                     <span>Document Reader</span>
                     <BookOpen className="w-3 h-3 opacity-60" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      onOpenApp('music');
+                      setOpenTab(null);
+                    }}
+                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                  >
+                    <span>Music Player</span>
+                    <Music className="w-3 h-3 opacity-60" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      onOpenApp('safari');
+                      setOpenTab(null);
+                    }}
+                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                  >
+                    <span>Safari</span>
+                    <Compass className="w-3 h-3 opacity-60" />
                   </button>
 
                   <div className="my-1 border-t border-black/10 dark:border-white/10" />
@@ -839,30 +862,30 @@ export function MenuBar({
                   </div>
 
                   {/* Now Playing Music Widget */}
-                  <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border border-white/15 p-2.5 rounded-xl flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => {
+                      onOpenApp('music');
+                      setOpenTab(null);
+                    }}
+                    className="w-full bg-gradient-to-r from-purple-900/40 to-indigo-900/40 border border-white/15 p-2.5 rounded-xl flex items-center justify-between gap-2 hover:from-purple-900/60 hover:to-indigo-900/60 transition-colors text-left"
+                  >
                     <div className="flex items-center gap-2 overflow-hidden">
                       <div className="w-8 h-8 rounded-lg bg-purple-500/30 flex items-center justify-center shrink-0 border border-white/20">
-                        <Music className="w-4 h-4 text-purple-300 animate-pulse" />
+                        <Music className="w-4 h-4 text-purple-300" />
                       </div>
                       <div className="overflow-hidden">
                         <span className="font-bold text-xs block truncate leading-tight">
-                          Lofi Deep Work Mix
+                          Music Player
                         </span>
                         <span className="text-[10px] text-purple-200/70 block truncate">
-                          {PORTFOLIO_INFO.name}
+                          Tap to open
                         </span>
                       </div>
                     </div>
-
                     <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        onClick={() => setIsPlayingMusic(!isPlayingMusic)}
-                        className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
-                      >
-                        {isPlayingMusic ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                      </button>
+                      <Play className="w-3.5 h-3.5 text-white/60" />
                     </div>
-                  </div>
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>

@@ -9,13 +9,29 @@ import {
 } from '@/content/aryan';
 import { PROJECTS_DATA } from '@/lib/data';
 
+// ---------------------------------------------------------------------------
+// Vercel reliability settings
+//
+// `maxDuration` opts this function into Vercel Fluid Compute with 60s of
+// execution headroom. That is a *safety margin* for worst-case cold starts
+// (model load + embedding + Groq round-trip) — a normal warm request should
+// finish in a couple of seconds. Also declared in vercel.json for visibility.
+// ---------------------------------------------------------------------------
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 const GROQ_MODEL = 'openai/gpt-oss-20b';
 const GROQ_BASE_URL = 'https://api.groq.com/openai/v1';
 const MAX_INPUT_LENGTH = 300;
 const RATE_LIMIT_MAX = 6;
 const RATE_LIMIT_WINDOW_MS = 60_000;
+
+// Hard internal timeout around the retrieval step specifically. If embedding
+// + retrieval ever exceed this, we fall back to the base system prompt (no
+// RAG context) rather than let the whole request hang and risk hitting the
+// function's outer timeout. A degraded-but-working answer beats a timed-out
+// error.
+const RETRIEVAL_TIMEOUT_MS = 5_000;
 
 const REDIRECT_MESSAGE =
   "I'm just here to answer questions about Aryan and his work — feel free to ask me about his projects, skills, or background!";
@@ -55,6 +71,10 @@ const INJECTION_RE =
 
 const rateLimitStore = new Map<string, number[]>();
 
+// Per-instance warm flag. Serverless instances get reused across invocations,
+// so this distinguishes the first call on a cold instance from subsequent ones.
+let instanceWarm = false;
+
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
   const recent = (rateLimitStore.get(ip) || []).filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
@@ -72,6 +92,46 @@ function jsonReply(reply: string, status: number) {
     status,
     headers: { 'Content-Type': 'application/json' },
   });
+}
+
+// Resolve the promise's value, or `null` after `ms` — whatever comes first.
+// Errors also resolve to `null` so a failed retrieval degrades to no context.
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+  return new Promise<T | null>((resolve) => {
+    const timer = setTimeout(() => resolve(null), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(null);
+      }
+    );
+  });
+}
+
+// Wraps the model/client that talks to the LLM. Timing here is the "cold-start
+// model load" that console.time measures — for the hosted Groq API this is
+// client construction (fast); the first response call is the real cost and is
+// logged as part of the total request time below.
+async function loadModel(): Promise<OpenAI> {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
+    console.error('Ask AI: GROQ_API_KEY is not configured.');
+    throw new Error('GROQ_API_KEY is not configured.');
+  }
+  return new OpenAI({ apiKey, baseURL: GROQ_BASE_URL });
+}
+
+// RAG retrieval slot. This is where query embedding + vector search will plug
+// in. Until then it resolves immediately with no context so the base system
+// prompt is used. Because the caller kicks this off before any other await,
+// model warm-up and prompt building run in parallel with it; and the caller
+// enforces RETRIEVAL_TIMEOUT_MS so a slow retrieval can never hang the request.
+async function retrieveContext(_message: string): Promise<string | null> {
+  return null;
 }
 
 export async function POST(req: NextRequest) {
@@ -98,18 +158,42 @@ export async function POST(req: NextRequest) {
     return jsonReply(REDIRECT_MESSAGE, 200);
   }
 
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) {
-    console.error('Ask AI: GROQ_API_KEY is not configured.');
+  const coldStart = !instanceWarm;
+  const requestStart = Date.now();
+
+  // Start retrieval (embedding) immediately — in parallel with model warm-up
+  // and prompt building below. Never await unrelated setup before kicking off
+  // the async work that can overlap.
+  console.time('ask-ai:retrieval');
+  const retrievalPromise = withTimeout(retrieveContext(message), RETRIEVAL_TIMEOUT_MS);
+
+  // Model warm-up runs concurrently with the retrieval above.
+  let client: OpenAI;
+  console.time('ask-ai:model-load');
+  try {
+    client = await loadModel();
+  } catch {
     return jsonReply(FALLBACK_MESSAGE, 200);
   }
+  console.timeEnd('ask-ai:model-load');
+
+  const context = await retrievalPromise;
+  console.timeEnd('ask-ai:retrieval');
+  if (context === null) {
+    console.warn(
+      `[ask-ai] retrieval returned no context within ${RETRIEVAL_TIMEOUT_MS}ms — using base system prompt (${coldStart ? 'COLD' : 'WARM'} instance).`
+    );
+  }
+
+  const systemPrompt = context
+    ? `${SYSTEM_PROMPT}\n\nRelevant context:\n${context}`
+    : SYSTEM_PROMPT;
 
   try {
-    const client = new OpenAI({ apiKey, baseURL: GROQ_BASE_URL });
     const response = await client.responses.create({
       model: GROQ_MODEL,
       input: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: message },
       ],
     });
@@ -117,6 +201,10 @@ export async function POST(req: NextRequest) {
     if (!reply) {
       throw new Error('Groq returned an empty response.');
     }
+    instanceWarm = true;
+    console.log(
+      `[ask-ai] ${coldStart ? 'COLD' : 'WARM'} start — total ${Date.now() - requestStart}ms`
+    );
     return jsonReply(reply, 200);
   } catch (err) {
     console.error('Ask AI request failed:', err);

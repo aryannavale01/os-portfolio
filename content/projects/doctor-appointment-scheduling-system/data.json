@@ -1,0 +1,25 @@
+{
+  "title": "Doctor Appointment Scheduling System",
+  "category": "fullstack",
+  "techStack": [
+    "Next.js 15",
+    "FastAPI",
+    "PostgreSQL",
+    "Vapi",
+    "shadcn/ui",
+    "Tailwind CSS",
+    "Docker Compose",
+    "Nginx"
+  ],
+  "githubUrl": "https://github.com/aryannavale01",
+  "liveUrl": null,
+  "highlights": [
+    "Admin-only paradigm — patients book/reschedule entirely via AI phone calls, staff never touch a phone",
+    "Provider-agnostic voice layer via a VoiceProviderAdapter interface (Vapi live, Dograh self-hosted as secondary)",
+    "Single FastAPI backend serving both the dashboard API and voice-provider webhooks, deployed on one VPS"
+  ],
+  "shortDesc": "A clinic scheduling platform where patients book appointments over AI-powered phone calls and staff manage everything through a web dashboard.",
+  "fullDesc": "This system replaces the phone-and-spreadsheet workflow at small clinics with an AI-first booking flow: patients call in and speak to a Vapi-powered voice agent that checks doctor availability, books or reschedules appointments, and logs the call, while clinic staff manage doctors, schedules, and patients through a Next.js admin dashboard. A single FastAPI backend handles both the dashboard's REST API and inbound voice-provider webhooks, backed by a PostgreSQL schema (15 tables, 26 FKs) designed for multi-clinic tenancy from the start. A VoiceProviderAdapter abstraction keeps the system decoupled from any one voice AI vendor, with Vapi as the primary provider and the open-source Dograh stack integrated unmodified as a secondary option.",
+  "date": "2026-08",
+  "featured": true
+}

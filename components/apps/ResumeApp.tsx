@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, memo } from 'react';
 import { useTheme } from '@/components/context/ThemeContext';
 import { PORTFOLIO_INFO, SKILLS_CATEGORIZED, RESUME_PROJECTS, EDUCATION, COURSEWORK, ACHIEVEMENTS } from '@/lib/data';
 import { PDFViewer } from '@/components/common/PDFViewer';
@@ -148,28 +148,33 @@ const BUILTIN_DOCUMENTS: PDFDocumentConfig[] = [
     ],
   },
   {
-    id: 'system-specs',
-    title: 'SmartCitiManage_Architecture.pdf',
-    fileSize: '1.9 MB',
+    id: 'rag-system',
+    title: 'RAG_System_AI_Document_Chatbot.pdf',
+    fileSize: '1.6 MB',
     pagesCount: 1,
     date: 'Aug 2026',
     category: 'Architecture',
     pages: [
       {
         pageNumber: 1,
-        title: 'Multi-Agent AI System Overview',
+        title: 'Hybrid Retrieval RAG System',
         sections: [
           {
             type: 'text_block',
             heading: 'System Modules',
             content:
-              '• IoT Integration: Live sensor streams from city infrastructure\n• RAG Knowledge: Retrieval-augmented answers grounded in domain documents\n• Digital Twin: Real-time visual model of the physical environment\n• Multi-Agent Orchestration: Specialized agents for monitoring, analysis & recommendations\n• Team: Built with a team of four as the final-year B.Tech project',
+              '• Document Ingestion: PDFs, Word, TXT, CSV, Excel, Markdown, HTML, XML, JSON, and PowerPoint\n• Chunking & Embeddings: Sentence Transformers generate dense vector embeddings\n• Hybrid Retrieval: BM25 keyword search fused with FAISS semantic search\n• Generation: Groq LLMs produce context-aware answers with source references',
+          },
+          {
+            type: 'architecture_diagram',
+            heading: 'Retrieval Pipeline',
+            content: 'Documents → Chunking → Embeddings (FAISS) + BM25 → Hybrid Retriever → Groq LLM → Answer + Sources',
           },
           {
             type: 'text_block',
             heading: 'Key Design Choices',
             content:
-              '• RAG grounds agent outputs in verified domain knowledge\n• IoT feeds real-time state into the Digital Twin model\n• Each agent has a focused responsibility with coordinated handoff',
+              '• Hybrid retrieval (BM25 + FAISS) beats pure vector search on exact-match queries\n• Source references make every answer verifiable\n• Runs locally with Streamlit — no paid APIs required for embedding',
           },
         ],
       },
@@ -177,7 +182,7 @@ const BUILTIN_DOCUMENTS: PDFDocumentConfig[] = [
   },
 ];
 
-export function ResumeApp({
+export const ResumeApp = memo(function ResumeApp({
   minimal = false,
   fileData,
 }: {
@@ -768,11 +773,11 @@ export function ResumeApp({
                                 </div>
                                 <div>
                                   <div className="flex justify-between font-bold text-slate-900">
-                                    <span>Final-Year Project — SmartCitiManage</span>
+                                    <span>Final-Year Project — AI Document RAG System</span>
                                     <span className="text-slate-400">2025 – 2026</span>
                                   </div>
                                   <p className="text-slate-600 text-[10.5px] mt-0.5">
-                                    • Multi-agent AI system (team of 4) fusing RAG, IoT sensor streams, and Digital Twin technology.
+                                    • Production-style RAG pipeline combining BM25 keyword search with FAISS semantic retrieval for chat over documents.
                                   </p>
                                 </div>
                               </div>
@@ -900,4 +905,4 @@ export function ResumeApp({
       </div>
     </div>
   );
-}
+});

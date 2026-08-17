@@ -94,9 +94,9 @@ export const SKILLS_CATEGORIZED = [
 ];
 
 export const RESUME_PROJECT_IDS = [
-  'intelligent-ai-assistant',
-  'emergency-response-system',
-  'dicom-sharing-platform',
+  'rag-system-ai-document-chatbot',
+  'multi-hospital-dicom-sharing-platform',
+  'real-time-emergency-response-system',
 ];
 
 // NOTE: project content no longer lives here. It is read from
@@ -143,11 +143,12 @@ Feel free to explore the Finder, run commands in the Terminal, or reach out via 
     folderId: 'quick-notes',
     isPinned: true,
     content: `# Current Build Checklist
-- [x] Ship Intelligent AI Assistant (LLM function calling + Google Vision)
+- [x] Ship RAG System — AI Document Chatbot (hybrid BM25 + FAISS retrieval)
 - [x] Ship Real-Time Emergency Response System
 - [x] Ship Multi-Hospital DICOM Sharing Platform
-- [ ] Wrap up SmartCitiManage digital-twin demo
-- [ ] Publish project write-ups for all six projects`,
+- [x] Ship Doctor Appointment Scheduling System (Vapi voice agent)
+- [x] Ship NGO ERP System (trilingual, real-world deployment)
+- [ ] Publish project write-ups for all five projects`,
   },
   {
     id: 'education-research',
@@ -174,10 +175,10 @@ Feel free to explore the Finder, run commands in the Terminal, or reach out via 
     category: 'NOTES',
     folderId: 'work',
     content: `### What I'm currently working on:
-1. **LLMs & AI Agents:** Function calling, RAG pipelines, and agentic automation.
-2. **Smart Cities:** My final-year project fusing RAG, IoT sensor streams, and Digital Twin modeling.
-3. **Voice AI:** Extending TalkTwin's text-to-speech and voice-cloning pipelines.
-4. **Healthcare Tech:** DICOM-based medical imaging workflows and emergency response platforms.`,
+1. **LLMs & AI Agents:** RAG pipelines (hybrid BM25 + FAISS), AI agents, and voice AI.
+2. **Voice AI:** Extending the Doctor Appointment Scheduling System's Vapi voice-agent flow with the VoiceProviderAdapter abstraction.
+3. **Healthcare Tech:** DICOM-based medical imaging workflows, emergency response platforms, and hospital appointment scheduling.
+4. **Rural Tech:** Scaling the trilingual NGO ERP System for real-world deployment.`,
   },
   {
     id: 'tech-stack-summary',

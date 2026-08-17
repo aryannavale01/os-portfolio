@@ -1,6 +1,6 @@
 import type { ProjectCategoryId } from '@/content/schema';
 
-export type AppId = 'finder' | 'terminal' | 'notes' | 'mail' | 'settings' | 'textedit' | 'askai';
+export type AppId = 'finder' | 'terminal' | 'notes' | 'mail' | 'settings' | 'textedit' | 'askai' | 'music' | 'safari';
 
 export type FileType = 'pdf' | 'png' | 'jpg' | 'md' | 'folder';
 
@@ -86,6 +86,8 @@ export interface WindowState {
   position: { x: number; y: number };
   size: { width: number; height: number };
   fileData?: FileItem;
+  preMaximizePosition?: { x: number; y: number };
+  preMaximizeSize?: { width: number; height: number };
 }
 
 export interface ProjectItem {

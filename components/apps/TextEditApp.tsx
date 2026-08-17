@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, memo } from 'react';
 import Image from 'next/image';
 import { FileItem } from '@/types/mac';
 import { DESKTOP_FILES, PROJECTS_FS, RESEARCH_FS } from '@/lib/projectsFS';
@@ -21,7 +21,7 @@ interface TextEditAppProps {
   fileData?: FileItem;
 }
 
-export function TextEditApp({ fileData }: TextEditAppProps) {
+export const TextEditApp = memo(function TextEditApp({ fileData }: TextEditAppProps) {
   const { sidebarWidth } = useTheme();
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(fileData ?? null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -239,4 +239,4 @@ export function TextEditApp({ fileData }: TextEditAppProps) {
       )}
     </div>
   );
-}
+});

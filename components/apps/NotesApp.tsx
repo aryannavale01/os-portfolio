@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, memo } from 'react';
 import { useTheme } from '@/components/context/ThemeContext';
 import { NOTES_DATA } from '@/lib/data';
 import { NoteItem, NoteFolder } from '@/types/mac';
@@ -67,7 +67,7 @@ const renderInlineLinks = (text: string, keyPrefix: string | number): React.Reac
   });
 };
 
-export function NotesApp() {
+export const NotesApp = memo(function NotesApp() {
   const { sidebarWidth, sidebarIconSize } = useTheme();
 
   // State Management
@@ -1105,4 +1105,4 @@ export function NotesApp() {
       )}
     </div>
   );
-}
+});

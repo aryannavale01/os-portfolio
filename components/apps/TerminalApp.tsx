@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { PORTFOLIO_INFO, SKILLS_CATEGORIZED, PROJECTS_DATA } from '@/lib/data';
 import { useTheme } from '@/components/context/ThemeContext';
 
@@ -10,7 +10,7 @@ interface CommandOutput {
   output: React.ReactNode;
 }
 
-export function TerminalApp() {
+export const TerminalApp = memo(function TerminalApp() {
   const { toggleTheme } = useTheme();
   const [history, setHistory] = useState<CommandOutput[]>(() => [
     {
@@ -236,4 +236,4 @@ export function TerminalApp() {
       </div>
     </div>
   );
-}
+});

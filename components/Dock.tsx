@@ -21,6 +21,8 @@ import {
   Linkedin,
   BookOpen,
   Sparkles,
+  Music2,
+  Compass,
 } from 'lucide-react';
 
 interface DockProps {
@@ -28,6 +30,7 @@ interface DockProps {
   activeAppId: AppId | null;
   onOpenApp: (appId: AppId) => void;
   onToggleMinimize: (appId: AppId) => void;
+  onNavigateToUrl?: (url: string) => void;
 }
 
 interface DockItemConfig {
@@ -76,6 +79,18 @@ const PINNED_DOCK_ITEMS: DockItemConfig[] = [
     icon: <Settings className="w-4.5 h-4.5 text-slate-800" />,
     bgGradient: 'from-gray-200 to-gray-400',
   },
+  {
+    id: 'music',
+    name: 'Music Player',
+    icon: <Music2 className="w-4.5 h-4.5 text-white" />,
+    bgGradient: 'from-pink-500 via-rose-500 to-red-600',
+  },
+  {
+    id: 'safari',
+    name: 'Safari',
+    icon: <Compass className="w-4.5 h-4.5 text-white" />,
+    bgGradient: 'from-sky-400 to-blue-600',
+  },
 ];
 
 const EXTERNAL_DOCK_ITEMS: DockItemConfig[] = [
@@ -110,6 +125,7 @@ function DockIconItem({
   mouseX,
   onOpenApp,
   onToggleMinimize,
+  onNavigateToUrl,
 }: {
   item: DockItemConfig;
   windows: WindowState[];
@@ -117,6 +133,7 @@ function DockIconItem({
   mouseX: MotionValue<number>;
   onOpenApp: (appId: AppId) => void;
   onToggleMinimize: (appId: AppId) => void;
+  onNavigateToUrl?: (url: string) => void;
 }) {
   const { dockIconSize } = useTheme();
   const ref = useRef<HTMLDivElement>(null);
@@ -149,7 +166,11 @@ function DockIconItem({
     setTimeout(() => setIsBouncing(false), 500);
 
     if (item.isExternal && item.externalUrl) {
-      window.open(item.externalUrl, '_blank');
+      if (onNavigateToUrl) {
+        onNavigateToUrl(item.externalUrl);
+      } else {
+        window.open(item.externalUrl, '_blank');
+      }
       return;
     }
 
@@ -197,9 +218,14 @@ function DockIconItem({
             ? { duration: 0.5, ease: 'easeOut' }
             : { type: 'spring', stiffness: 350, damping: 22 }
         }
+        aria-label={item.name}
+        title={item.name}
         className={`rounded-xl bg-gradient-to-b ${item.bgGradient} flex items-center justify-center shadow-md active:scale-90 transition-shadow relative overflow-hidden shrink-0`}
       >
-        {item.icon}
+        {/* Icon is decorative — the accessible name lives on the button. */}
+        <span aria-hidden="true" className="pointer-events-none flex items-center justify-center">
+          {item.icon}
+        </span>
       </motion.button>
 
       {/* Active Indicator Dot */}
@@ -221,6 +247,7 @@ export function Dock({
   activeAppId,
   onOpenApp,
   onToggleMinimize,
+  onNavigateToUrl,
 }: DockProps) {
   const { dockIconSize } = useTheme();
   const mouseX = useMotionValue(Infinity);
@@ -249,6 +276,7 @@ export function Dock({
             mouseX={mouseX}
             onOpenApp={onOpenApp}
             onToggleMinimize={onToggleMinimize}
+            onNavigateToUrl={onNavigateToUrl}
           />
         ))}
 
@@ -265,6 +293,7 @@ export function Dock({
             mouseX={mouseX}
             onOpenApp={onOpenApp}
             onToggleMinimize={onToggleMinimize}
+            onNavigateToUrl={onNavigateToUrl}
           />
         ))}
       </motion.div>

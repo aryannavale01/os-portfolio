@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, memo } from 'react';
 import { FileItem, ProjectFolder, ResearchFolder } from '@/types/mac';
 import { PROJECT_CATEGORIES, PROJECTS_FS, RESEARCH_FS, DESKTOP_FILES } from '@/lib/projectsFS';
 import { getFileTypeLabel } from '@/lib/fileAssociations';
@@ -49,7 +49,7 @@ function isProjectFolder(
   return 'techStack' in folder;
 }
 
-export function FinderApp({
+export const FinderApp = memo(function FinderApp({
   onOpenFile,
   onQuickLook,
   initialRoot = 'projects',
@@ -800,4 +800,4 @@ export function FinderApp({
       )}
     </div>
   );
-}
+});

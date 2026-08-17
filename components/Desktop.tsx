@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { motion } from 'motion/react';
 import { AppId, WindowState, FileItem } from '@/types/mac';
 import { useTheme } from '@/components/context/ThemeContext';
@@ -11,6 +11,7 @@ import { Dock } from '@/components/Dock';
 import { Window } from '@/components/Window';
 import { Spotlight } from '@/components/Spotlight';
 import { QuickLook } from '@/components/QuickLook';
+import { FullscreenPrompt } from '@/components/FullscreenPrompt';
 import { FinderApp } from '@/components/apps/FinderApp';
 import { TerminalApp } from '@/components/apps/TerminalApp';
 import { NotesApp } from '@/components/apps/NotesApp';
@@ -19,6 +20,8 @@ import { SettingsApp } from '@/components/apps/SettingsApp';
 import { TextEditApp } from '@/components/apps/TextEditApp';
 import { ResumeApp } from '@/components/apps/ResumeApp';
 import { AskAIApp } from '@/components/apps/AskAIApp';
+import { MusicApp } from '@/components/apps/MusicApp';
+import { SafariApp } from '@/components/apps/SafariApp';
 import Image from 'next/image';
 import { FileText, Folder, Sparkles } from 'lucide-react';
 import { PORTFOLIO_INFO } from '@/lib/data';
@@ -33,8 +36,8 @@ const DEFAULT_WINDOWS: WindowState[] = [
     isMinimized: false,
     isMaximized: false,
     zIndex: 10,
-    position: { x: 90, y: 55 },
-    size: { width: 620, height: 430 },
+    position: { x: 100, y: 50 },
+    size: { width: 1100, height: 700 },
   },
   {
     id: 'finder',
@@ -44,8 +47,8 @@ const DEFAULT_WINDOWS: WindowState[] = [
     isMinimized: false,
     isMaximized: false,
     zIndex: 1,
-    position: { x: 120, y: 70 },
-    size: { width: 800, height: 540 },
+    position: { x: 120, y: 60 },
+    size: { width: 1200, height: 750 },
   },
   {
     id: 'terminal',
@@ -55,8 +58,8 @@ const DEFAULT_WINDOWS: WindowState[] = [
     isMinimized: false,
     isMaximized: false,
     zIndex: 1,
-    position: { x: 150, y: 85 },
-    size: { width: 580, height: 400 },
+    position: { x: 140, y: 70 },
+    size: { width: 950, height: 600 },
   },
   {
     id: 'mail',
@@ -66,8 +69,8 @@ const DEFAULT_WINDOWS: WindowState[] = [
     isMinimized: false,
     isMaximized: false,
     zIndex: 1,
-    position: { x: 170, y: 75 },
-    size: { width: 560, height: 420 },
+    position: { x: 130, y: 65 },
+    size: { width: 1000, height: 650 },
   },
   {
     id: 'settings',
@@ -77,8 +80,8 @@ const DEFAULT_WINDOWS: WindowState[] = [
     isMinimized: false,
     isMaximized: false,
     zIndex: 1,
-    position: { x: 120, y: 70 },
-    size: { width: 800, height: 540 },
+    position: { x: 120, y: 60 },
+    size: { width: 1200, height: 750 },
   },
   {
     id: 'textedit',
@@ -88,8 +91,8 @@ const DEFAULT_WINDOWS: WindowState[] = [
     isMinimized: false,
     isMaximized: false,
     zIndex: 1,
-    position: { x: 200, y: 80 },
-    size: { width: 620, height: 450 },
+    position: { x: 130, y: 55 },
+    size: { width: 1100, height: 700 },
   },
   {
     id: 'askai',
@@ -99,15 +102,37 @@ const DEFAULT_WINDOWS: WindowState[] = [
     isMinimized: false,
     isMaximized: false,
     zIndex: 1,
-    position: { x: 880, y: 210 },
-    size: { width: 460, height: 500 },
+    position: { x: 560, y: 100 },
+    size: { width: 750, height: 680 },
+  },
+  {
+    id: 'music',
+    title: 'Music',
+    icon: 'Music',
+    isOpen: false,
+    isMinimized: false,
+    isMaximized: false,
+    zIndex: 1,
+    position: { x: 180, y: 80 },
+    size: { width: 900, height: 600 },
+  },
+  {
+    id: 'safari',
+    title: 'Safari',
+    icon: 'Compass',
+    isOpen: false,
+    isMinimized: false,
+    isMaximized: false,
+    zIndex: 1,
+    position: { x: 150, y: 75 },
+    size: { width: 1100, height: 700 },
   },
 ];
 
-const STORAGE_KEY_WINDOWS = 'macos_portfolio_windows_state_v9';
+const STORAGE_KEY_WINDOWS = 'macos_portfolio_windows_state_v10';
 
 const MAX_WINDOW_Z = 40;
-const APP_IDS: AppId[] = ['finder', 'terminal', 'notes', 'mail', 'settings', 'textedit', 'askai'];
+const APP_IDS: AppId[] = ['finder', 'terminal', 'notes', 'mail', 'settings', 'textedit', 'askai', 'music', 'safari'];
 
 // Clamp a window size so it fits the viewport (and never overflows it, even on
 // tiny screens where the requested width exceeds the usable space).
@@ -115,10 +140,10 @@ const fitSize = (size: { width: number; height: number }) => {
   if (typeof window === 'undefined') return { ...size };
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const maxW = Math.max(260, vw - 32);
-  const maxH = Math.max(180, vh - 104);
-  const minW = Math.min(360, maxW);
-  const minH = Math.min(280, maxH);
+  const maxW = Math.max(400, vw - 64);
+  const maxH = Math.max(300, vh - 140);
+  const minW = Math.min(400, maxW);
+  const minH = Math.min(300, maxH);
   return {
     width: Math.max(minW, Math.min(size.width, maxW)),
     height: Math.max(minH, Math.min(size.height, maxH)),
@@ -133,10 +158,10 @@ const clampPosition = (
   if (typeof window === 'undefined') return { ...position };
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const w = Math.min(size.width, vw - 32);
-  const h = Math.min(size.height, vh - 104);
+  const w = Math.min(size.width, vw - 64);
+  const h = Math.min(size.height, vh - 140);
   const maxX = Math.max(0, vw - w - 32);
-  const maxY = Math.max(28, vh - h - 40);
+  const maxY = Math.max(28, vh - h - 60);
   return {
     x: Math.max(8, Math.min(position.x, maxX)),
     y: Math.max(28, Math.min(position.y, maxY)),
@@ -181,11 +206,97 @@ const openLayout = (size: { width: number; height: number }) => {
   return {
     size: fitted,
     position: {
-      x: Math.max(0, Math.round((window.innerWidth - fitted.width) / 2)),
+      x: Math.max(8, Math.round((window.innerWidth - fitted.width) / 2)),
       y: Math.max(28, Math.round((window.innerHeight - fitted.height) / 2)),
     },
   };
 };
+
+interface WindowSlotProps {
+  win: WindowState;
+  isActive: boolean;
+  finderRoot: 'projects' | 'research';
+  finderFolderId: string | null;
+  finderRootNonce: number;
+  onFocus: (id: AppId) => void;
+  onClose: (id: AppId) => void;
+  onMinimize: (id: AppId) => void;
+  onMaximize: (id: AppId) => void;
+  onUpdatePosition: (id: AppId, x: number, y: number) => void;
+  onUpdateSize: (id: AppId, width: number, height: number) => void;
+  onOpenFile: (file: FileItem) => void;
+  onQuickLook: (images: FileItem[], index: number) => void;
+  browserTargetUrl?: string | null;
+  onBrowserNavigated?: () => void;
+}
+
+// Renders one window's chrome + app body. Memoized on the window's own state
+// object: Desktop re-renders on every drag frame, but non-dragged windows get
+// the same `win` reference (and stable callbacks), so their whole subtree —
+// including expensive bodies like Finder's file grid — skips re-rendering.
+const WindowSlot = memo(function WindowSlot({
+  win,
+  isActive,
+  finderRoot,
+  finderFolderId,
+  finderRootNonce,
+  onFocus,
+  onClose,
+  onMinimize,
+  onMaximize,
+  onUpdatePosition,
+  onUpdateSize,
+  onOpenFile,
+  onQuickLook,
+  browserTargetUrl,
+  onBrowserNavigated,
+}: WindowSlotProps) {
+  return (
+    <div className="pointer-events-auto">
+      <Window
+        windowState={win}
+        isActive={isActive}
+        onFocus={() => onFocus(win.id)}
+        onClose={() => onClose(win.id)}
+        onMinimize={() => onMinimize(win.id)}
+        onMaximize={() => onMaximize(win.id)}
+        onUpdatePosition={(x, y) => onUpdatePosition(win.id, x, y)}
+        onUpdateSize={(w, h) => onUpdateSize(win.id, w, h)}
+      >
+        {win.id === 'finder' && (
+          <FinderApp
+            key={finderRootNonce}
+            initialRoot={finderRoot}
+            initialFolderId={finderFolderId}
+            onOpenFile={onOpenFile}
+            onQuickLook={onQuickLook}
+          />
+        )}
+        {win.id === 'terminal' && <TerminalApp />}
+        {win.id === 'notes' && <NotesApp />}
+        {win.id === 'mail' && <MailApp />}
+        {win.id === 'settings' && <SettingsApp />}
+        {win.id === 'textedit' &&
+          (win.fileData?.type === 'pdf' ? (
+            <ResumeApp minimal fileData={win.fileData} />
+          ) : (
+            <TextEditApp
+              key={win.fileData?.id ?? 'library'}
+              fileData={win.fileData}
+            />
+          ))}
+        {win.id === 'askai' && <AskAIApp />}
+        {win.id === 'music' && <MusicApp />}
+        {win.id === 'safari' && (
+          <SafariApp
+            navigateToUrl={browserTargetUrl}
+            onNavigated={onBrowserNavigated}
+          />
+        )}
+      </Window>
+    </div>
+  );
+});
 
 interface DesktopProps {
   onTriggerBoot?: () => void;
@@ -224,6 +335,14 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
     index: number;
   } | null>(null);
 
+  // Stable identity so memoized WindowSlots don't re-render when Quick Look opens.
+  const handleQuickLook = useCallback((images: FileItem[], index: number) => {
+    setQuickLook({ images, index });
+  }, []);
+
+  // Fullscreen prompt — tracks whether the overlay has been dismissed this session.
+  const [showFsPrompt, setShowFsPrompt] = useState(true);
+
   // Intro entrance: plays on every full page load (and boot replay), but never
   // replays for window open/close since Desktop is not remounted for those.
   const [introPlayed, setIntroPlayed] = useState(false);
@@ -245,6 +364,11 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
   const [finderRoot, setFinderRoot] = useState<'projects' | 'research'>('projects');
   const [finderFolderId, setFinderFolderId] = useState<string | null>(null);
   const [finderRootNonce, setFinderRootNonce] = useState(0);
+
+  // Browser navigation state — when the dock or OS triggers a URL open,
+  // this prop tells SafariApp to navigate to that URL.
+  const [browserTargetUrl, setBrowserTargetUrl] = useState<string | null>(null);
+  const clearBrowserTarget = useCallback(() => setBrowserTargetUrl(null), []);
 
   // True while a MenuBar dropdown or modal is open so Escape/overlays behave
   const overlayOpenRef = useRef(false);
@@ -292,15 +416,52 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  // Save windows state (only after restore to avoid clobbering saved layout)
+  // Persist window state — debounced. Writing on every `windows` change would
+  // JSON.stringify + localStorage.setItem at 60fps while dragging; coalescing
+  // into a single save 400ms after the last change avoids that. Latest state is
+  // flushed immediately if the tab closes or is hidden mid-debounce.
+  const windowsRef = useRef(windows);
   useEffect(() => {
-    if (typeof window === 'undefined' || !restored) return;
+    windowsRef.current = windows;
+  }, [windows]);
+  const saveTimerRef = useRef<number | null>(null);
+
+  const persistWindows = useCallback(() => {
     try {
-      localStorage.setItem(STORAGE_KEY_WINDOWS, JSON.stringify(windows));
+      localStorage.setItem(STORAGE_KEY_WINDOWS, JSON.stringify(windowsRef.current));
     } catch (err) {
       console.error('Failed to save windows state:', err);
     }
-  }, [windows, restored]);
+  }, []);
+
+  useEffect(() => {
+    if (!restored) return;
+    if (saveTimerRef.current !== null) window.clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = window.setTimeout(persistWindows, 400);
+    return () => {
+      if (saveTimerRef.current !== null) window.clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    };
+  }, [windows, restored, persistWindows]);
+
+  useEffect(() => {
+    const flush = () => {
+      if (saveTimerRef.current !== null) {
+        window.clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = null;
+      }
+      persistWindows();
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') flush();
+    };
+    window.addEventListener('beforeunload', flush);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      window.removeEventListener('beforeunload', flush);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [persistWindows]);
 
   // Re-flow open windows whenever the viewport changes (rotate, split screen,
   // resize the browser) so no window is ever clipped or stranded off-screen.
@@ -431,6 +592,17 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
     setActiveAppId(appId);
   }, []);
 
+  // Open URL in Browser — opens Safari (if not already open) and navigates
+  // to the given URL. Used by dock GitHub/LinkedIn icons and any internal
+  // link that should open inside the OS browser rather than a real tab.
+  const handleOpenBrowserUrl = useCallback(
+    (url: string) => {
+      setBrowserTargetUrl(url);
+      handleFocusWindow('safari');
+    },
+    [handleFocusWindow]
+  );
+
   // Close Window
   const handleCloseWindow = useCallback(
     (id: AppId) => {
@@ -494,7 +666,25 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
   // Toggle Maximize
   const handleToggleMaximize = useCallback((id: AppId) => {
     setWindows((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, isMaximized: !w.isMaximized } : w))
+      prev.map((w) => {
+        if (w.id !== id) return w;
+        if (w.isMaximized) {
+          // Restore to saved position/size if available, otherwise use defaults
+          return {
+            ...w,
+            isMaximized: false,
+            position: w.preMaximizePosition || openLayout(w.size).position,
+            size: w.preMaximizeSize || w.size,
+          };
+        }
+        // Save current position/size before maximizing
+        return {
+          ...w,
+          isMaximized: true,
+          preMaximizePosition: { ...w.position },
+          preMaximizeSize: { ...w.size },
+        };
+      })
     );
   }, []);
 
@@ -657,11 +847,8 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
         />
       </motion.div>
 
-      {/* Desktop Icons (Top-Left Grid) — bounded reserved region: icons stack
-          downward and wrap into a new column once the region fills, so they can
-          never expand into the centered intro zone regardless of how many are
-          added later. */}
-      <div className="absolute top-12 left-6 bottom-88 z-10 flex flex-col flex-wrap content-start items-start gap-6 overflow-hidden">
+      {/* Desktop Icons (Top-Left Row) — icons placed in a single horizontal line. */}
+      <div className="absolute top-12 left-6 bottom-88 z-10 flex flex-row flex-wrap content-start items-start gap-6 overflow-hidden">
         {/* Desktop Documents — every PDF from /content/documents becomes an icon */}
         {DESKTOP_FILES.map((file) => (
           <div
@@ -749,50 +936,29 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
       </div>
 
       {/* Main Window Stage */}
-      <div className="absolute inset-0 pt-7 pb-16 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 pt-7 pb-[76px] pointer-events-none overflow-hidden">
         {[...windows]
           .sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0))
-          .map((win) => {
-          const isActive = activeAppId === win.id;
-          return (
-            <div key={win.id} className="pointer-events-auto">
-              <Window
-                windowState={win}
-                isActive={isActive}
-                onFocus={() => handleFocusWindow(win.id)}
-                onClose={() => handleCloseWindow(win.id)}
-                onMinimize={() => handleToggleMinimize(win.id)}
-                onMaximize={() => handleToggleMaximize(win.id)}
-                onUpdatePosition={(x, y) => handleUpdatePosition(win.id, x, y)}
-                onUpdateSize={(w, h) => handleUpdateSize(win.id, w, h)}
-              >
-                {win.id === 'finder' && (
-                  <FinderApp
-                    key={finderRootNonce}
-                    initialRoot={finderRoot}
-                    initialFolderId={finderFolderId}
-                    onOpenFile={handleOpenFile}
-                    onQuickLook={(images, index) => setQuickLook({ images, index })}
-                  />
-                )}
-                {win.id === 'terminal' && <TerminalApp />}
-                {win.id === 'notes' && <NotesApp />}
-                {win.id === 'mail' && <MailApp />}
-                {win.id === 'settings' && <SettingsApp />}
-                {win.id === 'textedit' &&
-                  (win.fileData?.type === 'pdf' ? (
-                    <ResumeApp minimal fileData={win.fileData} />
-                  ) : (
-                    <TextEditApp
-                      key={win.fileData?.id ?? 'library'}
-                      fileData={win.fileData}
-                    />
-                  ))}
-                {win.id === 'askai' && <AskAIApp />}
-              </Window>
-            </div>
-          );
-        })}
+          .map((win) => (
+            <WindowSlot
+              key={win.id}
+              win={win}
+              isActive={activeAppId === win.id}
+              finderRoot={finderRoot}
+              finderFolderId={finderFolderId}
+              finderRootNonce={finderRootNonce}
+              onFocus={handleFocusWindow}
+              onClose={handleCloseWindow}
+              onMinimize={handleToggleMinimize}
+              onMaximize={handleToggleMaximize}
+              onUpdatePosition={handleUpdatePosition}
+              onUpdateSize={handleUpdateSize}
+              onOpenFile={handleOpenFile}
+              onQuickLook={handleQuickLook}
+              browserTargetUrl={browserTargetUrl}
+              onBrowserNavigated={clearBrowserTarget}
+            />
+          ))}
       </div>
       {/* Bottom Dock */}
       <motion.div
@@ -809,6 +975,7 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
           activeAppId={activeAppId}
           onOpenApp={handleOpenApp}
           onToggleMinimize={handleToggleMinimize}
+          onNavigateToUrl={handleOpenBrowserUrl}
         />
       </motion.div>
 
@@ -843,6 +1010,11 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
           initialIndex={quickLook.index}
           onClose={() => setQuickLook(null)}
         />
+      )}
+
+      {/* Fullscreen Prompt — desktop only, after intro completes */}
+      {showFsPrompt && introPlayed && (
+        <FullscreenPrompt onDismiss={() => setShowFsPrompt(false)} />
       )}
     </div>
   );

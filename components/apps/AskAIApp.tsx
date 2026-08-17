@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import Image from 'next/image';
 import { Send, RotateCcw } from 'lucide-react';
 
@@ -25,7 +25,7 @@ const nextId = () =>
     ? crypto.randomUUID()
     : `msg-${++messageSeq}`;
 
-export function AskAIApp() {
+export const AskAIApp = memo(function AskAIApp() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -252,4 +252,4 @@ export function AskAIApp() {
       </div>
     </div>
   );
-}
+});
