@@ -473,7 +473,7 @@ function BlockedSiteCard({ url }: { url: string }) {
       {/* Favicon / Logo */}
       <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/10 dark:bg-white/5 border border-white/15 flex items-center justify-center overflow-hidden shadow-lg">
         {faviconUrl ? (
-          <img
+          <img // eslint-disable-line @next/next/no-img-element
             src={faviconUrl}
             alt={domain}
             className="w-10 h-10 object-contain"

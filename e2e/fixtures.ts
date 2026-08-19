@@ -20,7 +20,7 @@ export const test = base.extend<ConsoleFixtures>({
     page.on('pageerror', (err) => {
       errors.push(err.message);
     });
-    await use(errors);
+    await use(errors); // eslint-disable-line react-hooks/rules-of-hooks
     // After the test body runs, assert zero console errors
     // Filter out known benign errors (favicon 404, etc.)
     const real = errors.filter(
