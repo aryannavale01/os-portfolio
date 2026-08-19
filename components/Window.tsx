@@ -3,8 +3,10 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
 import { WindowState } from '@/types/mac';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Minus, Maximize2, Minimize2 } from 'lucide-react';
+import { springSmooth, springSnappy, springGenie, getAnimationConfig } from '@/lib/animations';
 
 interface WindowProps {
   windowState: WindowState;
@@ -45,6 +47,8 @@ export const Window = memo(function Window({
   children,
 }: WindowProps) {
   const isMobile = useIsMobile();
+  const prefersReducedMotion = useReducedMotion();
+  const animCfg = getAnimationConfig(prefersReducedMotion);
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [resizeDir, setResizeDir] = useState<ResizeDirection>(null);
@@ -173,23 +177,25 @@ export const Window = memo(function Window({
   if (isMobile) {
     if (windowState.isMinimized) return null;
     return (
-      <div className="fixed inset-0 top-7 bottom-16 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl text-slate-900 dark:text-slate-100 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-200">
+      <div className="fixed inset-0 top-7 bottom-16 z-40 bg-surface-container/95 backdrop-blur-2xl text-on-surface flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-200">
         {/* Mobile Header Bar */}
-        <div className="h-11 px-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex items-center justify-between shrink-0">
+        <div className="h-11 px-4 border-b border-white/10 bg-surface-container-low flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold">{windowState.title}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.9 }}
               onClick={onMinimize}
-              className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-on-surface"
               title="Minimize"
             >
               <Minus className="w-4 h-4" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
               onClick={onMaximize}
-              className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-on-surface"
               title={windowState.isMaximized ? 'Restore' : 'Maximize'}
             >
               {windowState.isMaximized ? (
@@ -197,14 +203,15 @@ export const Window = memo(function Window({
               ) : (
                 <Maximize2 className="w-4 h-4" />
               )}
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
               onClick={onClose}
-              className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-on-surface"
               title="Close"
             >
               <X className="w-4 h-4" />
-            </button>
+            </motion.button>
           </div>
         </div>
         {/* Mobile Content */}
@@ -216,11 +223,11 @@ export const Window = memo(function Window({
   // Desktop Window styling
   const windowStyle: React.CSSProperties = windowState.isMaximized
     ? {
-        position: 'fixed',
+        position: 'absolute',
         top: '28px',
         left: '0',
-        width: '100vw',
-        height: 'calc(100vh - 104px)',
+        right: '0',
+        bottom: '76px',
         zIndex: windowState.zIndex,
       }
     : {
@@ -239,23 +246,31 @@ export const Window = memo(function Window({
           ref={windowRef}
           style={windowStyle}
           onClick={onFocus}
-          initial={{ scale: 0.85, opacity: 0, y: 40 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{
-            scale: 0.1,
-            opacity: 0,
-            y: typeof window !== 'undefined' ? window.innerHeight - windowState.position.y - 100 : 300,
-            x: typeof window !== 'undefined' ? window.innerWidth / 2 - windowState.position.x - windowState.size.width / 2 : 0,
-          }}
-          transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+          initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0.92, opacity: 0, y: 20 }}
+          animate={
+            isDragging
+              ? { scale: 1.01, opacity: 1, y: 0, filter: 'drop-shadow(0 24px 48px rgba(0,0,0,0.55))' }
+              : { scale: 1, opacity: 1, y: 0, filter: 'drop-shadow(0 0 0px rgba(0,0,0,0))' }
+          }
+          exit={
+            prefersReducedMotion
+              ? { opacity: 0 }
+              : {
+                  scale: 0.1,
+                  opacity: 0,
+                  y: typeof window !== 'undefined' ? window.innerHeight - windowState.position.y - 100 : 300,
+                  x: typeof window !== 'undefined' ? window.innerWidth / 2 - windowState.position.x - windowState.size.width / 2 : 0,
+                }
+          }
+          transition={isDragging ? animCfg.snappyTransition : animCfg.windowTransition}
           className={`rounded-xl overflow-hidden flex flex-col font-sans relative ${
             isDragging || resizeDir
               ? 'select-none'
               : 'transition-colors transition-shadow duration-200'
           } ${
             isActive
-              ? 'bg-white/85 dark:bg-slate-900/80 backdrop-blur-3xl border border-black/10 dark:border-white/25 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] ring-1 ring-accent-500/40'
-              : 'bg-white/70 dark:bg-slate-950/60 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-lg opacity-85 grayscale-[20%]'
+              ? 'bg-white/[0.08] backdrop-blur-[20px] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] ring-1 ring-secondary/50'
+              : 'bg-white/[0.04] backdrop-blur-xl border border-white/5 shadow-lg opacity-85 grayscale-[20%]'
           }`}
         >
           {/* Title Bar / Header */}
@@ -264,8 +279,8 @@ export const Window = memo(function Window({
             onDoubleClick={onMaximize}
             className={`h-10 px-4 flex items-center justify-between border-b select-none cursor-grab active:cursor-grabbing shrink-0 transition-colors ${
               isActive
-                ? 'bg-black/5 border-black/10 dark:bg-white/10 dark:border-white/15'
-                : 'bg-black/[0.03] border-black/5 dark:bg-white/5 dark:border-white/5'
+                ? 'bg-white/10 border-white/15'
+                : 'bg-white/5 border-white/5'
             }`}
           >
             <div className="w-20" />
@@ -273,7 +288,7 @@ export const Window = memo(function Window({
             {/* Title */}
             <div
               className={`text-[13px] font-semibold truncate px-2 text-center flex-1 transition-colors ${
-                isActive ? 'text-slate-900 dark:text-white/90' : 'text-slate-400 dark:text-white/40'
+                isActive ? 'text-on-surface' : 'text-on-surface-variant/40'
               }`}
             >
               {windowState.title}
@@ -281,26 +296,28 @@ export const Window = memo(function Window({
 
             {/* Traffic Lights / Controls (Right Side) */}
             <div className="flex items-center justify-end gap-2 group w-20">
-              <button
+              <motion.button
+                whileTap={{ scale: 0.85 }}
                 onClick={(e) => {
                   e.stopPropagation();
                   onMinimize();
                 }}
                 className={`w-3 h-3 rounded-full flex items-center justify-center text-black/70 hover:text-black transition-colors ${
-                  isActive ? 'bg-[#febc2e]' : 'bg-slate-600'
+                  isActive ? 'bg-[#FFBD2E]' : 'bg-on-surface-variant/30'
                 }`}
                 title="Minimize (Cmd+M)"
               >
                 <Minus className="w-2 h-2 opacity-0 group-hover:opacity-100 text-black" />
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
+                whileTap={{ scale: 0.85 }}
                 onClick={(e) => {
                   e.stopPropagation();
                   onMaximize();
                 }}
                 className={`w-3 h-3 rounded-full flex items-center justify-center text-black/70 hover:text-black transition-colors ${
-                  isActive ? 'bg-[#28c840]' : 'bg-slate-600'
+                  isActive ? 'bg-[#27C93F]' : 'bg-on-surface-variant/30'
                 }`}
                 title={windowState.isMaximized ? 'Restore' : 'Maximize'}
               >
@@ -309,25 +326,26 @@ export const Window = memo(function Window({
                 ) : (
                   <Maximize2 className="w-2 h-2 opacity-0 group-hover:opacity-100 text-black" />
                 )}
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
+                whileTap={{ scale: 0.85 }}
                 onClick={(e) => {
                   e.stopPropagation();
                   onClose();
                 }}
                 className={`w-3 h-3 rounded-full flex items-center justify-center text-black/70 hover:text-black transition-colors ${
-                  isActive ? 'bg-[#ff5f57]' : 'bg-slate-600'
+                  isActive ? 'bg-[#FF5F56]' : 'bg-on-surface-variant/30'
                 }`}
                 title="Close (Cmd+W)"
               >
                 <X className="w-2 h-2 opacity-0 group-hover:opacity-100 text-black" />
-              </button>
+              </motion.button>
             </div>
           </div>
 
           {/* Window Body */}
-          <div className="flex-1 overflow-hidden relative text-slate-900 dark:text-white">{children}</div>
+          <div className="flex-1 overflow-hidden relative text-on-surface">{children}</div>
 
           {/* 8-Direction Resize Handles */}
           {!windowState.isMaximized && (
@@ -372,7 +390,7 @@ export const Window = memo(function Window({
                 onMouseDown={(e) => handleResizeMouseDown(e, 'se')}
                 className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize z-50 flex items-end justify-end p-0.5 opacity-40 hover:opacity-100"
               >
-                <div className="w-2 h-2 border-r-2 border-b-2 border-slate-400" />
+                <div className="w-2 h-2 border-r-2 border-b-2 border-on-surface-variant/40" />
               </div>
             </>
           )}

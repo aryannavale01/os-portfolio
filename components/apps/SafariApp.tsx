@@ -52,7 +52,7 @@ const FAVORITES: FavoriteTile[] = [
   {
     name: 'Wikipedia',
     url: 'https://en.wikipedia.org/wiki/Main_Page',
-    icon: <span className="text-xl font-serif font-bold text-slate-800">W</span>,
+    icon: <span className="text-xl font-serif font-bold text-on-surface">W</span>,
     color: 'from-slate-100 to-slate-300',
   },
   {
@@ -70,7 +70,7 @@ const FAVORITES: FavoriteTile[] = [
   {
     name: 'Hacker News',
     url: 'https://news.ycombinator.com',
-    icon: <span className="text-lg font-bold text-slate-900">Y</span>,
+    icon: <span className="text-lg font-bold text-on-surface">Y</span>,
     color: 'from-orange-400 to-orange-500',
   },
 ];
@@ -282,35 +282,38 @@ export const SafariApp = memo(function SafariApp({
   const showFallback = (blocked || loadError) && currentUrl;
 
   return (
-    <div className="h-full flex flex-col bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white select-none">
+    <div className="h-full flex flex-col bg-surface-container-low dark:bg-surface-container text-on-surface select-none">
       {/* Browser Chrome */}
-      <div className="shrink-0 border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/80">
+      <div className="shrink-0 border-b border-outline-variant bg-surface-container-lowest dark:bg-surface-container-high/80">
         {/* Navigation Controls */}
         <div className="flex items-center gap-1.5 px-3 py-2">
           {/* Back */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={handleBack}
             disabled={!canGoBack}
-            className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-default transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-default transition-colors"
             title="Back"
           >
             <ArrowLeft className="w-4 h-4" />
-          </button>
+          </motion.button>
 
           {/* Forward */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={handleForward}
             disabled={!canGoForward}
-            className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-default transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-container-high disabled:opacity-30 disabled:cursor-default transition-colors"
             title="Forward"
           >
             <ArrowRight className="w-4 h-4" />
-          </button>
+          </motion.button>
 
           {/* Reload / Stop */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={handleReload}
-            className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors"
             title={isLoading ? 'Stop' : 'Reload'}
           >
             <AnimatePresence mode="wait" initial={false}>
@@ -329,32 +332,33 @@ export const SafariApp = memo(function SafariApp({
                 </motion.div>
               )}
             </AnimatePresence>
-          </button>
+          </motion.button>
 
           {/* Home */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={handleHome}
-            className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-surface-container-high transition-colors"
             title="Home"
           >
             <Home className="w-4 h-4" />
-          </button>
+          </motion.button>
 
           {/* Address Bar */}
           <form onSubmit={handleAddressSubmit} className="flex-1 mx-1.5">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 focus-within:border-sky-400 dark:focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-400/40 transition-all">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-low dark:bg-surface-container-high/60 border border-outline-variant focus-within:border-sky-400 dark:focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-400/40 transition-all">
               {!isStartPage && currentUrl && (
                 <Shield className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
               )}
               {isStartPage && (
-                <Compass className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <Compass className="w-3.5 h-3.5 text-on-surface-variant shrink-0" />
               )}
               <input
                 type="text"
                 value={addressBarInput}
                 onChange={(e) => setAddressBarInput(e.target.value)}
                 placeholder="Search or enter website name"
-                className="flex-1 bg-transparent text-xs text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 outline-none font-medium"
+                className="flex-1 bg-transparent text-xs text-on-surface placeholder-on-surface-variant outline-none font-medium"
                 spellCheck={false}
               />
             </div>
@@ -415,19 +419,19 @@ export const SafariApp = memo(function SafariApp({
 
 function StartPage({ onNavigate }: { onNavigate: (url: string) => void }) {
   return (
-    <div className="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-slate-50 to-slate-200 dark:from-slate-900 dark:to-slate-950">
+    <div className="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-surface-container-low to-surface-container-high dark:from-surface-container dark:to-surface-container-lowest">
       <div className="mb-8 text-center">
         <Compass className="w-10 h-10 text-sky-500 mx-auto mb-3" />
-        <h2 className="text-lg font-bold text-slate-800 dark:text-white">
+        <h2 className="text-lg font-bold text-on-surface">
           Safari
         </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-xs text-on-surface-variant mt-1">
           Browse the web
         </p>
       </div>
 
       <div className="w-full max-w-md">
-        <h3 className="text-[10px] font-semibold tracking-wider text-slate-400 dark:text-slate-500 uppercase mb-3 text-center">
+        <h3 className="text-[10px] font-semibold tracking-wider text-on-surface-variant uppercase mb-3 text-center">
           Favorites
         </h3>
         <div className="grid grid-cols-3 gap-3">
@@ -444,7 +448,7 @@ function StartPage({ onNavigate }: { onNavigate: (url: string) => void }) {
               >
                 {fav.icon}
               </div>
-              <span className="text-[10px] font-medium text-slate-700 dark:text-slate-300 truncate w-full text-center">
+              <span className="text-[10px] font-medium text-on-surface truncate w-full text-center">
                 {fav.name}
               </span>
             </motion.button>
@@ -483,17 +487,17 @@ function BlockedSiteCard({ url }: { url: string }) {
       </div>
 
       {/* Domain */}
-      <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
+      <h3 className="text-base font-bold text-on-surface mb-1">
         {domain}
       </h3>
 
       {/* URL */}
-      <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mb-4">
+      <p className="text-[10px] text-on-surface-variant truncate mb-4">
         {url}
       </p>
 
       {/* Message */}
-      <p className="text-xs text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+      <p className="text-xs text-on-surface mb-6 leading-relaxed">
         This site doesn&apos;t allow embedded browsing.
         <br />
         Open it in a real browser tab to view the full experience.

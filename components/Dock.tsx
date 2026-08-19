@@ -11,6 +11,9 @@ import {
   MotionValue,
 } from 'motion/react';
 import { useTheme } from '@/components/context/ThemeContext';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { springBouncy, springSnappy, getAnimationConfig } from '@/lib/animations';
 import {
   Folder,
   Terminal,
@@ -59,12 +62,12 @@ const PINNED_DOCK_ITEMS: DockItemConfig[] = [
     id: 'terminal',
     name: 'Terminal (Skills CLI)',
     icon: <Terminal className="w-4.5 h-4.5 text-emerald-400" />,
-    bgGradient: 'from-slate-950 to-black border border-white/20',
+    bgGradient: 'from-surface-container-lowest to-surface border border-white/20',
   },
   {
     id: 'notes',
     name: 'Notes (About Me)',
-    icon: <Edit3 className="w-4.5 h-4.5 text-slate-900" />,
+    icon: <Edit3 className="w-4.5 h-4.5 text-on-surface" />,
     bgGradient: 'from-yellow-300 to-amber-500',
   },
   {
@@ -76,7 +79,7 @@ const PINNED_DOCK_ITEMS: DockItemConfig[] = [
   {
     id: 'settings',
     name: 'System Settings',
-    icon: <Settings className="w-4.5 h-4.5 text-slate-800" />,
+    icon: <Settings className="w-4.5 h-4.5 text-on-surface" />,
     bgGradient: 'from-gray-200 to-gray-400',
   },
   {
@@ -104,7 +107,7 @@ const EXTERNAL_DOCK_ITEMS: DockItemConfig[] = [
     id: 'github',
     name: 'GitHub Profile',
     icon: <Github className="w-4.5 h-4.5 text-white" />,
-    bgGradient: 'from-slate-800 to-slate-950 border border-white/10',
+    bgGradient: 'from-surface-container-high to-surface border border-white/10',
     isExternal: true,
     externalUrl: 'https://github.com/aryannavale01',
   },
@@ -136,6 +139,8 @@ function DockIconItem({
   onNavigateToUrl?: (url: string) => void;
 }) {
   const { dockIconSize } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
+  const animCfg = getAnimationConfig(prefersReducedMotion);
   const ref = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isBouncing, setIsBouncing] = useState(false);
@@ -191,7 +196,7 @@ function DockIconItem({
       ref={ref}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative flex flex-col items-center justify-end group pb-0.5"
+      className="relative flex flex-col items-center justify-center group"
     >
       {/* Tooltip */}
       <AnimatePresence>
@@ -201,7 +206,7 @@ function DockIconItem({
             animate={{ opacity: 1, y: -4, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.9 }}
             transition={{ duration: 0.12 }}
-            className="absolute -top-8 px-2 py-0.5 bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white text-[10px] font-medium rounded-md shadow-lg whitespace-nowrap pointer-events-none backdrop-blur-md border border-black/10 dark:border-white/15 z-50"
+            className="absolute -top-8 px-2 py-0.5 bg-surface-container-high/90 text-on-surface text-[10px] font-medium rounded-md shadow-lg whitespace-nowrap pointer-events-none backdrop-blur-md border border-white/15 z-50"
           >
             {item.name}
           </motion.div>
@@ -211,16 +216,17 @@ function DockIconItem({
       {/* Dock Icon Box */}
       <motion.button
         onClick={handleClick}
+        whileTap={{ scale: 0.88 }}
         style={{ width: size, height: size }}
-        animate={isBouncing ? { y: [0, -14, 0, -6, 0] } : { y: 0 }}
+        animate={isBouncing ? { y: -16 } : { y: 0 }}
         transition={
           isBouncing
-            ? { duration: 0.5, ease: 'easeOut' }
-            : { type: 'spring', stiffness: 350, damping: 22 }
+            ? animCfg.bouncyTransition
+            : animCfg.snappyTransition
         }
         aria-label={item.name}
         title={item.name}
-        className={`rounded-xl bg-gradient-to-b ${item.bgGradient} flex items-center justify-center shadow-md active:scale-90 transition-shadow relative overflow-hidden shrink-0`}
+        className={`rounded-xl bg-gradient-to-b ${item.bgGradient} flex items-center justify-center shadow-md transition-shadow relative overflow-hidden shrink-0`}
       >
         {/* Icon is decorative — the accessible name lives on the button. */}
         <span aria-hidden="true" className="pointer-events-none flex items-center justify-center">
@@ -229,15 +235,21 @@ function DockIconItem({
       </motion.button>
 
       {/* Active Indicator Dot */}
-      {isOpen && (
-        <div
-          className={`w-1 h-1 rounded-full mt-1 transition-all ${
-            isFocused
-              ? 'bg-accent-500 shadow-sm shadow-accent-500/50 scale-110'
-              : 'bg-slate-900/40 dark:bg-white/50'
-          }`}
-        />
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={animCfg.snappyTransition}
+            className={`w-1 h-1 rounded-full mt-1 ${
+              isFocused
+                ? 'bg-secondary shadow-sm shadow-secondary-glow'
+                : 'bg-white/50'
+            }`}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -250,21 +262,26 @@ export function Dock({
   onNavigateToUrl,
 }: DockProps) {
   const { dockIconSize } = useTheme();
+  const isMobile = useIsMobile();
   const mouseX = useMotionValue(Infinity);
 
   const dockHeightClass =
     dockIconSize === 'small'
-      ? 'h-[40px]'
+      ? 'h-10'
       : dockIconSize === 'large'
-      ? 'h-[58px]'
-      : 'h-[48px]';
+      ? 'h-[3.625rem]'
+      : 'h-12';
+
+  const dockShellClass = isMobile
+    ? 'max-w-[calc(100vw-0.75rem)] overflow-x-auto overflow-y-hidden px-3 py-2 gap-1.5 rounded-2xl'
+    : 'px-6 py-3 gap-1.5 rounded-full';
 
   return (
-    <div className="fixed bottom-2.5 left-0 right-0 z-40 flex justify-center pointer-events-none select-none">
+    <div className="fixed bottom-3 left-0 right-0 z-40 flex justify-center pointer-events-none select-none">
       <motion.div
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Infinity)}
-        className={`pointer-events-auto ${dockHeightClass} bg-white/40 dark:bg-slate-900/50 backdrop-blur-2xl rounded-[16px] border border-black/10 dark:border-white/10 px-2 flex items-end gap-1.5 shadow-2xl transition-all`}
+        className={`pointer-events-auto ${dockHeightClass} ${dockShellClass} bg-surface-container/60 backdrop-blur-2xl border border-white/10 flex items-center shadow-2xl transition-all`}
       >
         {/* Pinned Standard Apps */}
         {PINNED_DOCK_ITEMS.map((item) => (

@@ -52,17 +52,17 @@ export function ProjectGallery({ images, onOpenImage }: ProjectGalleryProps) {
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-2">
-        <Images className="w-4 h-4 text-accent-500" />
-        <h3 className="text-[11px] font-bold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+        <Images className="w-4 h-4 text-primary" />
+        <h3 className="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase">
           Screenshots & Gallery
         </h3>
-        <span className="text-[10px] text-slate-400 font-medium">
+        <span className="text-[10px] text-on-surface-variant font-medium">
           {activeIndex + 1} of {total}
         </span>
       </div>
 
       <div
-        className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-950 shadow-lg group select-none"
+        className="relative rounded-2xl overflow-hidden border border-outline-variant bg-surface-container-lowest shadow-lg group select-none"
         onPointerDown={handlePointerDown}
         onPointerUp={handlePointerUp}
         onPointerLeave={() => {

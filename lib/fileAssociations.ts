@@ -1,8 +1,4 @@
-import { FileItem, AppId } from '@/types/mac';
-
-export function getAssociatedApp(file: FileItem): AppId {
-  return 'textedit';
-}
+import type { FileItem } from '@/types/mac';
 
 export function getFileTypeLabel(file: FileItem): string {
   if (file.type === 'folder') return 'Folder';

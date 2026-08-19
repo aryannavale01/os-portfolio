@@ -4,6 +4,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import Image from 'next/image';
 import { FileItem } from '@/types/mac';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { getAnimationConfig } from '@/lib/animations';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 interface QuickLookProps {
@@ -16,6 +18,8 @@ export function QuickLook({ images, initialIndex, onClose }: QuickLookProps) {
   const [index, setIndex] = useState(initialIndex);
   const total = images.length;
   const active = images[Math.max(0, Math.min(index, total - 1))];
+  const prefersReducedMotion = useReducedMotion();
+  const animCfg = getAnimationConfig(prefersReducedMotion);
 
   const goPrev = useCallback(() => {
     setIndex((i) => Math.max(0, i - 1));
@@ -53,29 +57,38 @@ export function QuickLook({ images, initialIndex, onClose }: QuickLookProps) {
   if (total === 0) return null;
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={prefersReducedMotion ? { duration: 0.01 } : { duration: 0.2, ease: 'easeOut' }}
       onClick={onClose}
-      className="fixed inset-0 z-[80] bg-black/90 backdrop-blur-md flex flex-col font-sans select-none animate-in fade-in duration-150"
+      className="fixed inset-0 z-[80] bg-black/90 backdrop-blur-md flex flex-col font-sans select-none"
     >
       {/* Top Bar */}
       <div className="flex items-center justify-between px-4 h-12 shrink-0 text-white">
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-xs font-bold truncate">{active?.name}</span>
-          <span className="text-[11px] text-slate-400 shrink-0">
+          <span className="text-[11px] text-on-surface-variant shrink-0">
             {Math.max(0, Math.min(index, total - 1)) + 1} of {total}
           </span>
         </div>
-        <button
+        <motion.button
+          whileTap={{ scale: 0.95 }}
           onClick={onClose}
-          className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg hover:bg-white/10 text-on-surface-variant hover:text-on-surface transition-colors"
           title="Close Quick Look (Esc)"
         >
           <X className="w-4 h-4" />
-        </button>
+        </motion.button>
       </div>
 
       {/* Image Stage */}
-      <div
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={prefersReducedMotion ? { duration: 0.01 } : animCfg.snappyTransition}
         className="flex-1 relative overflow-hidden flex items-center justify-center px-16"
         onClick={(e) => e.stopPropagation()}
       >
@@ -103,25 +116,27 @@ export function QuickLook({ images, initialIndex, onClose }: QuickLookProps) {
 
         {total > 1 && (
           <>
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={goPrev}
               disabled={Math.max(0, Math.min(index, total - 1)) === 0}
               className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/25 text-white disabled:opacity-25 disabled:hover:bg-white/10 transition-colors"
               title="Previous (←)"
             >
               <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={goNext}
               disabled={Math.max(0, Math.min(index, total - 1)) === total - 1}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/10 hover:bg-white/25 text-white disabled:opacity-25 disabled:hover:bg-white/10 transition-colors"
               title="Next (→)"
             >
               <ChevronRight className="w-5 h-5" />
-            </button>
+            </motion.button>
           </>
         )}
-      </div>
+      </motion.div>
 
       {/* Dots */}
       {total > 1 && (
@@ -143,6 +158,6 @@ export function QuickLook({ images, initialIndex, onClose }: QuickLookProps) {
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

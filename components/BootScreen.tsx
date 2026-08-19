@@ -53,7 +53,7 @@ export function BootScreen({ onBootComplete }: BootScreenProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[100] bg-black text-white flex flex-col items-center justify-center select-none font-sans"
+          className="fixed inset-0 z-[100] bg-surface-container-lowest text-on-surface flex flex-col items-center justify-center select-none font-sans"
         >
           {/* Logo */}
           <motion.div
@@ -76,22 +76,22 @@ export function BootScreen({ onBootComplete }: BootScreenProps) {
               <h1 className="text-lg font-bold tracking-tight text-white">
                 AN OS
               </h1>
-              <p className="text-xs text-slate-400 font-mono">
+              <p className="text-xs text-on-surface-variant font-mono">
                 {PORTFOLIO_INFO.role} • v2.6
               </p>
             </div>
           </motion.div>
 
           {/* Progress Bar Container */}
-          <div className="w-56 h-1.5 bg-slate-800 rounded-full overflow-hidden shadow-inner border border-white/10">
+          <div className="w-56 h-1.5 bg-surface-container-high rounded-full overflow-hidden shadow-inner border border-white/10">
             <motion.div
-              className="h-full bg-white rounded-full"
+              className="h-full bg-secondary rounded-full"
               style={{ width: `${progress}%` }}
               transition={{ ease: 'easeOut' }}
             />
           </div>
 
-          <p className="mt-4 text-[11px] text-slate-500 font-mono">
+          <p className="mt-4 text-[11px] text-on-surface-variant/60 font-mono">
             {progress < 40
               ? 'Initializing AN OS...'
               : progress < 80

@@ -24,9 +24,7 @@ export function DesktopIntro({ stage, playEntrance }: DesktopIntroProps) {
         initial={playEntrance ? { y: 28, opacity: 0 } : false}
         animate={shown ? { y: 0, opacity: 1 } : { y: 28, opacity: 0 }}
         transition={{ duration: 0.7, ease: 'easeOut', delay: playEntrance ? 0.4 : 0 }}
-        className={`text-[clamp(2.75rem,7vw,6rem)] font-bold tracking-tight text-center ${
-          isLight ? 'text-slate-900' : 'text-white'
-        } drop-shadow-[0_1px_12px_rgba(0,0,0,0.5)]`}
+        className={`text-[clamp(2.75rem,7vw,6rem)] font-bold tracking-tight text-center text-on-surface drop-shadow-[0_1px_12px_rgba(0,0,0,0.5)]`}
       >
         {PORTFOLIO_INFO.name}
       </motion.h1>
@@ -41,7 +39,7 @@ export function DesktopIntro({ stage, playEntrance }: DesktopIntroProps) {
           active={shown}
           centered
           className={`text-[clamp(1.125rem,3.5vw,1.5rem)] font-medium tracking-wide ${
-            isLight ? 'text-slate-800' : 'text-white'
+            isLight ? 'text-on-surface' : 'text-on-surface-variant'
           } drop-shadow-[0_1px_8px_rgba(0,0,0,0.45)]`}
           caretClassName="bg-current"
         />

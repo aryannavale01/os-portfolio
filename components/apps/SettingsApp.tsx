@@ -2,7 +2,10 @@
 
 import React, { useState, memo } from 'react';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'motion/react';
 import { useTheme } from '@/components/context/ThemeContext';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { tabContentVariants, getAnimationConfig } from '@/lib/animations';
 import { AccentColor } from '@/types/mac';
 import { WALLPAPERS } from '@/lib/wallpapers';
 import { PORTFOLIO_INFO } from '@/lib/data';
@@ -51,6 +54,9 @@ export const SettingsApp = memo(function SettingsApp() {
     setSidebarWidth,
   } = useTheme();
 
+  const prefersReducedMotion = useReducedMotion();
+  const animCfg = getAnimationConfig(prefersReducedMotion);
+
   const sidebarWidthClass =
     sidebarWidth === 'compact' ? 'w-48' : sidebarWidth === 'wide' ? 'w-72' : 'w-64';
   const sidebarIconClass =
@@ -71,36 +77,37 @@ export const SettingsApp = memo(function SettingsApp() {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row h-full w-full select-none bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 overflow-hidden font-sans">
+    <div className="flex flex-col md:flex-row h-full w-full select-none bg-surface text-on-surface overflow-hidden font-sans">
       {/* Mobile Top Navigation Bar (Shown on small screens) */}
-      <div className="md:hidden border-b border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-950/80 p-2.5 flex items-center justify-between shrink-0">
+      <div className="md:hidden border-b border-outline-variant bg-surface-container-low/80 p-2.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2">
           <Sliders className="w-4 h-4 text-blue-500" />
           <span className="font-bold text-xs">System Settings</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="flex items-center bg-slate-200 dark:bg-slate-800 p-0.5 rounded-lg text-[11px] font-medium overflow-x-auto max-w-[220px] sm:max-w-none">
+          <div className="flex items-center bg-surface-container-high p-0.5 rounded-lg text-[11px] font-medium overflow-x-auto max-w-[220px] sm:max-w-none">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <button
+                <motion.button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
+                  whileTap={{ scale: 0.95 }}
                   className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all whitespace-nowrap ${
                     activeTab === tab.id
-                      ? 'bg-accent-600 text-white shadow-xs'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                      ? 'bg-primary-container text-on-primary-container shadow-xs'
+                      : 'text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">{tab.label.split(' ')[0]}</span>
-                </button>
+                </motion.button>
               );
             })}
           </div>
           <button
             onClick={() => setIsLocked(true)}
-            className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors"
+            className="p-1.5 rounded-lg bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest transition-colors"
             title="Lock Workstation"
           >
             <Lock className="w-3.5 h-3.5 text-amber-500" />
@@ -109,8 +116,8 @@ export const SettingsApp = memo(function SettingsApp() {
       </div>
 
       {/* Desktop Sidebar (Hidden on mobile) */}
-      <div className={`hidden md:flex ${sidebarWidthClass} border-r border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-950/40 p-3 flex-col gap-3 text-xs shrink-0`}>
-        <div className="px-2 pb-1 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+      <div className={`hidden md:flex ${sidebarWidthClass} border-r border-outline-variant bg-surface-container-low/60 p-3 flex-col gap-3 text-xs shrink-0`}>
+        <div className="px-2 pb-1 text-[10px] font-semibold tracking-wider text-on-surface-variant uppercase">
           System Preferences
         </div>
 
@@ -119,25 +126,26 @@ export const SettingsApp = memo(function SettingsApp() {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
-              <button
+              <motion.button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                whileTap={{ scale: 0.97 }}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left font-medium transition-all ${
                   isActive
-                    ? 'bg-accent-600 text-white shadow-xs'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
+                    ? 'bg-primary-container text-on-primary-container shadow-xs'
+                    : 'text-on-surface-variant hover:bg-surface-container-high/60'
                 }`}
               >
-                <Icon className={`${sidebarIconClass} shrink-0 ${isActive ? 'text-white' : 'text-accent-500'}`} />
+                <Icon className={`${sidebarIconClass} shrink-0 ${isActive ? 'text-on-primary-container' : 'text-primary'}`} />
                 <span className="truncate">{tab.label}</span>
-              </button>
+              </motion.button>
             );
           })}
 
-          <div className="pt-2 my-2 border-t border-slate-200 dark:border-slate-800">
+          <div className="pt-2 my-2 border-t border-outline-variant">
             <button
               onClick={() => setIsLocked(true)}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left font-medium text-slate-700 dark:text-slate-300 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left font-medium text-on-surface-variant hover:bg-red-500/10 hover:text-error transition-colors"
             >
               <Lock className="w-4 h-4 text-amber-500 shrink-0" />
               <span>Lock Screen</span>
@@ -145,7 +153,7 @@ export const SettingsApp = memo(function SettingsApp() {
           </div>
         </div>
 
-        <div className="pt-3 border-t border-slate-200 dark:border-slate-800 text-[10px] text-slate-400 flex items-center justify-between">
+        <div className="pt-3 border-t border-outline-variant text-[10px] text-on-surface-variant flex items-center justify-between">
           <span>macOS Sonoma</span>
           <span>v15.2</span>
         </div>
@@ -153,110 +161,123 @@ export const SettingsApp = memo(function SettingsApp() {
 
       {/* Main Settings Panel */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 space-y-6">
-        {/* TAB 1: APPEARANCE & WALLPAPER */}
-        {activeTab === 'appearance' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            variants={tabContentVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={animCfg.smoothTransition}
+          >
+            {/* TAB 1: APPEARANCE & WALLPAPER */}
+            {activeTab === 'appearance' && (
+              <div className="space-y-6">
             <div>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1 flex items-center gap-2">
+              <h2 className="text-sm font-bold text-on-surface mb-1 flex items-center gap-2">
                 <Monitor className="w-4 h-4 text-blue-500" /> Appearance Mode
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+              <p className="text-xs text-on-surface-variant mb-3">
                 Select your preferred theme palette for windows, dialogs, and navigation.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
-                <button
+                <motion.button
                   onClick={() => setTheme('dark')}
+                  whileTap={{ scale: 0.97 }}
                   className={`p-4 rounded-xl border flex items-center gap-3 transition-all ${
                     theme === 'dark'
-                      ? 'border-accent-500 bg-accent-500/10 text-accent-500 ring-1 ring-accent-500/30 shadow-xs'
-                      : 'border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      ? 'border-primary bg-primary/10 text-primary ring-1 ring-primary/30 shadow-xs'
+                      : 'border-outline-variant bg-surface-container-high/60 hover:bg-surface-container-high'
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-slate-950 flex items-center justify-center shrink-0 border border-slate-800">
+                  <div className="w-10 h-10 rounded-lg bg-surface flex items-center justify-center shrink-0 border border-outline-variant">
                     <Moon className="w-5 h-5 text-indigo-400" />
                   </div>
                   <div className="text-left">
-                    <span className="text-xs font-bold block text-slate-900 dark:text-slate-100">
+                    <span className="text-xs font-bold block text-on-surface">
                       Dark Theme
                     </span>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    <span className="text-[11px] text-on-surface-variant">
                       High-contrast dark obsidian canvas
                     </span>
                   </div>
-                  {theme === 'dark' && <Check className="w-4 h-4 text-accent-500 ml-auto" />}
-                </button>
+                  {theme === 'dark' && <Check className="w-4 h-4 text-primary ml-auto" />}
+                </motion.button>
 
-                <button
+                <motion.button
                   onClick={() => setTheme('light')}
+                  whileTap={{ scale: 0.97 }}
                   className={`p-4 rounded-xl border flex items-center gap-3 transition-all ${
                     theme === 'light'
-                      ? 'border-accent-500 bg-accent-500/10 text-accent-500 ring-1 ring-accent-500/30 shadow-xs'
-                      : 'border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-800/40 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      ? 'border-primary bg-primary/10 text-primary ring-1 ring-primary/30 shadow-xs'
+                      : 'border-outline-variant bg-surface-container-high/60 hover:bg-surface-container-high'
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0 border border-slate-300">
+                  <div className="w-10 h-10 rounded-lg bg-surface-container-low flex items-center justify-center shrink-0 border border-outline-variant">
                     <Sun className="w-5 h-5 text-amber-500" />
                   </div>
                   <div className="text-left">
-                    <span className="text-xs font-bold block text-slate-900 dark:text-slate-100">
+                    <span className="text-xs font-bold block text-on-surface">
                       Light Theme
                     </span>
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                    <span className="text-[11px] text-on-surface-variant">
                       Clean frosted white layout
                     </span>
                   </div>
-                  {theme === 'light' && <Check className="w-4 h-4 text-accent-500 ml-auto" />}
-                </button>
+                  {theme === 'light' && <Check className="w-4 h-4 text-primary ml-auto" />}
+                </motion.button>
               </div>
             </div>
 
             {/* Accent Color Section */}
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">
+            <div className="pt-4 border-t border-outline-variant">
+              <h2 className="text-sm font-bold text-on-surface mb-1">
                 Accent Color
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+              <p className="text-xs text-on-surface-variant mb-3">
                 Used for selection highlights, active buttons, and focus indicators.
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-lg">
                 {accentsList.map((acc) => (
-                  <button
+                  <motion.button
                     key={acc.id}
                     onClick={() => setAccentColor(acc.id)}
+                    whileTap={{ scale: 0.97 }}
                     className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-medium transition-all ${
                       accentColor === acc.id
-                        ? 'border-accent-500 bg-accent-500/10 text-slate-900 dark:text-slate-100 shadow-xs ring-1 ring-accent-500/20'
-                        : 'border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800/50 bg-white/50 dark:bg-slate-900/30'
+                        ? 'border-primary bg-primary/10 text-on-surface shadow-xs ring-1 ring-primary/20'
+                        : 'border-outline-variant hover:bg-surface-container-high/50 bg-surface-container-low/50'
                     }`}
                   >
                     <div className={`w-4 h-4 rounded-full ${acc.bg} shrink-0`} />
                     <span className="truncate">{acc.name}</span>
                     {accentColor === acc.id && (
-                      <Check className="w-3.5 h-3.5 text-accent-500 ml-auto shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-primary ml-auto shrink-0" />
                     )}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
 
             {/* Desktop Wallpaper Picker */}
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1 flex items-center gap-2">
+            <div className="pt-4 border-t border-outline-variant">
+              <h2 className="text-sm font-bold text-on-surface mb-1 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-purple-500" /> Desktop Wallpaper
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+              <p className="text-xs text-on-surface-variant mb-3">
                 Choose a dynamic gradient theme for your desktop workspace.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {WALLPAPERS.map((wp) => (
-                  <button
+                  <motion.button
                     key={wp.id}
                     onClick={() => setWallpaper(wp.id)}
+                    whileTap={{ scale: 0.97 }}
                     className={`group relative h-24 rounded-xl overflow-hidden border-2 transition-all shadow-xs ${
                       wallpaper === wp.id
-                        ? 'border-accent-500 ring-2 ring-accent-500/30'
-                        : 'border-slate-200 dark:border-slate-800 hover:border-slate-400'
+                        ? 'border-primary ring-2 ring-primary/30'
+                        : 'border-outline-variant hover:border-on-surface-variant'
                     }`}
                   >
                     {wp.type === 'image' && wp.imagePath ? (
@@ -281,11 +302,11 @@ export const SettingsApp = memo(function SettingsApp() {
                       </span>
                     </div>
                     {wallpaper === wp.id && (
-                      <div className="absolute top-2 right-2 w-5 h-5 bg-accent-500 text-white rounded-full flex items-center justify-center shadow-md">
+                      <div className="absolute top-2 right-2 w-5 h-5 bg-primary text-on-primary-container rounded-full flex items-center justify-center shadow-md">
                         <Check className="w-3.5 h-3.5" />
                       </div>
                     )}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
@@ -294,120 +315,124 @@ export const SettingsApp = memo(function SettingsApp() {
 
         {/* TAB 2: ICONS & LAYOUT */}
         {activeTab === 'layout' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1 flex items-center gap-2">
+              <h2 className="text-sm font-bold text-on-surface mb-1 flex items-center gap-2">
                 <LayoutGrid className="w-4 h-4 text-blue-500" /> Desktop & Dock Sizing
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              <p className="text-xs text-on-surface-variant mb-4">
                 Customize icon sizes, dock height, and sidebar widths for your optimal screen density.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 {/* Dock Icon Size */}
-                <div className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="p-3.5 rounded-xl bg-surface-container-high/70 border border-outline-variant space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="font-bold text-slate-800 dark:text-slate-200">
+                    <label className="font-bold text-on-surface">
                       Dock Icon Size
                     </label>
-                    <span className="text-[11px] text-accent-500 font-semibold uppercase">
+                    <span className="text-[11px] text-secondary font-semibold uppercase">
                       {dockIconSize}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center gap-1.5 bg-surface-container-low p-1 rounded-lg border border-outline-variant">
                     {(['small', 'medium', 'large'] as const).map((sz) => (
-                      <button
+                      <motion.button
                         key={sz}
                         onClick={() => setDockIconSize(sz)}
+                        whileTap={{ scale: 0.97 }}
                         className={`flex-1 py-1.5 rounded-md capitalize font-medium transition-all ${
                           dockIconSize === sz
-                            ? 'bg-accent-600 text-white shadow-xs'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+                            ? 'bg-primary-container text-on-primary-container shadow-xs'
+                            : 'text-on-surface-variant hover:bg-surface-container-high'
                         }`}
                       >
                         {sz}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
 
                 {/* Desktop Icon Size */}
-                <div className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="p-3.5 rounded-xl bg-surface-container-high/70 border border-outline-variant space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="font-bold text-slate-800 dark:text-slate-200">
+                    <label className="font-bold text-on-surface">
                       Desktop Icon Size
                     </label>
-                    <span className="text-[11px] text-accent-500 font-semibold uppercase">
+                    <span className="text-[11px] text-secondary font-semibold uppercase">
                       {desktopIconSize}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center gap-1.5 bg-surface-container-low p-1 rounded-lg border border-outline-variant">
                     {(['small', 'medium', 'large'] as const).map((sz) => (
-                      <button
+                      <motion.button
                         key={sz}
                         onClick={() => setDesktopIconSize(sz)}
+                        whileTap={{ scale: 0.97 }}
                         className={`flex-1 py-1.5 rounded-md capitalize font-medium transition-all ${
                           desktopIconSize === sz
-                            ? 'bg-accent-600 text-white shadow-xs'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+                            ? 'bg-primary-container text-on-primary-container shadow-xs'
+                            : 'text-on-surface-variant hover:bg-surface-container-high'
                         }`}
                       >
                         {sz}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
 
                 {/* Sidebar Icon Size */}
-                <div className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="p-3.5 rounded-xl bg-surface-container-high/70 border border-outline-variant space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="font-bold text-slate-800 dark:text-slate-200">
+                    <label className="font-bold text-on-surface">
                       Sidebar Icon Size
                     </label>
-                    <span className="text-[11px] text-accent-500 font-semibold uppercase">
+                    <span className="text-[11px] text-secondary font-semibold uppercase">
                       {sidebarIconSize}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center gap-1.5 bg-surface-container-low p-1 rounded-lg border border-outline-variant">
                     {(['small', 'medium', 'large'] as const).map((sz) => (
-                      <button
+                      <motion.button
                         key={sz}
                         onClick={() => setSidebarIconSize(sz)}
+                        whileTap={{ scale: 0.97 }}
                         className={`flex-1 py-1.5 rounded-md capitalize font-medium transition-all ${
                           sidebarIconSize === sz
-                            ? 'bg-accent-600 text-white shadow-xs'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+                            ? 'bg-primary-container text-on-primary-container shadow-xs'
+                            : 'text-on-surface-variant hover:bg-surface-container-high'
                         }`}
                       >
                         {sz}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
 
                 {/* Sidebar Width */}
-                <div className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="p-3.5 rounded-xl bg-surface-container-high/70 border border-outline-variant space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="font-bold text-slate-800 dark:text-slate-200">
+                    <label className="font-bold text-on-surface">
                       Sidebar Width & Layout
                     </label>
-                    <span className="text-[11px] text-accent-500 font-semibold uppercase">
+                    <span className="text-[11px] text-secondary font-semibold uppercase">
                       {sidebarWidth}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div className="flex items-center gap-1.5 bg-surface-container-low p-1 rounded-lg border border-outline-variant">
                     {(['compact', 'standard', 'wide'] as const).map((w) => (
-                      <button
+                      <motion.button
                         key={w}
                         onClick={() => setSidebarWidth(w)}
+                        whileTap={{ scale: 0.97 }}
                         className={`flex-1 py-1.5 rounded-md capitalize font-medium transition-all ${
                           sidebarWidth === w
-                            ? 'bg-accent-600 text-white shadow-xs'
-                            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+                            ? 'bg-primary-container text-on-primary-container shadow-xs'
+                            : 'text-on-surface-variant hover:bg-surface-container-high'
                         }`}
                       >
                         {w}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
@@ -418,19 +443,19 @@ export const SettingsApp = memo(function SettingsApp() {
 
         {/* TAB 3: SOUND & AUDIO */}
         {activeTab === 'sound' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1 flex items-center gap-2">
+              <h2 className="text-sm font-bold text-on-surface mb-1 flex items-center gap-2">
                 <Volume2 className="w-4 h-4 text-emerald-500" /> System Audio & Sound FX
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              <p className="text-xs text-on-surface-variant mb-4">
                 Configure user interface acoustic feedback and system sound alerts.
               </p>
 
-              <div className="p-4 rounded-xl bg-white/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+              <div className="p-4 rounded-xl bg-surface-container-high/70 border border-outline-variant flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                    soundEnabled ? 'bg-emerald-500/10 text-emerald-500' : 'bg-slate-200 dark:bg-slate-800 text-slate-400'
+                    soundEnabled ? 'bg-emerald-500/10 text-emerald-500' : 'bg-surface-container-high text-on-surface-variant'
                   }`}>
                     {soundEnabled ? (
                       <Volume2 className="w-5 h-5" />
@@ -439,10 +464,10 @@ export const SettingsApp = memo(function SettingsApp() {
                     )}
                   </div>
                   <div>
-                    <span className="font-bold text-xs text-slate-900 dark:text-slate-100 block">
+                    <span className="font-bold text-xs text-on-surface block">
                       UI Action Chimes & Click Feedback
                     </span>
-                    <span className="text-slate-500 dark:text-slate-400 text-[11px]">
+                    <span className="text-on-surface-variant text-[11px]">
                       Plays subtle audio ticks when clicking windows, launching apps, or minimizing.
                     </span>
                   </div>
@@ -450,19 +475,19 @@ export const SettingsApp = memo(function SettingsApp() {
                 <button
                   onClick={() => setSoundEnabled(!soundEnabled)}
                   className={`w-12 h-6 rounded-full transition-colors p-0.5 flex items-center shrink-0 ${
-                    soundEnabled ? 'bg-emerald-500 justify-end' : 'bg-slate-300 dark:bg-slate-700 justify-start'
+                    soundEnabled ? 'bg-emerald-500 justify-end' : 'bg-surface-container-highest justify-start'
                   }`}
                 >
-                  <div className="w-5 h-5 bg-white rounded-full shadow-md" />
+                  <div className="w-5 h-5 bg-surface-bright rounded-full shadow-md" />
                 </button>
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-slate-100/60 dark:bg-slate-800/30 border border-slate-200 dark:border-slate-800 text-xs space-y-2">
-              <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+            <div className="p-4 rounded-xl bg-surface-container-low/60 border border-outline-variant text-xs space-y-2">
+              <div className="font-semibold text-on-surface flex items-center gap-2">
                 <Zap className="w-4 h-4 text-amber-500" /> Connected Output Device
               </div>
-              <div className="flex items-center justify-between text-slate-600 dark:text-slate-400 text-[11px]">
+              <div className="flex items-center justify-between text-on-surface-variant text-[11px]">
                 <span>Active Device: AirPods Max (Spatial Audio)</span>
                 <span className="text-emerald-500 font-semibold">Lossless 24-bit</span>
               </div>
@@ -472,60 +497,60 @@ export const SettingsApp = memo(function SettingsApp() {
 
         {/* TAB 4: ABOUT & HARDWARE */}
         {activeTab === 'about' && (
-          <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="space-y-6">
             <div>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1 flex items-center gap-2">
+              <h2 className="text-sm font-bold text-on-surface mb-1 flex items-center gap-2">
                 <Laptop className="w-4 h-4 text-blue-500" /> About Workstation
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              <p className="text-xs text-on-surface-variant mb-4">
                 Hardware specification overview and developer environment status.
               </p>
 
               {/* Specs Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs mb-4">
-                <div className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                <div className="p-3.5 rounded-xl bg-surface-container-high/70 border border-outline-variant flex items-center gap-3">
                   <Cpu className="w-6 h-6 text-indigo-500 shrink-0" />
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                    <span className="text-[10px] text-on-surface-variant uppercase font-bold block">
                       Processor
                     </span>
-                    <span className="font-bold text-slate-800 dark:text-slate-100">
+                    <span className="font-bold text-on-surface">
                       {PORTFOLIO_INFO.systemSpecs.chip}
                     </span>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                <div className="p-3.5 rounded-xl bg-surface-container-high/70 border border-outline-variant flex items-center gap-3">
                   <ShieldCheck className="w-6 h-6 text-emerald-500 shrink-0" />
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                    <span className="text-[10px] text-on-surface-variant uppercase font-bold block">
                       Unified Memory
                     </span>
-                    <span className="font-bold text-slate-800 dark:text-slate-100">
+                    <span className="font-bold text-on-surface">
                       {PORTFOLIO_INFO.systemSpecs.memory}
                     </span>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                <div className="p-3.5 rounded-xl bg-surface-container-high/70 border border-outline-variant flex items-center gap-3">
                   <HardDrive className="w-6 h-6 text-sky-500 shrink-0" />
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                    <span className="text-[10px] text-on-surface-variant uppercase font-bold block">
                       Flash Storage
                     </span>
-                    <span className="font-bold text-slate-800 dark:text-slate-100">
+                    <span className="font-bold text-on-surface">
                       {PORTFOLIO_INFO.systemSpecs.storage}
                     </span>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white/70 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 flex items-center gap-3">
+                <div className="p-3.5 rounded-xl bg-surface-container-high/70 border border-outline-variant flex items-center gap-3">
                   <Laptop className="w-6 h-6 text-amber-500 shrink-0" />
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                    <span className="text-[10px] text-on-surface-variant uppercase font-bold block">
                       Operating System
                     </span>
-                    <span className="font-bold text-slate-800 dark:text-slate-100">
+                    <span className="font-bold text-on-surface">
                       {PORTFOLIO_INFO.systemSpecs.os}
                     </span>
                   </div>
@@ -563,6 +588,8 @@ export const SettingsApp = memo(function SettingsApp() {
             </div>
           </div>
         )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, memo } from 'react';
+import { motion } from 'motion/react';
 import { PORTFOLIO_INFO } from '@/lib/data';
 import { Send, CheckCircle2, Mail, User, AlertCircle } from 'lucide-react';
 
@@ -51,24 +52,25 @@ export const MailApp = memo(function MailApp() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full select-none bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 overflow-hidden font-sans">
+    <div className="flex flex-col h-full w-full select-none bg-surface-container-low dark:bg-surface-container text-on-surface overflow-hidden font-sans">
       {/* Mail Window Header Bar */}
-      <div className="h-10 px-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-100/70 dark:bg-slate-950/40 text-xs">
+      <div className="h-10 px-4 border-b border-outline-variant flex items-center justify-between bg-surface-container-low/70 dark:bg-surface-container-lowest/40 text-xs">
         <div className="flex items-center gap-2">
           <Mail className="w-4 h-4 text-blue-500" />
-          <span className="font-semibold text-slate-700 dark:text-slate-200">
+          <span className="font-semibold text-on-surface">
             Compose New Message
           </span>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={handleSend}
             disabled={isSending || isSent}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-semibold text-white transition-all shadow-xs ${
               isSent
                 ? 'bg-emerald-600'
-                : 'bg-accent-600 hover:bg-accent-500 active:scale-95'
+                : 'bg-primary-container hover:bg-primary'
             }`}
           >
             {isSending ? (
@@ -87,29 +89,30 @@ export const MailApp = memo(function MailApp() {
                 <span>Send Message</span>
               </>
             )}
-          </button>
+          </motion.button>
         </div>
       </div>
 
       {/* Main Mail Form Body */}
-      <div className="flex-1 p-5 overflow-y-auto bg-white/60 dark:bg-slate-900/60 select-text">
+      <div className="flex-1 p-5 overflow-y-auto bg-surface-container-low/60 dark:bg-surface-container/60 select-text">
         {isSent ? (
           <div className="flex flex-col items-center justify-center h-full text-center space-y-3 animate-in zoom-in-95 duration-200">
             <div className="w-14 h-14 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20">
               <CheckCircle2 className="w-8 h-8" />
             </div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            <h2 className="text-lg font-bold text-on-surface">
               Email Client Opened for {PORTFOLIO_INFO.name}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
+            <p className="text-xs text-on-surface-variant max-w-sm">
               Your message has been prefilled and your email client opened, addressed to {PORTFOLIO_INFO.email}. Just hit send to reach Aryan!
             </p>
-            <button
+            <motion.button
+              whileTap={{ scale: 0.97 }}
               onClick={handleReset}
-              className="mt-2 px-4 py-1.5 text-xs font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors"
+              className="mt-2 px-4 py-1.5 text-xs font-semibold bg-surface-container-high dark:bg-surface-container-high text-on-surface rounded-md hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-colors"
             >
               Send Another Email
-            </button>
+          </motion.button>
           </div>
         ) : (
           <form onSubmit={handleSend} className="max-w-xl mx-auto space-y-3.5">
@@ -121,49 +124,49 @@ export const MailApp = memo(function MailApp() {
             )}
 
             {/* Recipient */}
-            <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-2 text-xs">
-              <span className="w-16 font-semibold text-slate-400">To:</span>
-              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-accent-500/10 text-accent-600 dark:text-accent-400 font-medium">
+            <div className="flex items-center gap-3 border-b border-outline-variant pb-2 text-xs">
+              <span className="w-16 font-semibold text-on-surface-variant">To:</span>
+              <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-primary/10 text-primary font-medium">
                 <User className="w-3 h-3" />
                 <span>{PORTFOLIO_INFO.name} ({PORTFOLIO_INFO.email})</span>
               </div>
             </div>
 
             {/* From Name & Email */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-b border-slate-200 dark:border-slate-800 pb-2 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-b border-outline-variant pb-2 text-xs">
               <div className="flex items-center gap-2">
-                <span className="w-16 font-semibold text-slate-400">From Name:</span>
+                <span className="w-16 font-semibold text-on-surface-variant">From Name:</span>
                 <input
                   type="text"
                   placeholder="Your Name (optional)"
                   value={fromName}
                   onChange={(e) => setFromName(e.target.value)}
-                  className="flex-1 bg-transparent focus:outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400"
+                  className="flex-1 bg-transparent focus:outline-none text-on-surface placeholder-on-surface-variant"
                 />
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="w-16 font-semibold text-slate-400">Your Email:</span>
+                <span className="w-16 font-semibold text-on-surface-variant">Your Email:</span>
                 <input
                   type="email"
                   placeholder="your.email@company.com"
                   value={fromEmail}
                   onChange={(e) => setFromEmail(e.target.value)}
                   required
-                  className="flex-1 bg-transparent focus:outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400"
+                  className="flex-1 bg-transparent focus:outline-none text-on-surface placeholder-on-surface-variant"
                 />
               </div>
             </div>
 
             {/* Subject */}
-            <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-2 text-xs">
-              <span className="w-16 font-semibold text-slate-400">Subject:</span>
+            <div className="flex items-center gap-3 border-b border-outline-variant pb-2 text-xs">
+              <span className="w-16 font-semibold text-on-surface-variant">Subject:</span>
               <input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 required
-                className="flex-1 bg-transparent focus:outline-none font-medium text-slate-800 dark:text-slate-100"
+                className="flex-1 bg-transparent focus:outline-none font-medium text-on-surface"
               />
             </div>
 
@@ -174,7 +177,7 @@ export const MailApp = memo(function MailApp() {
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write your message here..."
-                className="w-full bg-transparent focus:outline-none text-xs text-slate-800 dark:text-slate-200 resize-none font-sans leading-relaxed"
+                className="w-full bg-transparent focus:outline-none text-xs text-on-surface resize-none font-sans leading-relaxed"
               />
             </div>
           </form>

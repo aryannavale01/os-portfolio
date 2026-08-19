@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, memo } from 'react';
 import Image from 'next/image';
+import { motion } from 'motion/react';
 import { FileItem } from '@/types/mac';
 import { DESKTOP_FILES, PROJECTS_FS, RESEARCH_FS } from '@/lib/projectsFS';
 import { MarkdownViewer } from '@/components/common/MarkdownViewer';
@@ -79,7 +80,7 @@ export const TextEditApp = memo(function TextEditApp({ fileData }: TextEditAppPr
       );
     }
     return (
-      <div className="flex-1 overflow-auto bg-slate-950 p-6 flex items-center justify-center">
+      <div className="flex-1 overflow-auto bg-surface-container-lowest p-6 flex items-center justify-center">
         <div className="relative w-full h-full min-h-[200px]">
           <Image
             src={file.imageUrl || 'https://picsum.photos/seed/default/1200/800'}
@@ -95,10 +96,10 @@ export const TextEditApp = memo(function TextEditApp({ fileData }: TextEditAppPr
   };
 
   return (
-    <div className="flex h-full w-full bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 overflow-hidden font-sans select-none">
+    <div className="flex h-full w-full bg-surface-container-low dark:bg-surface-container text-on-surface overflow-hidden font-sans select-none">
       {/* Sidebar: Document Library (hidden on mobile so content gets full width) */}
-      <div className={`hidden md:flex ${sidebarWidthClass} border-r border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950/60 flex flex-col shrink-0`}>
-        <div className="p-3 border-b border-slate-200 dark:border-slate-800">
+      <div className={`hidden md:flex ${sidebarWidthClass} border-r border-outline-variant bg-surface-container-low dark:bg-surface-container-lowest/60 flex flex-col shrink-0`}>
+        <div className="p-3 border-b border-outline-variant">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-7 h-7 rounded-lg bg-emerald-500 flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-white" />
@@ -106,13 +107,13 @@ export const TextEditApp = memo(function TextEditApp({ fileData }: TextEditAppPr
             <span className="font-bold text-xs">Document Reader</span>
           </div>
           <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-2 text-slate-400" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-2 text-on-surface-variant" />
             <input
               type="text"
               placeholder="Search documents..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-2 py-1 text-xs rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-100 placeholder-slate-400"
+              className="w-full pl-8 pr-2 py-1 text-xs rounded-lg bg-surface-container-low dark:bg-surface-container-high border border-outline-variant focus:outline-none focus:ring-1 focus:ring-emerald-500 text-on-surface placeholder-on-surface-variant"
             />
           </div>
         </div>
@@ -120,55 +121,57 @@ export const TextEditApp = memo(function TextEditApp({ fileData }: TextEditAppPr
         <div className="flex-1 overflow-y-auto p-2 space-y-4">
           {documentGroups.map((group) => (
             <div key={group.folderName}>
-              <div className="px-2 pb-1 text-[10px] font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase flex items-center gap-1">
+              <div className="px-2 pb-1 text-[10px] font-bold tracking-wider text-on-surface-variant uppercase flex items-center gap-1">
                 <ChevronRight className="w-3 h-3" />
                 <span className="truncate">{group.folderName}</span>
               </div>
               <div className="space-y-0.5">
                 {group.files.map((file) => (
-                  <button
+                  <motion.button
                     key={file.id}
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => setSelectedFile(file)}
                     className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left text-xs font-medium transition-colors ${
                       selectedFile?.id === file.id
                         ? 'bg-emerald-600 text-white'
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800'
+                        : 'text-on-surface hover:bg-surface-container-high dark:hover:bg-surface-container-high'
                     }`}
                     title={file.name}
                   >
                     {fileIcon(file)}
                     <span className="truncate">{file.name}</span>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="px-3 py-2 border-t border-slate-200 dark:border-slate-800 text-[10px] text-slate-400 font-medium">
+        <div className="px-3 py-2 border-t border-outline-variant text-[10px] text-on-surface-variant font-medium">
           {totalDocuments} documents
         </div>
       </div>
 
       {/* Main Area */}
       {selectedFile ? (
-        <div className="flex flex-col flex-1 min-w-0 bg-slate-900 text-slate-100">
-          <div className="h-9 px-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between text-xs shrink-0 select-none">
+        <div className="flex flex-col flex-1 min-w-0 bg-surface-container text-on-surface">
+          <div className="h-9 px-3 bg-surface-container-lowest border-b border-outline-variant flex items-center justify-between text-xs shrink-0 select-none">
             <div className="flex items-center gap-2 min-w-0">
-              <button
+              <motion.button
+                whileTap={{ scale: 0.97 }}
                 onClick={() => setSelectedFile(null)}
-                className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                className="p-1 rounded hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors"
                 title="Back to Library"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-              </button>
+              </motion.button>
               {fileIcon(selectedFile)}
-              <span className="font-bold text-slate-200 truncate">{selectedFile.name}</span>
-              <span className="text-[10px] font-normal text-slate-400 shrink-0">
+              <span className="font-bold text-on-surface truncate">{selectedFile.name}</span>
+              <span className="text-[10px] font-normal text-on-surface-variant shrink-0">
                 ({selectedFile.size})
               </span>
             </div>
-            <div className="text-[10px] text-slate-400 font-medium shrink-0">
+            <div className="text-[10px] text-on-surface-variant font-medium shrink-0">
               {selectedFile.type === 'pdf'
                 ? 'PDF Document'
                 : selectedFile.type === 'md'
@@ -180,47 +183,48 @@ export const TextEditApp = memo(function TextEditApp({ fileData }: TextEditAppPr
         </div>
       ) : (
         /* Library View */
-        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900 p-6 select-none">
+        <div className="flex-1 overflow-y-auto bg-surface-container-low dark:bg-surface-container p-6 select-none">
           <div className="max-w-3xl mx-auto">
             <div className="mb-6 flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
                 <BookOpen className="w-6 h-6 text-emerald-500" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                <h2 className="text-base font-bold text-on-surface">
                   Document Reader
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-on-surface-variant">
                   Browse all documents across the workstation. Click a document to open it.
                 </p>
               </div>
             </div>
 
             {documentGroups.length === 0 ? (
-              <div className="py-20 text-center text-xs text-slate-400 italic">
+              <div className="py-20 text-center text-xs text-on-surface-variant italic">
                 No documents found matching &quot;{searchQuery}&quot;.
               </div>
             ) : (
               documentGroups.map((group) => (
                 <div key={group.folderName} className="mb-6">
-                  <h3 className="text-[11px] font-bold tracking-wider text-slate-400 dark:text-slate-500 uppercase mb-2 flex items-center gap-1.5">
+                  <h3 className="text-[11px] font-bold tracking-wider text-on-surface-variant uppercase mb-2 flex items-center gap-1.5">
                     <ChevronRight className="w-3.5 h-3.5" />
                     {group.folderName}
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {group.files.map((file) => (
-                      <button
+                      <motion.button
                         key={file.id}
+                        whileTap={{ scale: 0.97 }}
                         onClick={() => setSelectedFile(file)}
-                        className="group p-3 rounded-xl bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 hover:shadow-md transition-all text-left"
+                        className="group p-3 rounded-xl bg-surface-container-low dark:bg-surface-container-high/50 border border-outline-variant hover:border-emerald-500 hover:shadow-md transition-all text-left"
                       >
                         <div className="flex items-center gap-2 mb-1.5">
                           {fileIcon(file)}
-                          <span className="font-bold text-xs text-slate-800 dark:text-slate-100 truncate flex-1">
+                          <span className="font-bold text-xs text-on-surface truncate flex-1">
                             {file.name}
                           </span>
                         </div>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[10px] text-on-surface-variant">
                           {file.type === 'pdf'
                             ? 'PDF'
                             : file.type === 'md'
@@ -228,7 +232,7 @@ export const TextEditApp = memo(function TextEditApp({ fileData }: TextEditAppPr
                             : 'Image'}{' '}
                           • {file.size}
                         </span>
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>

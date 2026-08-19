@@ -4,7 +4,9 @@ import React, { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { motion } from 'motion/react';
 import { AppId, WindowState, FileItem } from '@/types/mac';
 import { useTheme } from '@/components/context/ThemeContext';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { getWallpaperConfig } from '@/lib/wallpapers';
+import { staggerContainer, staggerItem, getAnimationConfig } from '@/lib/animations';
 import { DesktopIntro, IntroStage } from '@/components/DesktopIntro';
 import { MenuBar } from '@/components/MenuBar';
 import { Dock } from '@/components/Dock';
@@ -134,16 +136,23 @@ const STORAGE_KEY_WINDOWS = 'macos_portfolio_windows_state_v10';
 const MAX_WINDOW_Z = 40;
 const APP_IDS: AppId[] = ['finder', 'terminal', 'notes', 'mail', 'settings', 'textedit', 'askai', 'music', 'safari'];
 
-// Clamp a window size so it fits the viewport (and never overflows it, even on
-// tiny screens where the requested width exceeds the usable space).
-const fitSize = (size: { width: number; height: number }) => {
-  if (typeof window === 'undefined') return { ...size };
+// Clamp a window size so it fits the viewport. On small screens (< 768px)
+// windows default to half the viewport width so they don't dominate the
+// entire screen. On larger screens the requested size is honoured (clamped
+// to the available space).
+const fitSize = (size: {width: number; height: number}) => {
+  if (typeof window === 'undefined') return {...size};
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const maxW = Math.max(400, vw - 64);
-  const maxH = Math.max(300, vh - 140);
-  const minW = Math.min(400, maxW);
-  const minH = Math.min(300, maxH);
+  const isSmall = vw < 768;
+
+  // On small screens cap width at half the viewport
+  const maxW = isSmall
+    ? Math.max(280, Math.round(vw / 2))
+    : Math.max(400, vw - 64);
+  const maxH = Math.max(250, vh - 140);
+  const minW = Math.min(isSmall ? 280 : 400, maxW);
+  const minH = Math.min(250, maxH);
   return {
     width: Math.max(minW, Math.min(size.width, maxW)),
     height: Math.max(minH, Math.min(size.height, maxH)),
@@ -304,6 +313,8 @@ interface DesktopProps {
 
 export function Desktop({ onTriggerBoot }: DesktopProps) {
   const { wallpaper, isLocked, setIsLocked, desktopIconSize } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
+  const animCfg = getAnimationConfig(prefersReducedMotion);
 
   const iconBoxSize =
     desktopIconSize === 'small'
@@ -320,7 +331,7 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
       : 'w-8 h-8';
 
   const isLightWallpaper = wallpaper === 'glass-light';
-  const labelTextClass = isLightWallpaper ? 'text-slate-800' : 'text-white';
+  const labelTextClass = isLightWallpaper ? 'text-on-surface' : 'text-on-surface';
   const iconTileClass = isLightWallpaper
     ? 'bg-white/70 backdrop-blur-md rounded-xl border border-white/40'
     : 'bg-white/10 backdrop-blur-md rounded-xl border border-white/20';
@@ -758,7 +769,7 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
   return (
     <div
       onClick={() => setSelectedIcon(null)}
-      className={`relative w-screen h-screen overflow-hidden select-none font-sans transition-all duration-500 ${labelTextClass} bg-slate-950`}
+      className={`relative w-full h-full overflow-hidden select-none font-sans transition-all duration-500 ${labelTextClass} bg-surface`}
     >
       {/* Wallpaper Layer (image or gradient) + legibility scrim */}
       <motion.div
@@ -806,10 +817,10 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
             />
           </div>
           <h2 className="text-xl font-bold">{PORTFOLIO_INFO.name}</h2>
-          <p className="text-xs text-slate-400 mb-6">{PORTFOLIO_INFO.role}</p>
+          <p className="text-xs text-on-surface-variant mb-6">{PORTFOLIO_INFO.role}</p>
           <button
             onClick={() => setIsLocked(false)}
-            className="px-6 py-2 rounded-xl bg-white text-slate-900 font-semibold text-xs hover:bg-slate-200 transition-colors shadow-lg"
+            className="px-6 py-2 rounded-xl bg-primary-container text-on-primary-container font-semibold text-xs hover:bg-secondary-container transition-colors shadow-lg"
           >
             Click to Unlock macOS Session
           </button>
@@ -817,11 +828,11 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
       )}
 
       {/* Ambient Wallpaper Glow Elements */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-[min(500px,40vw)] h-[min(500px,40vh)] bg-secondary/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[min(500px,40vw)] h-[min(500px,40vh)] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Top MenuBar */}
-      <motion.div
+      <motion.header
         initial={introPlayed ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={
@@ -845,21 +856,27 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
           setActiveAppId(null);
         }}
         />
-      </motion.div>
+      </motion.header>
 
       {/* Desktop Icons (Top-Left Row) — icons placed in a single horizontal line. */}
-      <div className="absolute top-12 left-6 bottom-88 z-10 flex flex-row flex-wrap content-start items-start gap-6 overflow-hidden">
+      <motion.div
+        variants={prefersReducedMotion ? {} : staggerContainer}
+        initial={introPlayed ? false : 'hidden'}
+        animate={introPlayed ? undefined : 'show'}
+        className="absolute top-12 left-6 bottom-88 z-10 flex flex-row flex-wrap content-start items-start gap-6 overflow-hidden"
+      >
         {/* Desktop Documents — every PDF from /content/documents becomes an icon */}
         {DESKTOP_FILES.map((file) => (
-          <div
+          <motion.div
             key={file.id}
+            variants={staggerItem}
             onClick={(e) => {
               e.stopPropagation();
               setSelectedIcon(file.id);
             }}
             onDoubleClick={() => handleOpenFile(file)}
             className={`flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group transition-transform hover:scale-105 ${
-              selectedIcon === file.id ? 'opacity-100 ring-2 ring-accent-400 rounded-2xl p-1' : ''
+              selectedIcon === file.id ? 'opacity-100 ring-2 ring-primary rounded-2xl p-1' : ''
             }`}
           >
             <div className={`${iconBoxSize} ${iconTileClass} flex items-center justify-center shadow-lg relative overflow-hidden group-hover:bg-white/20 transition-all`}>
@@ -871,18 +888,19 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
             <span className={`text-[11px] font-medium ${labelTextClass} drop-shadow-md max-w-[110px] text-center truncate`}>
               {file.name.replace(/\.pdf$/i, '')}
             </span>
-          </div>
+          </motion.div>
         ))}
 
         {/* Research / About Icon */}
-        <div
+        <motion.div
+          variants={staggerItem}
           onClick={(e) => {
             e.stopPropagation();
             setSelectedIcon('about');
           }}
           onDoubleClick={() => handleOpenFinderRoot('research')}
           className={`flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group transition-transform hover:scale-105 ${
-            selectedIcon === 'about' ? 'opacity-100 ring-2 ring-accent-400 rounded-2xl p-1' : ''
+            selectedIcon === 'about' ? 'opacity-100 ring-2 ring-primary rounded-2xl p-1' : ''
           }`}
         >
           <div className={`${iconBoxSize} ${iconTileClass} flex items-center justify-center shadow-lg group-hover:bg-white/20 transition-all`}>
@@ -891,19 +909,20 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
           <span className={`text-[11px] font-medium ${labelTextClass} drop-shadow-md`}>
             Research
           </span>
-        </div>
+        </motion.div>
 
         {/* Research Topics — one folder icon per topic from /content/research */}
         {RESEARCH_FS.map((topic) => (
-          <div
+          <motion.div
             key={topic.id}
+            variants={staggerItem}
             onClick={(e) => {
               e.stopPropagation();
               setSelectedIcon(topic.id);
             }}
             onDoubleClick={() => handleOpenFinderRoot('research', topic.id)}
             className={`flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group transition-transform hover:scale-105 ${
-              selectedIcon === topic.id ? 'opacity-100 ring-2 ring-accent-400 rounded-2xl p-1' : ''
+              selectedIcon === topic.id ? 'opacity-100 ring-2 ring-primary rounded-2xl p-1' : ''
             }`}
           >
             <div className={`${iconBoxSize} ${iconTileClass} flex items-center justify-center shadow-lg group-hover:bg-white/20 transition-all`}>
@@ -912,18 +931,19 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
             <span className={`text-[11px] font-medium ${labelTextClass} drop-shadow-md max-w-[110px] text-center truncate`}>
               {topic.name}
             </span>
-          </div>
+          </motion.div>
         ))}
 
         {/* Projects Folder Icon */}
-        <div
+        <motion.div
+          variants={staggerItem}
           onClick={(e) => {
             e.stopPropagation();
             setSelectedIcon('projects');
           }}
           onDoubleClick={() => handleOpenFinderRoot('projects')}
           className={`flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group transition-transform hover:scale-105 ${
-            selectedIcon === 'projects' ? 'opacity-100 ring-2 ring-accent-400 rounded-2xl p-1' : ''
+            selectedIcon === 'projects' ? 'opacity-100 ring-2 ring-primary rounded-2xl p-1' : ''
           }`}
         >
           <div className={`${iconBoxSize} ${iconTileClass} flex items-center justify-center shadow-lg group-hover:bg-white/20 transition-all`}>
@@ -932,8 +952,8 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
           <span className={`text-[11px] font-medium ${labelTextClass} drop-shadow-md`}>
             Projects
           </span>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Main Window Stage */}
       <div className="absolute inset-0 pt-7 pb-[76px] pointer-events-none overflow-hidden">
@@ -961,7 +981,7 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
           ))}
       </div>
       {/* Bottom Dock */}
-      <motion.div
+      <motion.nav
         initial={introPlayed ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={
@@ -969,6 +989,7 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
             ? { duration: 0.3 }
             : { duration: 0.6, ease: 'easeOut', delay: 1.5 }
         }
+        aria-label="Application dock"
       >
         <Dock
           windows={windows}
@@ -977,7 +998,7 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
           onToggleMinimize={handleToggleMinimize}
           onNavigateToUrl={handleOpenBrowserUrl}
         />
-      </motion.div>
+      </motion.nav>
 
       {/* Floating "Ask Ultron" Button */}
       <button
@@ -989,7 +1010,7 @@ export function Desktop({ onTriggerBoot }: DesktopProps) {
         className="absolute bottom-20 right-5 z-[45] group animate-in fade-in slide-in-from-bottom-4 duration-300"
       >
         <span className="block bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600 p-[1.5px] rounded-full shadow-[0_0_25px_rgba(139,92,246,0.45)] group-hover:shadow-[0_0_35px_rgba(139,92,246,0.65)] transition-shadow">
-          <span className="flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-slate-900/85 backdrop-blur-xl text-white group-hover:bg-slate-900/70 transition-colors">
+          <span className="flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-surface-container-high/85 backdrop-blur-xl text-on-surface group-hover:bg-surface-container-high/70 transition-colors">
             <Sparkles className="w-4 h-4 text-fuchsia-300" />
             <span className="text-xs font-semibold">Ask Ultron</span>
           </span>

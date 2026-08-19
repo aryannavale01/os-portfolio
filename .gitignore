@@ -14,3 +14,15 @@ lib/research.generated.ts
 public/projects/
 public/documents/
 public/research/
+
+# Lock files (project uses npm)
+bun.lock
+
+# Test artifacts
+playwright-report/
+test-results/
+E2E_TEST_RESULTS.md
+e2e/visual-regression.spec.ts-snapshots/
+
+# AI Studio workspace
+assets/

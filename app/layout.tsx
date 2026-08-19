@@ -1,16 +1,16 @@
 import type {Metadata, Viewport} from 'next';
-import './globals.css'; // Global styles
-
-const APP_URL = process.env.APP_URL || 'http://localhost:3000';
+import './globals.css';
+import {SEO} from '@/lib/seo/config';
+import {getPersonSchema, getWebSiteSchema} from '@/lib/seo/structured-data';
+import {StructuredData} from '@/components/seo/StructuredData';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(APP_URL),
+  metadataBase: new URL(SEO.siteUrl),
   title: {
-    default: 'Aryan Navale — AI/ML & Full-Stack Developer Portfolio',
-    template: '%s | Aryan Navale',
+    default: SEO.defaultTitle,
+    template: SEO.titleTemplate,
   },
-  description:
-    'Interactive macOS-desktop portfolio of Aryan Navale — final-year B.Tech (AI & Data Science) student at VPKBIET and Software Development Intern at MKCL. Explore projects in LLMs, RAG, AI agents, and full-stack development.',
+  description: SEO.defaultDescription,
   keywords: [
     'Aryan Navale',
     'AI/ML Developer',
@@ -34,27 +34,28 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    locale: 'en_IN',
-    url: APP_URL,
-    siteName: 'Aryan Navale Portfolio',
-    title: 'Aryan Navale — AI/ML & Full-Stack Developer Portfolio',
+    locale: SEO.locale,
+    url: SEO.siteUrl,
+    siteName: SEO.siteName,
+    title: SEO.defaultTitle,
     description:
       'Interactive macOS-desktop portfolio with projects in LLMs, RAG, AI agents, and full-stack development, plus an AI assistant (Ultron) that answers questions about Aryan.',
     images: [
       {
-        url: '/og.png',
+        url: SEO.defaultOgImage,
         width: 1200,
         height: 630,
-        alt: 'Aryan Navale — AI/ML & Full-Stack Developer Portfolio',
+        alt: SEO.defaultTitle,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Aryan Navale — AI/ML & Full-Stack Developer Portfolio',
+    title: SEO.defaultTitle,
     description:
       'Interactive macOS-desktop portfolio with projects in LLMs, RAG, AI agents, and full-stack development.',
-    images: ['/og.png'],
+    images: [SEO.defaultOgImage],
+    ...(SEO.twitterHandle ? {site: SEO.twitterHandle, creator: SEO.twitterHandle} : {}),
   },
   icons: {
     icon: [
@@ -94,7 +95,8 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preload" href="/logo.png" as="image" />
-        <link rel="preload" href="/og.png" as="image" />
+        <StructuredData data={getPersonSchema()} />
+        <StructuredData data={getWebSiteSchema()} />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){var K='os_recovery_ts';function check(m){if(!m||typeof m!=='string')return;if(!/(reading 'call')|(is not a function)|originalFactory|__webpack_modules__|client manifest|module factory/i.test(m))return;try{var now=Date.now();var last=parseInt(localStorage.getItem(K)||'0',10);if(now-last<30000)return;localStorage.setItem(K,String(now))}catch(e){return}location.reload()}window.addEventListener('error',function(e){check(e.error&&e.error.message)});window.addEventListener('unhandledrejection',function(e){check(e.reason&&(e.reason.message||String(e.reason)))})})();`,

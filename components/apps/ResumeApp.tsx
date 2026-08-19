@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, memo } from 'react';
+import { motion } from 'motion/react';
 import { useTheme } from '@/components/context/ThemeContext';
 import { PORTFOLIO_INFO, SKILLS_CATEGORIZED, RESUME_PROJECTS, EDUCATION, COURSEWORK, ACHIEVEMENTS } from '@/lib/data';
 import { PDFViewer } from '@/components/common/PDFViewer';
@@ -338,7 +339,7 @@ export const ResumeApp = memo(function ResumeApp({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className="flex flex-col h-full w-full select-none bg-slate-300 dark:bg-slate-950 text-slate-800 dark:text-slate-100 overflow-hidden font-sans relative"
+      className="flex flex-col h-full w-full select-none bg-surface-container-highest bg-surface text-on-surface overflow-hidden font-sans relative"
     >
       {/* Hidden File Input for uploading custom PDF */}
       {!minimal && (
@@ -353,51 +354,53 @@ export const ResumeApp = memo(function ResumeApp({
 
       {/* Drag and Drop Zone Overlay */}
       {isDraggingFile && !minimal && (
-        <div className="absolute inset-0 bg-accent-600/90 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white border-4 border-dashed border-white/80 p-6 animate-in fade-in duration-150">
+        <div className="absolute inset-0 bg-primary/90 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white border-4 border-dashed border-white/80 p-6 animate-in fade-in duration-150">
           <FileUp className="w-16 h-16 mb-4 animate-bounce" />
           <h2 className="text-2xl font-bold">Drop PDF File Here</h2>
-          <p className="text-sm text-accent-50 mt-1">
+          <p className="text-sm text-on-surface mt-1">
             Instantly view and inspect any PDF file in macOS Preview
           </p>
         </div>
       )}
 
       {/* Top macOS Preview Toolbar */}
-      <div className="h-10 px-3 border-b border-slate-300/80 dark:border-slate-800 flex items-center justify-between bg-slate-100/95 dark:bg-slate-900/95 backdrop-blur-xl text-xs shrink-0 shadow-xs z-20">
+      <div className="h-10 px-3 border-b border-outline-variant flex items-center justify-between bg-surface-container/95 backdrop-blur-xl text-xs shrink-0 shadow-xs z-20">
         {/* Left Controls */}
         <div className="flex items-center gap-1.5">
           {!minimal && (
             <>
-              <button
+              <motion.button
+                whileTap={{ scale: 0.97 }}
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className={`hidden md:inline-flex p-1.5 rounded-md transition-colors ${
                   isSidebarOpen
-                    ? 'bg-slate-300 dark:bg-slate-800 text-slate-900 dark:text-white'
-                    : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    ? 'bg-surface-container-high text-on-surface'
+                    : 'hover:bg-surface-container-high text-on-surface-variant'
                 }`}
                 title="Toggle Sidebar Thumbnails"
               >
                 <Sidebar className="w-3.5 h-3.5" />
-              </button>
+              </motion.button>
 
-              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-800 mx-0.5" />
+              <div className="h-4 w-[1px] bg-outline-variant mx-0.5" />
 
               {/* Upload Button */}
-              <button
+              <motion.button
+                whileTap={{ scale: 0.97 }}
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1 px-2 py-1 rounded-md bg-accent-600 hover:bg-accent-500 text-white font-medium text-[11px] shadow-xs transition-colors"
+                className="flex items-center gap-1 px-2 py-1 rounded-md bg-primary hover:bg-primary text-white font-medium text-[11px] shadow-xs transition-colors"
                 title="Open Custom PDF File from Device"
               >
                 <FileUp className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Open PDF...</span>
-              </button>
+              </motion.button>
             </>
           )}
 
           {/* Document Title Badge */}
-          <div className="hidden md:flex items-center gap-1.5 ml-2 bg-slate-200/80 dark:bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-300/60 dark:border-slate-700/60 max-w-[200px] truncate">
+          <div className="hidden md:flex items-center gap-1.5 ml-2 bg-surface-container-high/80 px-2 py-0.5 rounded-md border border-outline-variant max-w-[200px] truncate">
             <FileText className="w-3.5 h-3.5 text-red-500 shrink-0" />
-            <span className="font-semibold text-[11px] truncate text-slate-800 dark:text-slate-200">
+            <span className="font-semibold text-[11px] truncate text-on-surface">
               {activeDoc.title}
             </span>
           </div>
@@ -406,70 +409,77 @@ export const ResumeApp = memo(function ResumeApp({
         {/* Center Navigation & Zoom Controls */}
         <div className="flex items-center gap-1.5">
           {/* Page Counter */}
-          <div className="flex items-center gap-1 text-[11px] bg-slate-200/60 dark:bg-slate-800/60 px-2 py-0.5 rounded-md text-slate-700 dark:text-slate-300">
-            <button
+          <div className="flex items-center gap-1 text-[11px] bg-surface-container-high/60 px-2 py-0.5 rounded-md text-on-surface">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage <= 1}
-              className="hover:text-accent-600 disabled:opacity-30 disabled:hover:text-inherit"
+              className="hover:text-secondary disabled:opacity-30 disabled:hover:text-inherit"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
-            </button>
+            </motion.button>
             <span className="font-medium whitespace-nowrap">
               {currentPage} / {activeDoc.pagesCount}
             </span>
-            <button
+            <motion.button
+              whileTap={{ scale: 0.97 }}
               onClick={() => setCurrentPage((p) => Math.min(activeDoc.pagesCount, p + 1))}
               disabled={currentPage >= activeDoc.pagesCount}
-              className="hover:text-accent-600 disabled:opacity-30 disabled:hover:text-inherit"
+              className="hover:text-secondary disabled:opacity-30 disabled:hover:text-inherit"
             >
               <ChevronRight className="w-3.5 h-3.5" />
-            </button>
+            </motion.button>
           </div>
 
-          <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-800 mx-0.5" />
+          <div className="h-4 w-[1px] bg-outline-variant mx-0.5" />
 
           {/* Zoom Controls */}
-          <div className="flex items-center gap-0.5 bg-slate-200/60 dark:bg-slate-800/60 rounded-md p-0.5">
-            <button
+          <div className="flex items-center gap-0.5 bg-surface-container-high/60 rounded-md p-0.5">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
               onClick={handleZoomOut}
-              className="p-1 hover:bg-slate-300 dark:hover:bg-slate-700 rounded transition-colors"
+              className="p-1 hover:bg-surface-container-highest rounded transition-colors"
               title="Zoom Out"
             >
               <ZoomOut className="w-3.5 h-3.5" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
               onClick={handleResetZoom}
-              className="px-1.5 text-[10px] font-bold text-slate-700 dark:text-slate-200 hover:text-accent-600"
+              className="px-1.5 text-[10px] font-bold text-on-surface hover:text-secondary"
               title="Reset Zoom to 100%"
             >
               {zoomLevel}%
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
               onClick={handleZoomIn}
-              className="p-1 hover:bg-slate-300 dark:hover:bg-slate-700 rounded transition-colors"
+              className="p-1 hover:bg-surface-container-highest rounded transition-colors"
               title="Zoom In"
             >
               <ZoomIn className="w-3.5 h-3.5" />
-            </button>
+            </motion.button>
           </div>
 
           {/* Rotation Controls */}
           {!minimal && (
             <div className="hidden lg:flex items-center gap-0.5">
-              <button
+              <motion.button
+                whileTap={{ scale: 0.97 }}
                 onClick={handleRotateCcw}
-                className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors text-slate-600 dark:text-slate-400"
+                className="p-1 hover:bg-surface-container-high rounded transition-colors text-on-surface-variant"
                 title="Rotate Left 90°"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.97 }}
                 onClick={handleRotateCw}
-                className="p-1 hover:bg-slate-200 dark:hover:bg-slate-800 rounded transition-colors text-slate-600 dark:text-slate-400"
+                className="p-1 hover:bg-surface-container-high rounded transition-colors text-on-surface-variant"
                 title="Rotate Right 90°"
               >
                 <RotateCw className="w-3.5 h-3.5" />
-              </button>
+              </motion.button>
             </div>
           )}
         </div>
@@ -488,61 +498,66 @@ export const ResumeApp = memo(function ResumeApp({
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       autoFocus
-                      className="w-28 sm:w-36 px-2 py-0.5 text-xs rounded bg-white dark:bg-slate-800 border border-accent-500 focus:outline-none text-slate-900 dark:text-white"
+                      className="w-28 sm:w-36 px-2 py-0.5 text-xs rounded bg-surface-container-high border border-primary focus:outline-none text-on-surface"
                     />
-                    <button
+                    <motion.button
+                      whileTap={{ scale: 0.97 }}
                       onClick={() => {
                         setIsSearching(false);
                         setSearchQuery('');
                       }}
-                      className="text-slate-400 hover:text-slate-600 p-0.5"
+                      className="text-on-surface-variant p-0.5"
                     >
                       <X className="w-3.5 h-3.5" />
-                    </button>
+                    </motion.button>
                   </div>
                 ) : (
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => setIsSearching(true)}
-                    className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors"
+                    className="p-1.5 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors"
                     title="Search in PDF"
                   >
                     <Search className="w-3.5 h-3.5" />
-                  </button>
+                  </motion.button>
                 )}
               </div>
 
-              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-800 mx-0.5" />
+              <div className="h-4 w-[1px] bg-outline-variant mx-0.5" />
 
               {/* Share */}
-              <button
+              <motion.button
+                whileTap={{ scale: 0.97 }}
                 onClick={handleShare}
-                className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors relative"
+                className="p-1.5 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors relative"
                 title="Share Document Link"
               >
                 {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Share2 className="w-3.5 h-3.5" />}
-              </button>
+              </motion.button>
 
-              <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-800 mx-0.5" />
+              <div className="h-4 w-[1px] bg-outline-variant mx-0.5" />
             </>
           )}
 
           {/* Print */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={handlePrint}
-            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors"
+            className="p-1.5 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors"
             title="Print PDF Document"
           >
             <Printer className="w-3.5 h-3.5" />
-          </button>
+          </motion.button>
 
           {/* Download */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={handleDownload}
-            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors"
+            className="p-1.5 hover:bg-surface-container-high rounded text-on-surface-variant transition-colors"
             title="Print / Save as PDF"
           >
             <Download className="w-3.5 h-3.5" />
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -550,21 +565,22 @@ export const ResumeApp = memo(function ResumeApp({
       <div className="flex-1 flex overflow-hidden relative">
         {/* Sidebar: Documents & Page Thumbnails (hidden on mobile by default) */}
         {!minimal && isSidebarOpen && (
-          <div className={`hidden md:flex ${sidebarWidthClass} border-r border-slate-300 dark:border-slate-800 bg-slate-200/90 dark:bg-slate-900/90 flex flex-col p-2 gap-3 shrink-0 z-10 overflow-y-auto transition-all`}>
+          <div className={`hidden md:flex ${sidebarWidthClass} border-r border-outline-variant bg-surface-container/90 flex flex-col p-2 gap-3 shrink-0 z-10 overflow-y-auto transition-all`}>
             {/* Document Library Section */}
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 block mb-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant px-2 block mb-1">
                 Document Library
               </span>
               <div className="space-y-1">
                 {documents.map((doc) => (
-                  <button
+                  <motion.button
                     key={doc.id}
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => handleSelectDoc(doc.id)}
                     className={`w-full text-left p-2 rounded-lg transition-all flex items-center gap-2 border ${
                       selectedDocId === doc.id
-                        ? 'bg-accent-600 text-white border-accent-500 shadow-xs'
-                        : 'bg-white/40 dark:bg-slate-800/40 hover:bg-slate-300/60 dark:hover:bg-slate-800/80 border-transparent text-slate-800 dark:text-slate-200'
+                        ? 'bg-primary text-white border-primary shadow-xs'
+                        : 'bg-surface-container-high/40 hover:bg-surface-container-highest border-transparent text-on-surface'
                     }`}
                   >
                     <FileText
@@ -578,56 +594,57 @@ export const ResumeApp = memo(function ResumeApp({
                       </span>
                       <span
                         className={`text-[10px] block mt-0.5 ${
-                          selectedDocId === doc.id ? 'text-accent-50' : 'text-slate-500'
+                          selectedDocId === doc.id ? 'text-on-surface' : 'text-on-surface-variant'
                         }`}
                       >
                         {doc.fileSize} • {doc.pagesCount} Page{doc.pagesCount > 1 ? 's' : ''}
                       </span>
                     </div>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </div>
 
             {/* Page Thumbnails Section */}
             {!activeDoc.customUrl && (
-              <div className="pt-2 border-t border-slate-300 dark:border-slate-800">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2 block mb-2">
+              <div className="pt-2 border-t border-outline-variant">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant px-2 block mb-2">
                   Page Thumbnails
                 </span>
                 <div className="space-y-2 px-1">
                   {activeDoc.pages.map((p) => (
-                    <button
+                    <motion.button
                       key={p.pageNumber}
+                      whileTap={{ scale: 0.97 }}
                       onClick={() => setCurrentPage(p.pageNumber)}
                       className={`w-full flex flex-col items-center gap-1 group`}
                     >
                       <div
-                        className={`w-full aspect-[1/1.3] bg-white text-slate-900 rounded p-2 text-[6px] shadow-sm overflow-hidden transition-all border ${
+                        className={`w-full aspect-[1/1.3] bg-white text-on-surface rounded p-2 text-[6px] shadow-sm overflow-hidden transition-all border border-outline-variant ${
                           currentPage === p.pageNumber
-                            ? 'ring-2 ring-accent-500 border-accent-500 scale-[1.02]'
-                            : 'border-slate-300 group-hover:border-slate-400 opacity-80'
+                            ? 'ring-2 ring-primary border-primary scale-[1.02]'
+                            : 'border-outline-variant group-hover:border-on-surface-variant opacity-80'
                         }`}
                       >
-                        <div className="font-bold border-b border-slate-200 pb-0.5 truncate text-[7px]">
+                        <div className="font-bold border-b border-outline-variant pb-0.5 truncate text-[7px]">
                           {p.title || `Page ${p.pageNumber}`}
                         </div>
                         <div className="mt-1 space-y-1 opacity-60">
-                          <div className="h-1 bg-slate-300 rounded w-full" />
-                          <div className="h-1 bg-slate-200 rounded w-3/4" />
-                          <div className="h-1 bg-slate-200 rounded w-5/6" />
+                          <div className="h-1 bg-surface-container-highest rounded w-full" />
+                          <div className="h-1 bg-surface-container-high rounded w-3/4" />
+                          <div className="h-1 bg-surface-container-high rounded w-5/6" />
                         </div>
                       </div>
                       <span
                         className={`text-[10px] font-medium ${
                           currentPage === p.pageNumber
-                            ? 'text-accent-600 font-bold'
-                            : 'text-slate-500'
+                            ? 'text-secondary font-bold'
+                            : 'text-on-surface-variant'
                         }`}
                       >
                         Page {p.pageNumber}
                       </span>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
@@ -638,11 +655,11 @@ export const ResumeApp = memo(function ResumeApp({
         {/* PDF Canvas Preview Viewer Container */}
         <div
           ref={containerRef}
-          className="flex-1 overflow-auto p-4 sm:p-8 flex justify-center bg-slate-400/30 dark:bg-slate-950/90 relative"
+          className="flex-1 overflow-auto p-4 sm:p-8 flex justify-center bg-surface-container-highest/30 bg-surface/90 relative"
         >
           {/* Custom Real Uploaded PDF Viewer via Native IFrame Embed */}
           {activeDoc.customUrl ? (
-            <div className="w-full h-full max-w-4xl bg-white dark:bg-slate-900 rounded-lg shadow-2xl border border-slate-300 dark:border-slate-800 overflow-hidden flex flex-col">
+            <div className="w-full h-full max-w-4xl bg-surface-container rounded-lg shadow-2xl border border-outline-variant overflow-hidden flex flex-col">
               <iframe
                 src={activeDoc.customUrl}
                 title={activeDoc.title}
@@ -664,11 +681,11 @@ export const ResumeApp = memo(function ResumeApp({
                 .map((page) => (
                   <div
                     key={page.pageNumber}
-                    className="w-full bg-white text-slate-900 shadow-2xl rounded-sm p-8 sm:p-10 space-y-6 border border-slate-200/80 relative min-h-[780px] flex flex-col justify-between"
+                    className="w-full bg-white text-on-surface shadow-2xl rounded-sm p-8 sm:p-10 space-y-6 border border-outline-variant relative min-h-[780px] flex flex-col justify-between"
                   >
                     {/* Header Watermark / Title */}
                     <div className="space-y-6">
-                      <div className="border-b border-slate-200 pb-3 flex justify-between items-center text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
+                      <div className="border-b border-outline-variant pb-3 flex justify-between items-center text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold">
                         <span>{activeDoc.title}</span>
                         <span>CONFIDENTIAL • {activeDoc.date}</span>
                       </div>
@@ -679,16 +696,16 @@ export const ResumeApp = memo(function ResumeApp({
                           return (
                             <div
                               key={idx}
-                              className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+                              className="border-b border-outline-variant pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
                             >
                               <div>
-                                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                                <h1 className="text-2xl font-bold text-on-surface tracking-tight">
                                   {PORTFOLIO_INFO.name}
                                 </h1>
-                                <p className="text-xs font-semibold text-accent-600 mt-0.5">
+                                <p className="text-xs font-semibold text-secondary mt-0.5">
                                   {PORTFOLIO_INFO.role}
                                 </p>
-                                <p className="text-[11px] text-slate-500 mt-0.5">
+                                <p className="text-[11px] text-on-surface-variant mt-0.5">
                                   {PORTFOLIO_INFO.location} • {PORTFOLIO_INFO.email}
                                 </p>
                               </div>
@@ -698,7 +715,7 @@ export const ResumeApp = memo(function ResumeApp({
                                   href={PORTFOLIO_INFO.github}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="flex items-center gap-1 text-slate-700 hover:text-accent-600 font-medium border border-slate-200 px-2 py-1 rounded"
+                                  className="flex items-center gap-1 text-on-surface hover:text-secondary font-medium border border-outline-variant px-2 py-1 rounded"
                                 >
                                   <Github className="w-3 h-3" /> GitHub
                                 </a>
@@ -706,7 +723,7 @@ export const ResumeApp = memo(function ResumeApp({
                                   href={PORTFOLIO_INFO.linkedin}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="flex items-center gap-1 text-slate-700 hover:text-accent-600 font-medium border border-slate-200 px-2 py-1 rounded"
+                                  className="flex items-center gap-1 text-on-surface hover:text-secondary font-medium border border-outline-variant px-2 py-1 rounded"
                                 >
                                   <Linkedin className="w-3 h-3" /> LinkedIn
                                 </a>
@@ -718,10 +735,10 @@ export const ResumeApp = memo(function ResumeApp({
                         if (sec.type === 'summary') {
                           return (
                             <div key={idx}>
-                              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1 border-b border-slate-100 pb-0.5">
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1 border-b border-outline-variant pb-0.5">
                                 {sec.heading}
                               </h2>
-                              <p className="text-slate-700 leading-relaxed text-[11px]">
+                              <p className="text-on-surface leading-relaxed text-[11px]">
                                 {sec.content}
                               </p>
                             </div>
@@ -731,19 +748,19 @@ export const ResumeApp = memo(function ResumeApp({
                         if (sec.type === 'skills') {
                           return (
                             <div key={idx}>
-                              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 border-b border-slate-100 pb-0.5">
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1.5 border-b border-outline-variant pb-0.5">
                                 {sec.heading}
                               </h2>
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
                                 {SKILLS_CATEGORIZED.map((cat, sIdx) => (
                                   <div
                                     key={sIdx}
-                                    className="bg-slate-50 p-2 rounded border border-slate-100"
+                                    className="bg-surface-container-low p-2 rounded border border-outline-variant"
                                   >
-                                    <span className="font-bold text-slate-800 block mb-0.5">
+                                    <span className="font-bold text-on-surface block mb-0.5">
                                       {cat.category}
                                     </span>
-                                    <p className="text-slate-600 leading-tight">
+                                    <p className="text-on-surface-variant leading-tight">
                                       {cat.skills.join(', ')}
                                     </p>
                                   </div>
@@ -756,27 +773,27 @@ export const ResumeApp = memo(function ResumeApp({
                         if (sec.type === 'experience') {
                           return (
                             <div key={idx}>
-                              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 border-b border-slate-100 pb-0.5 flex items-center gap-1">
-                                <Briefcase className="w-3.5 h-3.5 text-accent-500" />{' '}
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 border-b border-outline-variant pb-0.5 flex items-center gap-1">
+                                <Briefcase className="w-3.5 h-3.5 text-primary" />{' '}
                                 {sec.heading}
                               </h2>
                               <div className="space-y-3 text-[11px]">
                                 <div>
-                                  <div className="flex justify-between font-bold text-slate-900">
+                                  <div className="flex justify-between font-bold text-on-surface">
                                     <span>Software Development Intern — MKCL</span>
-                                    <span className="text-slate-400">2026 – Present</span>
+                                    <span className="text-on-surface-variant">2026 – Present</span>
                                   </div>
-                                  <p className="text-slate-600 text-[10.5px] mt-0.5">
+                                  <p className="text-on-surface-variant text-[10.5px] mt-0.5">
                                     • Working on production software with AI/ML and full-stack tools, mentored by the company CTO.
                                     <br />• Applying LLMs, RAG, and modern web tooling to real-world product challenges.
                                   </p>
                                 </div>
                                 <div>
-                                  <div className="flex justify-between font-bold text-slate-900">
+                                  <div className="flex justify-between font-bold text-on-surface">
                                     <span>Final-Year Project — AI Document RAG System</span>
-                                    <span className="text-slate-400">2025 – 2026</span>
+                                    <span className="text-on-surface-variant">2025 – 2026</span>
                                   </div>
-                                  <p className="text-slate-600 text-[10.5px] mt-0.5">
+                                  <p className="text-on-surface-variant text-[10.5px] mt-0.5">
                                     • Production-style RAG pipeline combining BM25 keyword search with FAISS semantic retrieval for chat over documents.
                                   </p>
                                 </div>
@@ -788,20 +805,20 @@ export const ResumeApp = memo(function ResumeApp({
                         if (sec.type === 'projects') {
                           return (
                             <div key={idx}>
-                              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 border-b border-slate-100 pb-0.5 flex items-center gap-1">
-                                <Sparkles className="w-3.5 h-3.5 text-accent-500" />{' '}
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 border-b border-outline-variant pb-0.5 flex items-center gap-1">
+                                <Sparkles className="w-3.5 h-3.5 text-primary" />{' '}
                                 {sec.heading}
                               </h2>
                               <div className="space-y-3">
                                 {RESUME_PROJECTS.map((proj) => (
                                   <div key={proj.id} className="space-y-0.5">
-                                    <div className="flex items-center justify-between font-bold text-slate-900 text-xs">
+                                    <div className="flex items-center justify-between font-bold text-on-surface text-xs">
                                       <span>{proj.title}</span>
-                                      <span className="text-slate-400 text-[10px]">
+                                      <span className="text-on-surface-variant text-[10px]">
                                         {proj.date}
                                       </span>
                                     </div>
-                                    <p className="text-slate-600 text-[11px] leading-relaxed">
+                                    <p className="text-on-surface-variant text-[11px] leading-relaxed">
                                       {proj.shortDesc}
                                     </p>
                                     <div className="text-emerald-700 font-medium text-[10px]">
@@ -817,23 +834,23 @@ export const ResumeApp = memo(function ResumeApp({
                         if (sec.type === 'education') {
                           return (
                             <div key={idx}>
-                              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 border-b border-slate-100 pb-0.5 flex items-center gap-1">
-                                <GraduationCap className="w-3.5 h-3.5 text-accent-500" />{' '}
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1.5 border-b border-outline-variant pb-0.5 flex items-center gap-1">
+                                <GraduationCap className="w-3.5 h-3.5 text-primary" />{' '}
                                 {sec.heading}
                               </h2>
                               <div className="space-y-1.5 text-[11px]">
                                 <div>
-                                  <div className="flex justify-between font-bold text-slate-900">
+                                  <div className="flex justify-between font-bold text-on-surface">
                                     <span>{EDUCATION.degree}</span>
-                                    <span className="text-slate-400">{EDUCATION.years}</span>
+                                    <span className="text-on-surface-variant">{EDUCATION.years}</span>
                                   </div>
-                                  <p className="text-slate-600">{EDUCATION.college}</p>
+                                  <p className="text-on-surface-variant">{EDUCATION.college}</p>
                                 </div>
                                 <div>
-                                  <div className="font-bold text-slate-900">
+                                  <div className="font-bold text-on-surface">
                                     Relevant Coursework
                                   </div>
-                                  <p className="text-slate-600">{COURSEWORK.join(', ')}</p>
+                                  <p className="text-on-surface-variant">{COURSEWORK.join(', ')}</p>
                                 </div>
                               </div>
                             </div>
@@ -843,11 +860,11 @@ export const ResumeApp = memo(function ResumeApp({
                         if (sec.type === 'achievements') {
                           return (
                             <div key={idx}>
-                              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5 border-b border-slate-100 pb-0.5 flex items-center gap-1">
-                                <Trophy className="w-3.5 h-3.5 text-accent-500" />{' '}
+                              <h2 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-1.5 border-b border-outline-variant pb-0.5 flex items-center gap-1">
+                                <Trophy className="w-3.5 h-3.5 text-primary" />{' '}
                                 {sec.heading}
                               </h2>
-                              <ul className="space-y-1.5 text-[11px] text-slate-700 list-disc list-inside leading-relaxed">
+                              <ul className="space-y-1.5 text-[11px] text-on-surface list-disc list-inside leading-relaxed">
                                 {ACHIEVEMENTS.map((item, aIdx) => (
                                   <li key={aIdx}>{item}</li>
                                 ))}
@@ -860,9 +877,9 @@ export const ResumeApp = memo(function ResumeApp({
                           return (
                             <div
                               key={idx}
-                              className="bg-slate-900 text-slate-100 p-4 rounded-lg border border-slate-800 font-mono text-[10px] space-y-2 my-3"
+                              className="bg-surface text-on-surface p-4 rounded-lg border border-outline-variant font-mono text-[10px] space-y-2 my-3"
                             >
-                              <div className="text-accent-400 font-bold text-xs border-b border-slate-800 pb-1">
+                              <div className="text-secondary font-bold text-xs border-b border-outline-variant pb-1">
                                 {sec.heading}
                               </div>
                               <pre className="text-emerald-400 overflow-x-auto leading-tight">
@@ -878,11 +895,11 @@ export const ResumeApp = memo(function ResumeApp({
                         return (
                           <div key={idx} className="space-y-1">
                             {sec.heading && (
-                              <h3 className="font-bold text-slate-900 text-xs">
+                              <h3 className="font-bold text-on-surface text-xs">
                                 {sec.heading}
                               </h3>
                             )}
-                            <p className="text-slate-700 text-[11px] leading-relaxed whitespace-pre-line">
+                            <p className="text-on-surface text-[11px] leading-relaxed whitespace-pre-line">
                               {typeof sec.content === 'string' ? sec.content : null}
                             </p>
                           </div>
@@ -891,7 +908,7 @@ export const ResumeApp = memo(function ResumeApp({
                     </div>
 
                     {/* Page Footer */}
-                    <div className="border-t border-slate-200 pt-3 flex justify-between items-center text-[10px] text-slate-400">
+                    <div className="border-t border-outline-variant pt-3 flex justify-between items-center text-[10px] text-on-surface-variant">
                       <span>macOS Preview Engine</span>
                       <span>
                         Page {page.pageNumber} of {activeDoc.pagesCount}

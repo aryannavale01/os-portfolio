@@ -4,7 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AppId, WindowState, FileItem } from '@/types/mac';
 import { PORTFOLIO_INFO } from '@/lib/data';
 import { useTheme } from '@/components/context/ThemeContext';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { motion, AnimatePresence } from 'motion/react';
+import { dropdownVariants, getAnimationConfig } from '@/lib/animations';
 import Image from 'next/image';
 import {
   Wifi,
@@ -69,6 +71,8 @@ export function MenuBar({
   onCloseAllWindows,
 }: MenuBarProps) {
   const { theme, toggleTheme, setIsLocked } = useTheme();
+  const prefersReducedMotion = useReducedMotion();
+  const animCfg = getAnimationConfig(prefersReducedMotion);
   const [currentTime, setCurrentTime] = useState<string>('');
   const [openTab, setOpenTab] = useState<ActiveMenuTab>(null);
   const [isMenuVisible, setIsMenuVisible] = useState<boolean>(true);
@@ -211,7 +215,7 @@ export function MenuBar({
             initial={{ opacity: 0, y: -20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.9 }}
-            className="fixed top-10 left-1/2 -translate-x-1/2 z-[60] bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white px-4 py-2 rounded-xl text-xs font-medium shadow-2xl border border-black/10 dark:border-white/20 backdrop-blur-md flex items-center gap-2"
+            className="fixed top-10 left-1/2 -translate-x-1/2 z-[60] bg-surface-container-high/90 text-on-surface px-4 py-2 rounded-xl text-xs font-medium shadow-2xl border border-white/10 backdrop-blur-md flex items-center gap-2"
           >
             <Sparkles className="w-4 h-4 text-amber-400" />
             <span>{clipboardToast}</span>
@@ -232,16 +236,17 @@ export function MenuBar({
         initial={{ y: 0 }}
         animate={{ y: isMenuVisible || openTab !== null ? 0 : -32 }}
         transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-        className="fixed top-0 left-0 right-0 h-7 z-50 bg-white/60 dark:bg-slate-900/80 backdrop-blur-2xl border-b border-black/10 dark:border-white/10 text-[13px] text-slate-900 dark:text-white font-medium select-none flex items-center justify-between px-3 font-sans shadow-md"
+        className="fixed top-0 left-0 right-0 h-7 z-50 bg-surface/80 backdrop-blur-2xl border-b border-white/10 text-[13px] text-on-surface font-medium select-none flex items-center justify-between px-3 font-sans shadow-md"
       >
         {/* Left Section: Apple, App Name, and Menu Tabs */}
         <div className="flex items-center gap-1 sm:gap-2">
           {/* Apple Menu */}
           <div className="relative">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => toggleTab('apple')}
-              className={`p-0.5 px-1 rounded-md transition-colors flex items-center justify-center ${
-                openTab === 'apple' ? 'bg-black/10 dark:bg-white/25 text-slate-900 dark:text-white' : 'hover:bg-black/5 dark:hover:bg-white/15 text-slate-900 dark:text-white'
+              className={`grid h-6 w-6 place-items-center rounded-md transition-colors shrink-0 ${
+                openTab === 'apple' ? 'bg-white/10 text-on-surface' : 'hover:bg-white/15 text-on-surface'
               }`}
               title="Apple Menu"
             >
@@ -250,25 +255,26 @@ export function MenuBar({
                 alt="Aryan Navale"
                 width={24}
                 height={24}
-                className="w-6 h-6 rounded-[5px] object-cover"
+                className="block w-6 h-6 translate-y-px rounded-[5px] object-cover"
               />
-            </button>
+            </motion.button>
 
             {/* Apple Dropdown */}
             <AnimatePresence>
               {openTab === 'apple' && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                  transition={{ duration: 0.12 }}
-                  className="absolute left-0 top-7 w-60 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-black/10 dark:border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-slate-900 dark:text-white"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={animCfg.dropdownTransition}
+                  className="absolute left-0 top-7 w-60 bg-surface-container/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-on-surface"
                 >
-                  <div className="px-2 py-1.5 border-b border-black/10 dark:border-white/10">
-                    <span className="font-bold text-slate-900 dark:text-white block truncate">
+                  <div className="px-2 py-1.5 border-b border-white/10">
+                    <span className="font-bold text-on-surface block truncate">
                       {PORTFOLIO_INFO.name}
                     </span>
-                    <span className="text-[10px] text-slate-500 dark:text-white/60 block truncate">
+                    <span className="text-[10px] text-on-surface-variant/60 block truncate">
                       {PORTFOLIO_INFO.role}
                     </span>
                   </div>
@@ -278,7 +284,7 @@ export function MenuBar({
                       onOpenApp('notes');
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>About This Workstation</span>
                     <Sparkles className="w-3 h-3 opacity-60" />
@@ -289,7 +295,7 @@ export function MenuBar({
                       onOpenApp('settings');
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors"
                   >
                     System Settings...
                   </button>
@@ -299,32 +305,32 @@ export function MenuBar({
                       onOpenApp('finder');
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors"
                   >
                     App Store & Projects...
                   </button>
 
-                  <div className="my-1 border-t border-black/10 dark:border-white/10" />
+                  <div className="my-1 border-t border-white/10" />
 
                   <button
                     onClick={() => {
                       setShowForceQuitModal(true);
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Force Quit Applications...</span>
                     <span className="text-[10px] opacity-60">⌥⌘Esc</span>
                   </button>
 
-                  <div className="my-1 border-t border-black/10 dark:border-white/10" />
+                  <div className="my-1 border-t border-white/10" />
 
                   <button
                     onClick={() => {
                       setIsLocked(true);
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Lock Screen</span>
                     <Lock className="w-3 h-3 opacity-60" />
@@ -335,7 +341,7 @@ export function MenuBar({
                       onTriggerBoot();
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Restart Workstation...</span>
                     <RotateCcw className="w-3 h-3 opacity-60" />
@@ -349,53 +355,64 @@ export function MenuBar({
           <div className="relative">
             <button
               onClick={() => toggleTab('app')}
-              className={`px-2 py-0.5 rounded-md font-bold transition-colors ${
-                openTab === 'app' ? 'bg-black/10 dark:bg-white/25 text-slate-900 dark:text-white' : 'hover:bg-black/5 dark:hover:bg-white/15 text-slate-900 dark:text-white'
+              className={`inline-flex h-6 items-center justify-center px-2 rounded-md font-bold leading-none transition-colors ${
+                openTab === 'app' ? 'bg-white/10 text-on-surface' : 'hover:bg-white/15 text-on-surface'
               }`}
             >
-              {currentAppName}
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={currentAppName}
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  {currentAppName}
+                </motion.span>
+              </AnimatePresence>
             </button>
 
             <AnimatePresence>
               {openTab === 'app' && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                  transition={{ duration: 0.12 }}
-                  className="absolute left-0 top-7 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-black/10 dark:border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-slate-900 dark:text-white"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={animCfg.dropdownTransition}
+                  className="absolute left-0 top-7 w-56 bg-surface-container/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-on-surface"
                 >
                   <button
                     onClick={() => {
                       if (activeAppId) onOpenApp(activeAppId);
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors font-semibold"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors font-semibold"
                   >
                     About {currentAppName}
                   </button>
 
-                  <div className="my-1 border-t border-black/10 dark:border-white/10" />
+                  <div className="my-1 border-t border-white/10" />
 
                   <button
                     onClick={() => {
                       onOpenApp('settings');
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Preferences...</span>
                     <span className="text-[10px] opacity-60">⌘,</span>
                   </button>
 
-                  <div className="my-1 border-t border-black/10 dark:border-white/10" />
+                  <div className="my-1 border-t border-white/10" />
 
                   <button
                     onClick={() => {
                       if (activeAppId && onToggleMinimize) onToggleMinimize(activeAppId);
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Hide {currentAppName}</span>
                     <span className="text-[10px] opacity-60">⌘H</span>
@@ -406,7 +423,7 @@ export function MenuBar({
                       if (activeAppId && onCloseWindow) onCloseWindow(activeAppId);
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between text-red-500 dark:text-red-400 hover:text-white"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between text-red-500 dark:text-red-400 hover:text-white"
                   >
                     <span>Quit {currentAppName}</span>
                     <span className="text-[10px] opacity-60">⌘Q</span>
@@ -418,25 +435,27 @@ export function MenuBar({
 
           {/* File Menu */}
           <div className="relative hidden sm:block">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => toggleTab('file')}
-              className={`px-2 py-0.5 rounded-md transition-colors ${
-                openTab === 'file' ? 'bg-black/10 dark:bg-white/25 text-slate-900 dark:text-white' : 'opacity-80 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/15'
+              className={`inline-flex h-6 items-center justify-center px-2 rounded-md leading-none transition-colors ${
+                openTab === 'file' ? 'bg-white/10 text-on-surface' : 'opacity-80 hover:opacity-100 hover:bg-white/15'
               }`}
             >
               File
-            </button>
+            </motion.button>
 
             <AnimatePresence>
               {openTab === 'file' && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                  transition={{ duration: 0.12 }}
-                  className="absolute left-0 top-7 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-black/10 dark:border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-slate-900 dark:text-white"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={animCfg.dropdownTransition}
+                  className="absolute left-0 top-7 w-56 bg-surface-container/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-on-surface"
                 >
-                  <div className="px-2 py-1 text-[10px] font-bold text-slate-400 dark:text-white/40 uppercase">
+                  <div className="px-2 py-1 text-[10px] font-bold text-on-surface-variant/40 uppercase">
                     Launch Application
                   </div>
                   <button
@@ -444,7 +463,7 @@ export function MenuBar({
                       onOpenApp('finder');
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Finder (Projects)</span>
                     <Folder className="w-3 h-3 opacity-60" />
@@ -454,7 +473,7 @@ export function MenuBar({
                       onOpenApp('terminal');
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Terminal (CLI)</span>
                     <Terminal className="w-3 h-3 opacity-60" />
@@ -464,7 +483,7 @@ export function MenuBar({
                       onOpenApp('textedit');
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Document Reader</span>
                     <BookOpen className="w-3 h-3 opacity-60" />
@@ -474,7 +493,7 @@ export function MenuBar({
                       onOpenApp('music');
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Music Player</span>
                     <Music className="w-3 h-3 opacity-60" />
@@ -484,20 +503,20 @@ export function MenuBar({
                       onOpenApp('safari');
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Safari</span>
                     <Compass className="w-3 h-3 opacity-60" />
                   </button>
 
-                  <div className="my-1 border-t border-black/10 dark:border-white/10" />
+                  <div className="my-1 border-t border-white/10" />
 
                   <button
                     onClick={() => {
                       if (activeAppId && onCloseWindow) onCloseWindow(activeAppId);
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Close Window</span>
                     <span className="text-[10px] opacity-60">⌘W</span>
@@ -508,20 +527,20 @@ export function MenuBar({
                       if (onCloseAllWindows) onCloseAllWindows();
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Close All Windows</span>
                     <span className="text-[10px] opacity-60">⌥⌘W</span>
                   </button>
 
-                  <div className="my-1 border-t border-black/10 dark:border-white/10" />
+                  <div className="my-1 border-t border-white/10" />
 
                   <button
                     onClick={() => {
                       window.print();
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Print Window...</span>
                     <span className="text-[10px] opacity-60">⌘P</span>
@@ -533,39 +552,41 @@ export function MenuBar({
 
           {/* Edit Menu */}
           <div className="relative hidden sm:block">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => toggleTab('edit')}
-              className={`px-2 py-0.5 rounded-md transition-colors ${
-                openTab === 'edit' ? 'bg-black/10 dark:bg-white/25 text-slate-900 dark:text-white' : 'opacity-80 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/15'
+              className={`inline-flex h-6 items-center justify-center px-2 rounded-md leading-none transition-colors ${
+                openTab === 'edit' ? 'bg-white/10 text-on-surface' : 'opacity-80 hover:opacity-100 hover:bg-white/15'
               }`}
             >
               Edit
-            </button>
+            </motion.button>
 
             <AnimatePresence>
               {openTab === 'edit' && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                  transition={{ duration: 0.12 }}
-                  className="absolute left-0 top-7 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-black/10 dark:border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-slate-900 dark:text-white"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={animCfg.dropdownTransition}
+                  className="absolute left-0 top-7 w-56 bg-surface-container/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-on-surface"
                 >
                   <button
                     onClick={() => handleCopy(PORTFOLIO_INFO.email, 'Email')}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Copy Developer Email</span>
                   </button>
                   <button
                     onClick={() => handleCopy(PORTFOLIO_INFO.github, 'GitHub URL')}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Copy GitHub Link</span>
                   </button>
                   <button
                     onClick={() => handleCopy(PORTFOLIO_INFO.linkedin, 'LinkedIn URL')}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Copy LinkedIn Link</span>
                   </button>
@@ -576,30 +597,32 @@ export function MenuBar({
 
           {/* View Menu */}
           <div className="relative hidden sm:block">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => toggleTab('view')}
-              className={`px-2 py-0.5 rounded-md transition-colors ${
-                openTab === 'view' ? 'bg-black/10 dark:bg-white/25 text-slate-900 dark:text-white' : 'opacity-80 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/15'
+              className={`inline-flex h-6 items-center justify-center px-2 rounded-md leading-none transition-colors ${
+                openTab === 'view' ? 'bg-white/10 text-on-surface' : 'opacity-80 hover:opacity-100 hover:bg-white/15'
               }`}
             >
               View
-            </button>
+            </motion.button>
 
             <AnimatePresence>
               {openTab === 'view' && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                  transition={{ duration: 0.12 }}
-                  className="absolute left-0 top-7 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-black/10 dark:border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-slate-900 dark:text-white"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={animCfg.dropdownTransition}
+                  className="absolute left-0 top-7 w-56 bg-surface-container/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-on-surface"
                 >
                   <button
                     onClick={() => {
                       toggleTheme();
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Toggle Dark / Light Theme</span>
                     {theme === 'dark' ? <Sun className="w-3 h-3 text-amber-300" /> : <Moon className="w-3 h-3" />}
@@ -614,7 +637,7 @@ export function MenuBar({
                       }
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Enter Fullscreen</span>
                     <Maximize2 className="w-3 h-3 opacity-60" />
@@ -626,30 +649,32 @@ export function MenuBar({
 
           {/* Window Menu */}
           <div className="relative hidden sm:block">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => toggleTab('window')}
-              className={`px-2 py-0.5 rounded-md transition-colors ${
-                openTab === 'window' ? 'bg-black/10 dark:bg-white/25 text-slate-900 dark:text-white' : 'opacity-80 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/15'
+              className={`inline-flex h-6 items-center justify-center px-2 rounded-md leading-none transition-colors ${
+                openTab === 'window' ? 'bg-white/10 text-on-surface' : 'opacity-80 hover:opacity-100 hover:bg-white/15'
               }`}
             >
               Window
-            </button>
+            </motion.button>
 
             <AnimatePresence>
               {openTab === 'window' && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                  transition={{ duration: 0.12 }}
-                  className="absolute left-0 top-7 w-60 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-black/10 dark:border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-slate-900 dark:text-white"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={animCfg.dropdownTransition}
+                  className="absolute left-0 top-7 w-60 bg-surface-container/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-on-surface"
                 >
                   <button
                     onClick={() => {
                       if (activeAppId && onToggleMinimize) onToggleMinimize(activeAppId);
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Minimize Active Window</span>
                     <span className="text-[10px] opacity-60">⌘M</span>
@@ -660,15 +685,15 @@ export function MenuBar({
                       if (activeAppId && onToggleMaximize) onToggleMaximize(activeAppId);
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Zoom / Maximize</span>
                     <Maximize2 className="w-3 h-3 opacity-60" />
                   </button>
 
-                  <div className="my-1 border-t border-black/10 dark:border-white/10" />
+                  <div className="my-1 border-t border-white/10" />
 
-                  <div className="px-2 py-1 text-[10px] font-bold text-slate-400 dark:text-white/40 uppercase">
+                  <div className="px-2 py-1 text-[10px] font-bold text-on-surface-variant/40 uppercase">
                     Running Applications
                   </div>
 
@@ -679,7 +704,7 @@ export function MenuBar({
                         onOpenApp(win.id);
                         setOpenTab(null);
                       }}
-                      className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                      className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                     >
                       <span className="truncate">{win.title}</span>
                       {activeAppId === win.id && win.isOpen && !win.isMinimized && (
@@ -694,30 +719,32 @@ export function MenuBar({
 
           {/* Help Menu */}
           <div className="relative hidden sm:block">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               onClick={() => toggleTab('help')}
-              className={`px-2 py-0.5 rounded-md transition-colors ${
-                openTab === 'help' ? 'bg-black/10 dark:bg-white/25 text-slate-900 dark:text-white' : 'opacity-80 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/15'
+              className={`inline-flex h-6 items-center justify-center px-2 rounded-md leading-none transition-colors ${
+                openTab === 'help' ? 'bg-white/10 text-on-surface' : 'opacity-80 hover:opacity-100 hover:bg-white/15'
               }`}
             >
               Help
-            </button>
+            </motion.button>
 
             <AnimatePresence>
               {openTab === 'help' && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                  transition={{ duration: 0.12 }}
-                  className="absolute left-0 top-7 w-60 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl border border-black/10 dark:border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-slate-900 dark:text-white"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={animCfg.dropdownTransition}
+                  className="absolute left-0 top-7 w-60 bg-surface-container/95 backdrop-blur-2xl border border-white/15 rounded-xl shadow-2xl p-1.5 z-50 text-xs space-y-0.5 text-on-surface"
                 >
                   <button
                     onClick={() => {
                       onOpenSpotlight();
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Spotlight Search</span>
                     <span className="text-[10px] opacity-60">⌘K</span>
@@ -728,7 +755,7 @@ export function MenuBar({
                       setShowShortcutsModal(true);
                       setOpenTab(null);
                     }}
-                    className="w-full text-left px-2 py-1 rounded hover:bg-accent-600 hover:text-white transition-colors flex items-center justify-between"
+                    className="w-full text-left px-2 py-1 rounded hover:bg-primary-container hover:text-on-primary-container transition-colors flex items-center justify-between"
                   >
                     <span>Keyboard Shortcuts Guide</span>
                     <HelpCircle className="w-3 h-3 opacity-60" />
@@ -744,31 +771,31 @@ export function MenuBar({
           {/* Spotlight Search Icon */}
           <button
             onClick={onOpenSpotlight}
-            className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/15 transition-colors text-slate-600 dark:text-white/80 hover:text-slate-900 dark:hover:text-white"
+            className="grid h-6 w-6 place-items-center rounded hover:bg-white/15 transition-colors text-on-surface-variant hover:text-on-surface"
             title="Spotlight Search (Cmd+K)"
           >
-            <Search className="w-3.5 h-3.5" />
+            <Search className="block w-3.5 h-3.5 translate-y-px" />
           </button>
 
           {/* Theme Quick Switcher */}
           <button
             onClick={toggleTheme}
-            className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/15 transition-colors text-slate-600 dark:text-white/80 hover:text-slate-900 dark:hover:text-white"
+            className="grid h-6 w-6 place-items-center rounded hover:bg-white/15 transition-colors text-on-surface-variant hover:text-on-surface"
             title="Switch Theme"
           >
-            {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-300" /> : <Moon className="w-3.5 h-3.5" />}
+            {theme === 'dark' ? <Sun className="block w-3.5 h-3.5 translate-y-px text-amber-300" /> : <Moon className="block w-3.5 h-3.5 translate-y-px" />}
           </button>
 
           {/* Control Center Toggle */}
           <div className="relative">
             <button
               onClick={() => toggleTab('control')}
-              className={`p-1 rounded-md transition-colors ${
-                openTab === 'control' ? 'bg-black/10 dark:bg-white/25 text-slate-900 dark:text-white' : 'hover:bg-black/5 dark:hover:bg-white/15 text-slate-600 dark:text-white/80 hover:text-slate-900 dark:hover:text-white'
+              className={`grid h-6 w-6 place-items-center rounded-md transition-colors ${
+                openTab === 'control' ? 'bg-white/10 text-on-surface' : 'hover:bg-white/15 text-on-surface-variant hover:text-on-surface'
               }`}
               title="macOS Control Center"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <SlidersHorizontal className="block w-3.5 h-3.5 translate-y-px" />
             </button>
 
             {/* macOS Control Center Widget Panel */}
@@ -779,41 +806,41 @@ export function MenuBar({
                   animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -6, x: 10 }}
                   transition={{ duration: 0.15, type: 'spring', stiffness: 350, damping: 25 }}
-                  className="absolute right-0 top-8 w-72 bg-white/90 dark:bg-slate-900/90 backdrop-blur-3xl border border-black/10 dark:border-white/20 rounded-2xl shadow-2xl p-3 z-50 text-slate-900 dark:text-white space-y-3"
+                  className="absolute right-0 top-8 w-72 bg-surface-container-high/90 backdrop-blur-3xl border border-white/20 rounded-2xl shadow-2xl p-3 z-50 text-on-surface space-y-3"
                 >
                   {/* Top Grid: Wi-Fi, Bluetooth, AirDrop */}
                   <div className="grid grid-cols-2 gap-2">
                     {/* Wi-Fi Tile */}
-                    <div className="bg-slate-100 dark:bg-white/5 border border-black/10 dark:border-white/10 p-2 rounded-xl flex items-center gap-2">
+                    <div className="bg-white/5 border border-white/10 p-2 rounded-xl flex items-center gap-2">
                       <button
                         onClick={() => setWifiEnabled(!wifiEnabled)}
                         className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                          wifiEnabled ? 'bg-accent-600 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-500 dark:text-white/40'
+                          wifiEnabled ? 'bg-primary-container text-on-primary-container' : 'bg-white/10 text-on-surface-variant/60'
                         }`}
                       >
                         <Wifi className="w-3.5 h-3.5" />
                       </button>
                       <div className="overflow-hidden">
                         <span className="font-bold text-xs block leading-none">Wi-Fi</span>
-                        <span className="text-[10px] text-slate-500 dark:text-white/60 block truncate mt-0.5">
+                        <span className="text-[10px] text-on-surface-variant/60 block truncate mt-0.5">
                           {wifiEnabled ? 'Apple_5G_Fiber' : 'Off'}
                         </span>
                       </div>
                     </div>
 
                     {/* Bluetooth Tile */}
-                    <div className="bg-slate-100 dark:bg-white/5 border border-black/10 dark:border-white/10 p-2 rounded-xl flex items-center gap-2">
+                    <div className="bg-white/5 border border-white/10 p-2 rounded-xl flex items-center gap-2">
                       <button
                         onClick={() => setBluetoothEnabled(!bluetoothEnabled)}
                         className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                          bluetoothEnabled ? 'bg-accent-600 text-white' : 'bg-slate-200 dark:bg-white/10 text-slate-500 dark:text-white/40'
+                          bluetoothEnabled ? 'bg-primary-container text-on-primary-container' : 'bg-white/10 text-on-surface-variant/60'
                         }`}
                       >
                         <Bluetooth className="w-3.5 h-3.5" />
                       </button>
                       <div className="overflow-hidden">
                         <span className="font-bold text-xs block leading-none">Bluetooth</span>
-                        <span className="text-[10px] text-slate-500 dark:text-white/60 block truncate mt-0.5">
+                        <span className="text-[10px] text-on-surface-variant/60 block truncate mt-0.5">
                           {bluetoothEnabled ? 'AirPods Max' : 'Off'}
                         </span>
                       </div>
@@ -821,12 +848,12 @@ export function MenuBar({
                   </div>
 
                   {/* Display Brightness Slider */}
-                  <div className="bg-slate-100 dark:bg-white/5 border border-black/10 dark:border-white/10 p-2.5 rounded-xl space-y-1.5">
+                  <div className="bg-white/5 border border-white/10 p-2.5 rounded-xl space-y-1.5">
                     <div className="flex items-center justify-between text-xs font-medium">
-                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-white/80">
+                      <span className="flex items-center gap-1.5 text-on-surface-variant">
                         <Sun className="w-3.5 h-3.5 text-amber-300" /> Display
                       </span>
-                      <span className="text-[11px] text-slate-500 dark:text-white/60">{brightness}%</span>
+                      <span className="text-[11px] text-on-surface-variant/60">{brightness}%</span>
                     </div>
                     <input
                       type="range"
@@ -834,22 +861,22 @@ export function MenuBar({
                       max="100"
                       value={brightness}
                       onChange={(e) => setBrightness(Number(e.target.value))}
-                      className="w-full accent-accent-500 h-1.5 bg-slate-300/70 dark:bg-white/20 rounded-lg cursor-pointer"
+                      className="w-full accent-accent-500 h-1.5 bg-white/20 rounded-lg cursor-pointer"
                     />
                   </div>
 
                   {/* Sound Volume Slider */}
-                  <div className="bg-slate-100 dark:bg-white/5 border border-black/10 dark:border-white/10 p-2.5 rounded-xl space-y-1.5">
+                  <div className="bg-white/5 border border-white/10 p-2.5 rounded-xl space-y-1.5">
                     <div className="flex items-center justify-between text-xs font-medium">
-                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-white/80">
+                      <span className="flex items-center gap-1.5 text-on-surface-variant">
                         {volume === 0 ? (
                           <VolumeX className="w-3.5 h-3.5 text-red-400" />
                         ) : (
-                          <Volume2 className="w-3.5 h-3.5 text-accent-400" />
+                          <Volume2 className="w-3.5 h-3.5 text-secondary" />
                         )}
                         Sound Volume
                       </span>
-                      <span className="text-[11px] text-slate-500 dark:text-white/60">{volume}%</span>
+                      <span className="text-[11px] text-on-surface-variant/60">{volume}%</span>
                     </div>
                     <input
                       type="range"
@@ -857,7 +884,7 @@ export function MenuBar({
                       max="100"
                       value={volume}
                       onChange={(e) => setVolume(Number(e.target.value))}
-                      className="w-full accent-accent-500 h-1.5 bg-slate-300/70 dark:bg-white/20 rounded-lg cursor-pointer"
+                      className="w-full accent-accent-500 h-1.5 bg-white/20 rounded-lg cursor-pointer"
                     />
                   </div>
 
@@ -891,12 +918,13 @@ export function MenuBar({
             </AnimatePresence>
           </div>
 
-          {/* Wifi & Battery Status Icons */}
-          <Wifi className="w-3.5 h-3.5 text-slate-600 dark:text-white/80 hidden sm:block" />
-          <Battery className="w-3.5 h-3.5 text-slate-600 dark:text-white/80 hidden sm:block" />
+          {/* Battery Status Icon */}
+          <span className="hidden sm:grid h-6 w-6 place-items-center rounded text-on-surface-variant">
+            <Battery className="block w-3.5 h-3.5 translate-y-px" />
+          </span>
 
           {/* Clock */}
-          <span className="font-medium text-[12px] sm:text-[13px] tracking-tight text-slate-700 dark:text-white/90">
+          <span className="font-medium text-[12px] sm:text-[13px] tracking-tight text-on-surface">
             {currentTime || 'Tue Oct 24 10:42 AM'}
           </span>
         </div>
@@ -910,47 +938,47 @@ export function MenuBar({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white dark:bg-slate-900 border border-black/10 dark:border-white/20 rounded-2xl p-5 max-w-md w-full shadow-2xl text-slate-900 dark:text-white space-y-4"
+              className="bg-surface-container-high border border-white/20 rounded-2xl p-5 max-w-md w-full shadow-2xl text-on-surface space-y-4"
             >
-              <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <div className="flex items-center gap-2">
-                  <Command className="w-5 h-5 text-accent-400" />
+                  <Command className="w-5 h-5 text-secondary" />
                   <h3 className="font-bold text-base">macOS Keyboard Shortcuts</h3>
                 </div>
                 <button
                   onClick={() => setShowShortcutsModal(false)}
-                  className="p-1 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white"
+                  className="p-1 rounded-full hover:bg-white/10 text-on-surface-variant/60 hover:text-on-surface"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="space-y-2 text-xs">
-                <div className="flex justify-between items-center bg-slate-100 dark:bg-white/5 p-2 rounded-lg">
+                <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
                   <span>Spotlight Global Search</span>
-                  <kbd className="bg-slate-200 dark:bg-white/20 px-2 py-0.5 rounded font-mono font-bold">⌘ K</kbd>
+                  <kbd className="bg-white/20 px-2 py-0.5 rounded font-mono font-bold">⌘ K</kbd>
                 </div>
-                <div className="flex justify-between items-center bg-slate-100 dark:bg-white/5 p-2 rounded-lg">
+                <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
                   <span>Close Focused Window</span>
-                  <kbd className="bg-slate-200 dark:bg-white/20 px-2 py-0.5 rounded font-mono font-bold">⌘ W</kbd>
+                  <kbd className="bg-white/20 px-2 py-0.5 rounded font-mono font-bold">⌘ W</kbd>
                 </div>
-                <div className="flex justify-between items-center bg-slate-100 dark:bg-white/5 p-2 rounded-lg">
+                <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
                   <span>Minimize Focused Window</span>
-                  <kbd className="bg-slate-200 dark:bg-white/20 px-2 py-0.5 rounded font-mono font-bold">⌘ M</kbd>
+                  <kbd className="bg-white/20 px-2 py-0.5 rounded font-mono font-bold">⌘ M</kbd>
                 </div>
-                <div className="flex justify-between items-center bg-slate-100 dark:bg-white/5 p-2 rounded-lg">
+                <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
                   <span>Quit Application</span>
-                  <kbd className="bg-slate-200 dark:bg-white/20 px-2 py-0.5 rounded font-mono font-bold">⌘ Q</kbd>
+                  <kbd className="bg-white/20 px-2 py-0.5 rounded font-mono font-bold">⌘ Q</kbd>
                 </div>
-                <div className="flex justify-between items-center bg-slate-100 dark:bg-white/5 p-2 rounded-lg">
+                <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
                   <span>Force Quit Menu</span>
-                  <kbd className="bg-slate-200 dark:bg-white/20 px-2 py-0.5 rounded font-mono font-bold">⌥ ⌘ Esc</kbd>
+                  <kbd className="bg-white/20 px-2 py-0.5 rounded font-mono font-bold">⌥ ⌘ Esc</kbd>
                 </div>
               </div>
 
               <button
                 onClick={() => setShowShortcutsModal(false)}
-                className="w-full py-2 bg-accent-600 hover:bg-accent-500 font-semibold text-xs rounded-xl transition-colors"
+                className="w-full py-2 bg-primary-container hover:bg-secondary-container font-semibold text-xs rounded-xl transition-colors"
               >
                 Got It
               </button>
@@ -967,19 +995,19 @@ export function MenuBar({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="bg-white dark:bg-slate-900 border border-black/10 dark:border-white/20 rounded-2xl p-5 max-w-sm w-full shadow-2xl text-slate-900 dark:text-white space-y-4"
+              className="bg-surface-container-high border border-white/20 rounded-2xl p-5 max-w-sm w-full shadow-2xl text-on-surface space-y-4"
             >
-              <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <h3 className="font-bold text-base text-red-400">Force Quit Applications</h3>
                 <button
                   onClick={() => setShowForceQuitModal(false)}
-                  className="p-1 rounded-full hover:bg-slate-200 dark:hover:bg-white/10 text-slate-500 dark:text-white/60 hover:text-slate-900 dark:hover:text-white"
+                  className="p-1 rounded-full hover:bg-white/10 text-on-surface-variant/60 hover:text-on-surface"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <p className="text-xs text-slate-500 dark:text-white/70">
+              <p className="text-xs text-on-surface-variant/70">
                 If an application is unresponsive, select it below and click Force Quit.
               </p>
 
@@ -987,7 +1015,7 @@ export function MenuBar({
                 {windows.map((win) => (
                   <div
                     key={win.id}
-                    className="flex items-center justify-between p-2 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                    className="flex items-center justify-between p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
                   >
                     <span className="text-xs font-semibold">{win.title}</span>
                     {win.isOpen && onCloseWindow && (
@@ -1004,7 +1032,7 @@ export function MenuBar({
 
               <button
                 onClick={() => setShowForceQuitModal(false)}
-                className="w-full py-2 bg-slate-200 hover:bg-slate-300 text-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white font-semibold text-xs rounded-xl transition-colors"
+                className="w-full py-2 bg-surface-container-low hover:bg-surface-container text-on-surface font-semibold text-xs rounded-xl transition-colors"
               >
                 Done
               </button>

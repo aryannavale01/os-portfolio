@@ -16,7 +16,7 @@ export default function Page() {
 
   return (
     <ThemeProvider>
-      <main className="w-screen h-screen overflow-hidden bg-black select-none font-sans">
+      <main className="w-full h-[100dvh] overflow-hidden bg-black select-none font-sans">
         {booting ? (
           <BootScreen
             key={bootNonce}
