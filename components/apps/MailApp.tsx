@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useState, useCallback, memo} from 'react';
+import React, {useState, useCallback, useRef, memo} from 'react';
 import {motion, AnimatePresence} from 'motion/react';
 import {PORTFOLIO_INFO} from '@/lib/data';
 import {
@@ -24,54 +24,54 @@ export const MailApp = memo(function MailApp() {
   const [isSending, setIsSending] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const handleSend = useCallback(
-    async (e: React.FormEvent) => {
+  const doSend = useCallback(async () => {
+    if (!fromEmail || !fromEmail.includes('@')) {
+      setErrorMsg('Please enter a valid return email address.');
+      return;
+    }
+    if (!body.trim()) {
+      setErrorMsg('Message body cannot be empty.');
+      return;
+    }
+
+    setErrorMsg('');
+    setIsSending(true);
+
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          name: fromName || undefined,
+          email: fromEmail,
+          subject,
+          message: body,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrorMsg(data.error || 'Failed to send email. Please try again.');
+        return;
+      }
+
+      setIsSent(true);
+    } catch {
+      setErrorMsg('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSending(false);
+    }
+  }, [fromName, fromEmail, subject, body]);
+
+  const handleFormSubmit = useCallback(
+    (e: React.FormEvent) => {
       e.preventDefault();
-      if (!fromEmail || !fromEmail.includes('@')) {
-        setErrorMsg('Please enter a valid return email address.');
-        return;
-      }
-      if (!body.trim()) {
-        setErrorMsg('Message body cannot be empty.');
-        return;
-      }
-
-      setErrorMsg('');
-      setIsSending(true);
-
-      try {
-        const res = await fetch('/api/send-email', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            name: fromName || undefined,
-            email: fromEmail,
-            subject,
-            message: body,
-          }),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          setErrorMsg(
-            data.error || 'Failed to send email. Please try again.',
-          );
-          return;
-        }
-
-        setIsSent(true);
-      } catch {
-        setErrorMsg(
-          'Network error. Please check your connection and try again.',
-        );
-        return;
-      } finally {
-        setIsSending(false);
-      }
+      doSend();
     },
-    [fromName, fromEmail, subject, body],
+    [doSend],
   );
 
   const handleReset = useCallback(() => {
@@ -88,17 +88,17 @@ export const MailApp = memo(function MailApp() {
   return (
     <div className="flex flex-col h-full w-full select-none bg-white dark:bg-[#1e1e1e] text-[#1d1d1f] dark:text-[#e5e5e7] overflow-hidden font-sans">
       {/* macOS-style toolbar */}
-      <div className="h-11 px-4 border-b border-black/[0.08] dark:border-white/[0.08] flex items-center justify-between bg-[#f6f6f6]/80 dark:bg-[#2d2d2d]/80 backdrop-blur-md">
+      <div className="h-11 px-4 border-b border-black/[0.08] dark:border-white/[0.08] flex items-center justify-between bg-[#f6f6f6]/80 dark:bg-[#2d2d2d]/80 backdrop-blur-md shrink-0">
         <div className="flex items-center gap-2.5">
           <Mail className="w-4 h-4 text-[#007AFF]" />
           <span className="text-[13px] font-semibold tracking-[-0.01em]">
-            New Message
+            Compose
           </span>
         </div>
 
         <motion.button
           whileTap={{scale: 0.96}}
-          onClick={isSent ? handleReset : handleSend}
+          onClick={isSent ? handleReset : doSend}
           disabled={isSending}
           className="flex items-center gap-1.5 px-3.5 py-[5px] rounded-md text-[11px] font-semibold transition-all
             bg-[#007AFF] hover:bg-[#0063D1] text-white shadow-[0_1px_2px_rgba(0,0,0,0.12)]
@@ -124,8 +124,8 @@ export const MailApp = memo(function MailApp() {
         </motion.button>
       </div>
 
-      {/* Mail Form Body */}
-      <div className="flex-1 overflow-y-auto">
+      {/* Mail Content */}
+      <div className="flex-1 overflow-y-auto min-h-0">
         <AnimatePresence mode="wait">
           {isSent ? (
             <motion.div
@@ -167,91 +167,83 @@ export const MailApp = memo(function MailApp() {
               animate={{opacity: 1}}
               exit={{opacity: 0}}
             >
-              {/* Error Banner */}
-              <AnimatePresence>
-                {errorMsg && (
-                  <motion.div
-                    initial={{height: 0, opacity: 0}}
-                    animate={{height: 'auto', opacity: 1}}
-                    exit={{height: 0, opacity: 0}}
-                    className="overflow-hidden"
-                  >
-                    <div className="mx-4 mt-3 p-3 rounded-lg bg-[#FF3B30]/8 border border-[#FF3B30]/20 flex items-start gap-2.5">
-                      <AlertCircle className="w-4 h-4 text-[#FF3B30] mt-0.5 shrink-0" />
-                      <span className="text-[12px] text-[#FF3B30] leading-relaxed">
-                        {errorMsg}
+              {errorMsg && (
+                <div className="mx-4 mt-3 p-3 rounded-lg bg-[#FF3B30]/8 border border-[#FF3B30]/20 flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-[#FF3B30] mt-0.5 shrink-0" />
+                  <span className="text-[12px] text-[#FF3B30] leading-relaxed">
+                    {errorMsg}
+                  </span>
+                </div>
+              )}
+
+              <form ref={formRef} onSubmit={handleFormSubmit}>
+                {/* Email Headers */}
+                <div className="border-b border-black/[0.06] dark:border-white/[0.06]">
+                  {/* To */}
+                  <div className="flex items-center px-4 py-2.5 border-b border-black/[0.04] dark:border-white/[0.04]">
+                    <span className="w-[42px] text-[12px] font-medium text-[#86868b] dark:text-[#98989d] shrink-0">
+                      To
+                    </span>
+                    <div className="flex items-center gap-1.5 text-[13px]">
+                      <span className="text-[#1d1d1f] dark:text-[#e5e5e7] font-medium">
+                        {PORTFOLIO_INFO.name}
+                      </span>
+                      <span className="text-[#86868b] dark:text-[#98989d]">
+                        &lt;{PORTFOLIO_INFO.email}&gt;
                       </span>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Email Headers */}
-              <div className="border-b border-black/[0.06] dark:border-white/[0.06]">
-                {/* To */}
-                <div className="flex items-center px-4 py-2.5 border-b border-black/[0.04] dark:border-white/[0.04]">
-                  <span className="w-[42px] text-[12px] font-medium text-[#86868b] dark:text-[#98989d] shrink-0">
-                    To
-                  </span>
-                  <div className="flex items-center gap-1.5 text-[13px]">
-                    <span className="text-[#1d1d1f] dark:text-[#e5e5e7] font-medium">
-                      {PORTFOLIO_INFO.name}
-                    </span>
-                    <span className="text-[#86868b] dark:text-[#98989d]">
-                      &lt;{PORTFOLIO_INFO.email}&gt;
-                    </span>
                   </div>
-                </div>
 
-                {/* From */}
-                <div className="flex items-center px-4 py-2.5 border-b border-black/[0.04] dark:border-white/[0.04]">
-                  <span className="w-[42px] text-[12px] font-medium text-[#86868b] dark:text-[#98989d] shrink-0">
-                    From
-                  </span>
-                  <div className="flex-1 flex items-center gap-1">
+                  {/* From */}
+                  <div className="flex items-center px-4 py-2.5 border-b border-black/[0.04] dark:border-white/[0.04]">
+                    <span className="w-[42px] text-[12px] font-medium text-[#86868b] dark:text-[#98989d] shrink-0">
+                      From
+                    </span>
+                    <div className="flex-1 flex items-center gap-1">
+                      <input
+                        type="text"
+                        placeholder="Your Name"
+                        value={fromName}
+                        onChange={(e) => setFromName(e.target.value)}
+                        className="w-[120px] bg-transparent focus:outline-none text-[13px] text-[#1d1d1f] dark:text-[#e5e5e7] placeholder-[#c7c7cc] dark:placeholder-[#636366]"
+                      />
+                      <input
+                        type="email"
+                        placeholder="your.email@company.com"
+                        value={fromEmail}
+                        onChange={(e) => setFromEmail(e.target.value)}
+                        required
+                        className="flex-1 bg-transparent focus:outline-none text-[13px] text-[#1d1d1f] dark:text-[#e5e5e7] placeholder-[#c7c7cc] dark:placeholder-[#636366]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Subject */}
+                  <div className="flex items-center px-4 py-2.5">
+                    <span className="w-[42px] text-[12px] font-medium text-[#86868b] dark:text-[#98989d] shrink-0">
+                      Subject
+                    </span>
                     <input
                       type="text"
-                      placeholder="Your Name"
-                      value={fromName}
-                      onChange={(e) => setFromName(e.target.value)}
-                      className="w-[120px] bg-transparent focus:outline-none text-[13px] text-[#1d1d1f] dark:text-[#e5e5e7] placeholder-[#c7c7cc] dark:placeholder-[#636366]"
-                    />
-                    <input
-                      type="email"
-                      placeholder="your.email@company.com"
-                      value={fromEmail}
-                      onChange={(e) => setFromEmail(e.target.value)}
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
                       required
-                      className="flex-1 bg-transparent focus:outline-none text-[13px] text-[#1d1d1f] dark:text-[#e5e5e7] placeholder-[#c7c7cc] dark:placeholder-[#636366]"
+                      className="flex-1 bg-transparent focus:outline-none text-[13px] font-medium text-[#1d1d1f] dark:text-[#e5e5e7]"
                     />
                   </div>
                 </div>
 
-                {/* Subject */}
-                <div className="flex items-center px-4 py-2.5">
-                  <span className="w-[42px] text-[12px] font-medium text-[#86868b] dark:text-[#98989d] shrink-0">
-                    Subject
-                  </span>
-                  <input
-                    type="text"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    required
-                    className="flex-1 bg-transparent focus:outline-none text-[13px] font-medium text-[#1d1d1f] dark:text-[#e5e5e7]"
+                {/* Message Body */}
+                <div className="p-4">
+                  <textarea
+                    rows={12}
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    placeholder="Write your message here..."
+                    className="w-full bg-transparent focus:outline-none text-[13px] text-[#1d1d1f] dark:text-[#e5e5e7] resize-none leading-[1.65] tracking-[-0.01em]"
                   />
                 </div>
-              </div>
-
-              {/* Message Body */}
-              <div className="p-4">
-                <textarea
-                  rows={12}
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  placeholder="Write your message here..."
-                  className="w-full bg-transparent focus:outline-none text-[13px] text-[#1d1d1f] dark:text-[#e5e5e7] resize-none leading-[1.65] tracking-[-0.01em]"
-                />
-              </div>
+              </form>
 
               {/* Bottom toolbar */}
               <div className="px-4 py-2.5 border-t border-black/[0.06] dark:border-white/[0.06] flex items-center gap-3">

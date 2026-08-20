@@ -6,7 +6,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Minus, Maximize2, Minimize2 } from 'lucide-react';
-import { springSmooth, springSnappy, springGenie, getAnimationConfig } from '@/lib/animations';
+import { getAnimationConfig } from '@/lib/animations';
 
 interface WindowProps {
   windowState: WindowState;
@@ -31,10 +31,6 @@ type ResizeDirection =
   | 'sw'
   | null;
 
-// Memoized so a drag/resize on one window never re-renders another window's
-// chrome. The per-window app content is memoized separately in Desktop.tsx
-// (WindowSlot), which is what actually keeps unrelated app bodies from
-// re-rendering at 60fps during a drag.
 export const Window = memo(function Window({
   windowState,
   isActive,
@@ -63,7 +59,6 @@ export const Window = memo(function Window({
 
   const windowRef = useRef<HTMLDivElement>(null);
 
-  // Mouse Dragging Header Logic
   const handleHeaderMouseDown = (e: React.MouseEvent) => {
     if (windowState.isMaximized || isMobile) return;
     onFocus();
@@ -74,7 +69,6 @@ export const Window = memo(function Window({
     });
   };
 
-  // Resize Handle MouseDown
   const handleResizeMouseDown = (e: React.MouseEvent, dir: ResizeDirection) => {
     e.stopPropagation();
     if (windowState.isMaximized || isMobile) return;
@@ -95,7 +89,7 @@ export const Window = memo(function Window({
       if (isDragging) {
         const minX = -windowState.size.width + 120;
         const maxX = window.innerWidth - 120;
-        const minY = 28; // Menu bar height
+        const minY = 28;
         const maxY = window.innerHeight - 60;
 
         const newX = Math.max(minX, Math.min(maxX, e.clientX - dragOffset.x));
@@ -173,54 +167,35 @@ export const Window = memo(function Window({
 
   if (!windowState.isOpen) return null;
 
-  // Mobile layout rendering
   if (isMobile) {
     if (windowState.isMinimized) return null;
     return (
       <div className="fixed inset-0 top-7 bottom-16 z-40 bg-surface-container/95 backdrop-blur-2xl text-on-surface flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-200">
-        {/* Mobile Header Bar */}
         <div className="h-11 px-4 border-b border-white/10 bg-surface-container-low flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold">{windowState.title}</span>
           </div>
           <div className="flex items-center gap-2">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={onMinimize}
-              className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-on-surface"
-              title="Minimize"
-            >
+            <motion.button whileTap={{ scale: 0.9 }} onClick={onMinimize}
+              className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-on-surface" title="Minimize">
               <Minus className="w-4 h-4" />
             </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={onMaximize}
+            <motion.button whileTap={{ scale: 0.9 }} onClick={onMaximize}
               className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-on-surface"
-              title={windowState.isMaximized ? 'Restore' : 'Maximize'}
-            >
-              {windowState.isMaximized ? (
-                <Minimize2 className="w-4 h-4" />
-              ) : (
-                <Maximize2 className="w-4 h-4" />
-              )}
+              title={windowState.isMaximized ? 'Restore' : 'Maximize'}>
+              {windowState.isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={onClose}
-              className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-on-surface"
-              title="Close"
-            >
+            <motion.button whileTap={{ scale: 0.9 }} onClick={onClose}
+              className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-on-surface" title="Close">
               <X className="w-4 h-4" />
             </motion.button>
           </div>
         </div>
-        {/* Mobile Content */}
         <div className="flex-1 overflow-hidden">{children}</div>
       </div>
     );
   }
 
-  // Desktop Window styling
   const windowStyle: React.CSSProperties = windowState.isMaximized
     ? {
         position: 'absolute',
@@ -245,7 +220,7 @@ export const Window = memo(function Window({
         <motion.div
           ref={windowRef}
           style={windowStyle}
-          onClick={onFocus}
+          onMouseDown={onFocus}
           initial={prefersReducedMotion ? { opacity: 0 } : { scale: 0.92, opacity: 0, y: 20 }}
           animate={
             isDragging
@@ -273,49 +248,35 @@ export const Window = memo(function Window({
               : 'bg-white/[0.04] backdrop-blur-xl border border-white/5 shadow-lg opacity-85 grayscale-[20%]'
           }`}
         >
-          {/* Title Bar / Header */}
+          {/* Title Bar */}
           <div
             onMouseDown={handleHeaderMouseDown}
             onDoubleClick={onMaximize}
             className={`h-10 px-4 flex items-center justify-between border-b select-none cursor-grab active:cursor-grabbing shrink-0 transition-colors ${
-              isActive
-                ? 'bg-white/10 border-white/15'
-                : 'bg-white/5 border-white/5'
+              isActive ? 'bg-white/10 border-white/15' : 'bg-white/5 border-white/5'
             }`}
           >
             <div className="w-20" />
-
-            {/* Title */}
-            <div
-              className={`text-[13px] font-semibold truncate px-2 text-center flex-1 transition-colors ${
-                isActive ? 'text-on-surface' : 'text-on-surface-variant/40'
-              }`}
-            >
+            <div className={`text-[13px] font-semibold truncate px-2 text-center flex-1 transition-colors ${
+              isActive ? 'text-on-surface' : 'text-on-surface-variant/40'
+            }`}>
               {windowState.title}
             </div>
 
-            {/* Traffic Lights / Controls (Right Side) */}
-            <div className="flex items-center justify-end gap-2 group w-20">
-              <motion.button
-                whileTap={{ scale: 0.85 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMinimize();
-                }}
+            {/* Traffic Lights */}
+            <div className="flex items-center justify-end gap-2 group w-20" onMouseDown={(e) => e.stopPropagation()}>
+              <button
+                onClick={(e) => { e.stopPropagation(); onMinimize(); }}
                 className={`w-3 h-3 rounded-full flex items-center justify-center text-black/70 hover:text-black transition-colors ${
                   isActive ? 'bg-[#FFBD2E]' : 'bg-on-surface-variant/30'
                 }`}
                 title="Minimize (Cmd+M)"
               >
                 <Minus className="w-2 h-2 opacity-0 group-hover:opacity-100 text-black" />
-              </motion.button>
+              </button>
 
-              <motion.button
-                whileTap={{ scale: 0.85 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onMaximize();
-                }}
+              <button
+                onClick={(e) => { e.stopPropagation(); onMaximize(); }}
                 className={`w-3 h-3 rounded-full flex items-center justify-center text-black/70 hover:text-black transition-colors ${
                   isActive ? 'bg-[#27C93F]' : 'bg-on-surface-variant/30'
                 }`}
@@ -326,69 +287,65 @@ export const Window = memo(function Window({
                 ) : (
                   <Maximize2 className="w-2 h-2 opacity-0 group-hover:opacity-100 text-black" />
                 )}
-              </motion.button>
+              </button>
 
-              <motion.button
-                whileTap={{ scale: 0.85 }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClose();
-                }}
+              <button
+                onClick={(e) => { e.stopPropagation(); onClose(); }}
                 className={`w-3 h-3 rounded-full flex items-center justify-center text-black/70 hover:text-black transition-colors ${
                   isActive ? 'bg-[#FF5F56]' : 'bg-on-surface-variant/30'
                 }`}
                 title="Close (Cmd+W)"
               >
                 <X className="w-2 h-2 opacity-0 group-hover:opacity-100 text-black" />
-              </motion.button>
+              </button>
             </div>
           </div>
 
           {/* Window Body */}
-          <div className="flex-1 overflow-hidden relative text-on-surface">{children}</div>
+          <div className="flex-1 overflow-hidden relative text-on-surface min-h-0">{children}</div>
 
-          {/* 8-Direction Resize Handles */}
+          {/* Resize Handles — thick invisible strips that sit OUTSIDE the overflow-hidden body */}
           {!windowState.isMaximized && (
             <>
-              {/* Top */}
+              {/* Top — 10px strip */}
               <div
                 onMouseDown={(e) => handleResizeMouseDown(e, 'n')}
-                className="absolute top-0 left-3 right-3 h-2 cursor-n-resize z-50"
+                className="absolute top-0 left-0 right-0 h-[10px] cursor-n-resize z-50"
               />
-              {/* Bottom */}
+              {/* Bottom — 10px strip */}
               <div
                 onMouseDown={(e) => handleResizeMouseDown(e, 's')}
-                className="absolute bottom-0 left-3 right-3 h-2 cursor-s-resize z-50"
+                className="absolute bottom-0 left-0 right-0 h-[10px] cursor-s-resize z-50"
               />
-              {/* Left */}
+              {/* Left — 10px strip */}
               <div
                 onMouseDown={(e) => handleResizeMouseDown(e, 'w')}
-                className="absolute top-3 bottom-3 left-0 w-2 cursor-w-resize z-50"
+                className="absolute top-0 bottom-0 left-0 w-[10px] cursor-w-resize z-50"
               />
-              {/* Right */}
+              {/* Right — 10px strip */}
               <div
                 onMouseDown={(e) => handleResizeMouseDown(e, 'e')}
-                className="absolute top-3 bottom-3 right-0 w-2 cursor-e-resize z-50"
+                className="absolute top-0 bottom-0 right-0 w-[10px] cursor-e-resize z-50"
               />
-              {/* Top-Left */}
+              {/* NW */}
               <div
                 onMouseDown={(e) => handleResizeMouseDown(e, 'nw')}
-                className="absolute top-0 left-0 w-3 h-3 cursor-nw-resize z-50"
+                className="absolute top-0 left-0 w-[14px] h-[14px] cursor-nw-resize z-50"
               />
-              {/* Top-Right */}
+              {/* NE */}
               <div
                 onMouseDown={(e) => handleResizeMouseDown(e, 'ne')}
-                className="absolute top-0 right-0 w-3 h-3 cursor-ne-resize z-50"
+                className="absolute top-0 right-0 w-[14px] h-[14px] cursor-ne-resize z-50"
               />
-              {/* Bottom-Left */}
+              {/* SW */}
               <div
                 onMouseDown={(e) => handleResizeMouseDown(e, 'sw')}
-                className="absolute bottom-0 left-0 w-3 h-3 cursor-sw-resize z-50"
+                className="absolute bottom-0 left-0 w-[14px] h-[14px] cursor-sw-resize z-50"
               />
-              {/* Bottom-Right */}
+              {/* SE */}
               <div
                 onMouseDown={(e) => handleResizeMouseDown(e, 'se')}
-                className="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize z-50 flex items-end justify-end p-0.5 opacity-40 hover:opacity-100"
+                className="absolute bottom-0 right-0 w-[14px] h-[14px] cursor-se-resize z-50 flex items-end justify-end p-[3px] opacity-40 hover:opacity-100"
               >
                 <div className="w-2 h-2 border-r-2 border-b-2 border-on-surface-variant/40" />
               </div>
