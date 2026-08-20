@@ -207,8 +207,7 @@ The content generators run automatically on every build via `prebuild` hooks.
 
 ## Author
 
-**Aryan Navale** — AI & Data Science student building intelligent systems
-
+**Aryan Navale** 
 [GitHub](https://github.com/aryannavale01) · [LinkedIn](https://linkedin.com/in/aryan-navale-207961291)
 
 ---
