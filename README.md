@@ -1,103 +1,247 @@
-# macOS AI Developer Portfolio
+<div align="center">
 
-An interactive macOS desktop simulation portfolio — draggable windows, a dock,
-Spotlight, and a fully working **Finder** that is driven entirely by folders on
-disk. Built with Next.js, React, TypeScript, Tailwind CSS, and Framer Motion.
+# macOS Developer Portfolio
 
-## Run Locally
+**An interactive macOS desktop simulation that doubles as a portfolio.**
 
-**Prerequisites:** Node.js
+Drag windows. Resize them. Open apps from the dock. Search with Spotlight.
+Browse files in a real Finder. Chat with an AI assistant. It looks and feels
+like a real operating system — because it *is* one, running entirely in your
+browser.
+
+<br/>
+
+[![Live Demo](https://img.shields.io/badge/Live_Demo-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://your-site.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js_15-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+
+</div>
+
+---
+
+## Screenshots
+
+> Swipe through to see every app. Each screenshot shows a real, working window
+> — not a mockup.
+
+<table>
+  <tr>
+    <td align="center"><strong>Desktop</strong><br/><sub>The home screen — dock, menu bar, and open windows</sub></td>
+    <td align="center"><strong>Finder</strong><br/><sub>Browse projects, documents, and research files</sub></td>
+    <td align="center"><strong>Terminal</strong><br/><sub>Run commands, explore project details</sub></td>
+  </tr>
+  <tr>
+    <td><img src="public/os-screenshots/os-desktop.png" alt="Desktop" width="100%" /></td>
+    <td><img src="public/os-screenshots/os-finder.png" alt="Finder" width="100%" /></td>
+    <td><img src="public/os-screenshots/os-terminal.png" alt="Terminal" width="100%" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Safari</strong><br/><sub>Browse live project demos and websites</sub></td>
+    <td align="center"><strong>Mail</strong><br/><sub>Send a message directly from the desktop</sub></td>
+    <td align="center"><strong>Music</strong><br/><sub>A mini music player with album art</sub></td>
+  </tr>
+  <tr>
+    <td><img src="public/os-screenshots/os-safari.png" alt="Safari" width="100%" /></td>
+    <td><img src="public/os-screenshots/os-mail.png" alt="Mail" width="100%" /></td>
+    <td><img src="public/os-screenshots/os-music.png" alt="Music" width="100%" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Notes</strong><br/><sub>Quick notes and thoughts</sub></td>
+    <td align="center"><strong>Settings</strong><br/><sub>System preferences — themes, display options</sub></td>
+    <td align="center"><strong>Document Reader</strong><br/><sub>Read case studies and project deep-dives</sub></td>
+  </tr>
+  <tr>
+    <td><img src="public/os-screenshots/notes os.png" alt="Notes" width="100%" /></td>
+    <td><img src="public/os-screenshots/os-settings.png" alt="Settings" width="100%" /></td>
+    <td><img src="public/os-screenshots/dr-os.png" alt="Document Reader" width="100%" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>AI Chat</strong><br/><sub>Ask anything — powered by Groq AI</sub></td>
+    <td align="center"><strong>Agent</strong><br/><sub>Interactive AI agent interface</sub></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><img src="public/os-screenshots/ai-chat-os.png" alt="AI Chat" width="100%" /></td>
+    <td><img src="public/os-screenshots/agent-os.png" alt="Agent" width="100%" /></td>
+    <td></td>
+  </tr>
+</table>
+
+---
+
+## What makes this different
+
+Most portfolios are static pages with a list of projects. This one is a fully
+interactive desktop environment that happens to showcase a developer's work.
+
+**It started as a question:** *What if a portfolio felt like an actual product
+instead of a PDF with links?* Every interaction — dragging a window, searching
+with Spotlight, opening a file in Finder — is a chance for a visitor to stay a
+little longer and discover something new.
+
+### Key features
+
+- **Draggable, resizable windows** — 8-direction resize, snap to edges, maximize/restore
+- **macOS-style dock** with bounce animations and app labels
+- **Spotlight search** (Cmd+K) — find apps, projects, and documents instantly
+- **Finder** — a real file browser driven by the filesystem, not hardcoded data
+- **Terminal** — a styled command palette showing project details
+- **Safari** — open live project demos in an embedded browser
+- **Mail** — send a real email to the developer through Resend
+- **AI Chat** — ask questions about the developer's work, powered by Groq
+- **Dark & light mode** — system-aware, toggleable from Settings
+- **Responsive** — scales down to mobile with full-screen app views
+- **Keyboard shortcuts** — Cmd+W to close, Cmd+M to minimize, Cmd+K for Spotlight
+
+---
+
+## Getting started
+
+**Prerequisites:** [Node.js](https://nodejs.org) 18+
 
 ```bash
+# Clone the repo
+git clone https://github.com/aryannavale01/os-portfolio.git
+cd os-portfolio
+
+# Install dependencies
 npm install
-npm run dev        # development server (regenerates project content first)
-npm run build      # production build (also regenerates content)
-npm run start      # serve the standalone production build
-npm run lint       # eslint
+
+# Start the dev server
+npm run dev
 ```
 
-`npm run dev` and `npm run build` both run the project-content generator first
-(`predev`/`prebuild` hooks in `package.json`).
+Open [http://localhost:3000](http://localhost:3000) and click around.
 
-## Filesystem-Driven Projects
+### Available commands
 
-Projects are defined entirely by folders under [`content/projects/`](./content/projects):
+| Command              | What it does                                      |
+| -------------------- | ------------------------------------------------- |
+| `npm run dev`        | Start the development server                      |
+| `npm run build`      | Production build (generates content first)        |
+| `npm run start`      | Serve the production build locally                |
+| `npm run lint`       | Run ESLint                                        |
 
-- Each folder's name is the project's slug.
-- `data.json` holds structured metadata, validated against a Zod schema
-  ([`content/schema.ts`](./content/schema.ts)).
-- `README.md` is the long-form case study, rendered in the Document Reader.
-- `NN-*.png|jpg|jpeg` images feed the sliding gallery (numeric prefixes control order).
-- `*.pdf` files open as downloadable case studies in Preview.
+---
 
-**Adding a project requires zero code changes** — create one folder and re-run
-`npm run dev` or `npm run build`. The generator scans, validates, copies images/PDFs
-to `public/projects/<slug>/`, and emits `lib/projects.generated.ts`.
+## How it works
 
-Read **[`content/projects/README.md`](./content/projects/README.md)** for the full
-folder structure, schema table, and conventions.
+### Filesystem-driven content
 
-## Filesystem-Driven Documents (CV, Resume, Cover Letter)
+Projects, documents, and research are all loaded from folders on disk — not
+hardcoded in components. Drop a folder into `content/projects/` with a
+`data.json` and a `README.md`, and it appears on the next build.
 
-Documents shown on the desktop (and in Finder's Documents sidebar / the Document
-Reader / Preview) are also filesystem-driven — **no HTML-crafted PDFs**. Drop a
-real PDF into a folder under [`content/documents/`](./content/documents) and it
-appears on the desktop on the next `npm run dev`:
-
-- Each folder's name is the document's slug.
-- The first `*.pdf` inside becomes the document; the PDF filename is the label.
-- `scripts/generate-documents.ts` copies the PDF to `/public/documents/<slug>/`
-  and emits `lib/documents.generated.ts` (both gitignored).
-
-**You supply the PDFs** — the generator never creates placeholder files. Folders
-without a PDF are simply skipped. See
-**[`content/documents/README.md`](./content/documents/README.md)**.
-
-## Filesystem-Driven Research Library
-
-The **Research** folder on the desktop opens Finder at a research library driven
-entirely by [`content/research/`](./content/research):
-
-- Each folder's name becomes a research topic (kebab-case → Title Case).
-- `README.md` holds the notes; its first paragraph is the topic description.
-- Optional `*.pdf` files open in Preview; optional images feed the gallery.
-- `scripts/generate-research.ts` copies assets to `/public/research/<slug>/` and
-  emits `lib/research.generated.ts` (gitignored).
-
-Research topics also appear in Finder's Research Library favorite and the
-Document Reader. See
-**[`content/research/README.md`](./content/research/README.md)**.
-
-## Tech Stack
-
-- **Next.js 15** (App Router, `output: 'standalone'`)
-- **React 19**, TypeScript (strict)
-- **Tailwind CSS 4** + `@tailwindcss/typography`
-- **Framer Motion** (`motion`) for window/overlay/gallery animations
-- **Zod** for build-time data validation
-- **react-markdown** for README rendering
-
-## Production Deployment (Vercel)
-
-The repo is Vercel-ready (`vercel.json` included). Set these environment
-variables in the Vercel project dashboard:
-
-| Variable      | Required | Purpose                                                                 |
-| ------------- | :------: | ----------------------------------------------------------------------- |
-| `GROQ_API_KEY`| yes      | Powers the "Ask AI" assistant (create at https://console.groq.com)       |
-| `APP_URL`     | yes      | Canonical URL (Open Graph + sitemap). E.g. `https://your-site.vercel.app`|
-
-`vercel.json` opts the `/api/ask-ai` function into Fluid Compute with a 60s
-`maxDuration` safety margin for cold starts. No other config is needed — the
-content generators run as a `prebuild` hook on every build.
-
-## Local Production Run
-
-```bash
-npm run build      # runs content generators, then compiles
-npm run start      # runs prestart (copies public/ into standalone) + node server
+```
+content/
+├── projects/          ← Each folder = one project
+│   ├── rag-chatbot/
+│   │   ├── data.json
+│   │   ├── README.md
+│   │   └── 01-hero.png
+│   └── ngo-erp/
+├── documents/         ← PDFs that show up on the desktop
+│   └── resume/
+│       └── Aryan_Resume_2025.pdf
+└── research/          ← Research notes and papers
+    └── llm-fine-tuning/
+        └── README.md
 ```
 
-> **Note:** the standalone server defaults to port `3000`. If that port is busy
-> locally, run with `$env:PORT=<other>` (PowerShell) or `PORT=<other> npm run
-> start`.
+**Adding a project requires zero code changes.** The build script scans the
+folders, validates the data, copies assets to `public/`, and generates the
+TypeScript files that the UI reads at runtime.
+
+### Window system
+
+Every app runs inside a window that supports:
+- Dragging from the title bar
+- 8-direction resize handles
+- Minimize, maximize, and close
+- Focus management with z-index stacking
+- Position and size persistence in localStorage
+
+### Tech stack
+
+| Layer        | Technology                                     |
+| ------------ | ---------------------------------------------- |
+| Framework    | Next.js 15 (App Router, standalone output)     |
+| Language     | TypeScript (strict mode)                       |
+| Styling      | Tailwind CSS 4                                 |
+| Animation    | Motion (Framer Motion)                         |
+| AI           | Groq API (Ask AI chat)                         |
+| Email        | Resend (contact form)                          |
+| Validation   | Zod (build-time data validation)               |
+| Markdown     | react-markdown (README rendering)              |
+
+---
+
+## Environment variables
+
+Set these in `.env.local` for local development, or in your hosting dashboard
+for production.
+
+| Variable          | Required | Purpose                                              |
+| ----------------- | :------: | ---------------------------------------------------- |
+| `GROQ_API_KEY`    | Yes      | Powers the "Ask AI" assistant ([console.groq.com](https://console.groq.com)) |
+| `APP_URL`         | Yes      | Canonical URL for SEO and sitemap                    |
+| `RESEND_API_KEY`  | No       | Enables the contact form email feature ([resend.com](https://resend.com)) |
+| `RESEND_TO_EMAIL` | No       | Where contact emails are delivered (default: dev's email) |
+
+---
+
+## Deployment
+
+The project deploys to Vercel with zero config — `vercel.json` is included.
+
+1. Push to GitHub
+2. Import the repo in [Vercel](https://vercel.com)
+3. Add `GROQ_API_KEY` and `APP_URL` in the environment variables
+4. Deploy
+
+The content generators run automatically on every build via `prebuild` hooks.
+
+---
+
+## Project structure
+
+```
+├── app/                    Next.js App Router pages + API routes
+│   ├── api/ask-ai/         Groq-powered AI chat endpoint
+│   ├── api/send-email/     Resend email endpoint
+│   ├── layout.tsx          Root layout, metadata, fonts
+│   ├── page.tsx            Desktop shell
+│   ├── robots.txt          Programmatic robots
+│   └── sitemap.xml         Programmatic sitemap
+├── components/
+│   ├── Desktop.tsx         Main desktop — window state, dock, menu bar
+│   ├── Window.tsx          Window chrome — drag, resize, traffic lights
+│   ├── DesktopIntro.tsx    Welcome animation
+│   ├── RotatingText.tsx    Typewriter text rotation
+│   ├── apps/               Individual app components (Finder, Terminal, etc.)
+│   └── seo/                Structured data components
+├── content/                Filesystem-driven data
+│   ├── aryan.ts            Developer profile and stats
+│   ├── projects/           Project folders (data.json + README.md + assets)
+│   ├── documents/          PDF documents
+│   └── research/           Research notes and papers
+├── hooks/                  Custom React hooks
+├── lib/                    Utilities, animation configs, generated files
+├── public/                 Static assets (images, project files)
+└── types/                  TypeScript type definitions
+```
+
+---
+
+## Author
+
+**Aryan Navale** — AI & Data Science student building intelligent systems
+
+[GitHub](https://github.com/aryannavale01) · [LinkedIn](https://linkedin.com/in/aryan-navale-207961291)
+
+---
+
+<div align="center">
+<sub>Built with Next.js, TypeScript, and a lot of coffee.</sub>
+</div>
