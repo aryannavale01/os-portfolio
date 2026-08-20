@@ -22,51 +22,11 @@ browser.
 
 ## Screenshots
 
-> Every screenshot shows a real, working window — not a mockup.
+Every screenshot shows a real, working window — not a mockup. Browse all 11 apps with the interactive carousel:
 
-### Desktop
+**[View Screenshots Carousel →](https://aryannavale01.github.io/os-portfolio/)**
 
-![Desktop — the home screen with dock, menu bar, and open windows](public/os-screenshots/os-desktop.png)
-
-### Finder
-
-![Finder — browse projects, documents, and research files](public/os-screenshots/os-finder.png)
-
-### Terminal
-
-![Terminal — run commands and explore project details](public/os-screenshots/os-terminal.png)
-
-### Safari
-
-![Safari — browse live project demos and websites](public/os-screenshots/os-safari.png)
-
-### Mail
-
-![Mail — send a message directly from the desktop](public/os-screenshots/os-mail.png)
-
-### Music
-
-![Music — a mini player with album art](public/os-screenshots/os-music.png)
-
-### Notes
-
-![Notes — quick notes and thoughts](public/os-screenshots/notes%20os.png)
-
-### Settings
-
-![Settings — system preferences, themes, display options](public/os-screenshots/os-settings.png)
-
-### Document Reader
-
-![Document Reader — read case studies and project deep-dives](public/os-screenshots/dr-os.png)
-
-### AI Chat
-
-![AI Chat — ask anything, powered by Groq](public/os-screenshots/ai-chat-os.png)
-
-### Agent
-
-![Agent — interactive AI agent interface](public/os-screenshots/agent-os.png)
+![macOS Desktop — dock, menu bar, and open application windows](public/os-screenshots/os-desktop.png)
 
 ---
 

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>macOS Developer Portfolio — Screenshots</title>
+<meta name="description" content="Interactive screenshot carousel showcasing the macOS desktop portfolio — draggable windows, Finder, Terminal, Safari, Mail, AI Chat, and more." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+  :root {
+    --surface: #0f131c;
+    --surface-container: #1c1f29;
+    --surface-high: #262a34;
+    --surface-highest: #31353f;
+    --text: #dfe2ef;
+    --text-dim: #8c909f;
+    --primary: #4d8eff;
+    --primary-glow: rgba(77,142,255,0.25);
+    --cyan: #4cd7f6;
+    --green: #27C93F;
+    --yellow: #FFBD2E;
+    --red: #FF5F56;
+    --radius: 16px;
+    --font-display: 'Outfit', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+  }
+
+  html { background: var(--surface); color: var(--text); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+
+  body { min-height: 100dvh; display: flex; flex-direction: column; overflow-x: hidden; background: var(--surface); }
+
+  /* ─── Header ─── */
+  .page-header {
+    text-align: center;
+    padding: 48px 24px 0;
+  }
+  .page-header h1 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(28px, 5vw, 44px);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    background: linear-gradient(135deg, var(--text) 0%, var(--primary) 50%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .page-header p {
+    margin-top: 12px;
+    color: var(--text-dim);
+    font-size: clamp(14px, 2vw, 17px);
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+  }
+
+  /* ─── Carousel Container ─── */
+  .carousel-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px 24px;
+    gap: 24px;
+  }
+
+  .carousel {
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface-container);
+    border: 1px solid rgba(140,144,159,0.1);
+    box-shadow:
+      0 0 0 1px rgba(77,142,255,0.06),
+      0 8px 32px rgba(0,0,0,0.4),
+      0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .carousel:focus-within {
+    box-shadow:
+      0 0 0 2px var(--primary),
+      0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  /* Traffic light bar */
+  .carousel-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    background: var(--surface-high);
+    border-bottom: 1px solid rgba(140,144,159,0.08);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: var(--red); }
+  .dot-yellow { background: var(--yellow); }
+  .dot-green { background: var(--green); }
+  .carousel-title {
+    flex: 1;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: -0.01em;
+  }
+
+  /* ─── Slides ─── */
+  .slides-viewport {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    touch-action: pan-y;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  .slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* ─── Caption Bar ─── */
+  .caption-bar {
+    padding: 16px 20px;
+    background: var(--surface-high);
+    border-top: 1px solid rgba(140,144,159,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .caption-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .caption-text span {
+    color: var(--text-dim);
+    font-weight: 400;
+    font-size: 13px;
+  }
+
+  /* ─── Controls ─── */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(140,144,159,0.15);
+    background: var(--surface-container);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    flex-shrink: 0;
+  }
+  .nav-btn:hover { background: var(--surface-high); border-color: rgba(140,144,159,0.3); }
+  .nav-btn:active { transform: scale(0.94); }
+  .nav-btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+  .nav-btn svg { width: 20px; height: 20px; }
+
+  .counter {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    min-width: 56px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .counter .current { color: var(--text); }
+
+  /* Dots */
+  .dots {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    padding: 0 16px;
+  }
+  .dot-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--surface-highest);
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    padding: 0;
+  }
+  .dot-indicator:hover { background: var(--text-dim); }
+  .dot-indicator.active {
+    background: var(--primary);
+    transform: scale(1.3);
+    box-shadow: 0 0 8px var(--primary-glow);
+  }
+  .dot-indicator:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  /* ─── Footer ─── */
+  .page-footer {
+    text-align: center;
+    padding: 16px 24px 32px;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .page-footer a { color: var(--primary); text-decoration: none; }
+  .page-footer a:hover { text-decoration: underline; }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 640px) {
+    .page-header { padding: 32px 16px 0; }
+    .carousel-wrap { padding: 20px 12px 16px; gap: 16px; }
+    .slides-viewport { aspect-ratio: 4 / 3; }
+    .nav-btn { width: 38px; height: 38px; border-radius: 10px; }
+    .caption-bar { padding: 12px 16px; }
+    .caption-text { font-size: 13px; }
+  }
+
+  @media (max-width: 375px) {
+    .slides-viewport { aspect-ratio: 3 / 3; }
+    .controls { gap: 12px; }
+  }
+
+  /* ─── Reduced motion ─── */
+  @media (prefers-reduced-motion: reduce) {
+    .slide { transition: opacity 0.01ms; transform: none; }
+    .slide.active { transform: none; }
+    .slide.exit-left { transform: none; }
+    .nav-btn, .dot-indicator { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="page-header" role="banner">
+    <h1>macOS Developer Portfolio</h1>
+    <p>An interactive desktop simulation — draggable windows, a real Finder, AI chat, and a contact form that actually sends emails.</p>
+  </header>
+
+  <!-- Carousel -->
+  <main class="carousel-wrap">
+    <section
+      class="carousel"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Portfolio screenshots"
+      aria-live="polite"
+      tabindex="0"
+    >
+      <!-- Toolbar -->
+      <div class="carousel-toolbar" aria-hidden="true">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="carousel-title" id="carousel-title">Desktop</span>
+      </div>
+
+      <!-- Slides -->
+      <div class="slides-viewport" id="slides-viewport">
+        <div class="slide active" role="group" aria-roledescription="slide" aria-label="1 of 11" data-title="Desktop">
+          <img src="os-desktop.png" alt="macOS-style desktop with dock, menu bar, and open application windows" loading="lazy" draggable="false" />
+        </div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="2 of 11" data-title="Finder">
+          <img src="os-finder.png" alt="Finder file browser showing projects, documents, and research folders" loading="lazy" draggable="false" />
+        </div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="3 of 11" data-title="Terminal">
+          <img src="os-terminal.png" alt="Terminal app with styled command output and project details" loading="lazy" draggable="false" />
+        </div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="4 of 11" data-title="Safari">
+          <img src="os-safari.png" alt="Safari browser showing a live project demo" loading="lazy" draggable="false" />
+        </div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="5 of 11" data-title="Mail">
+          <img src="os-mail.png" alt="Mail app with compose form and macOS-style interface" loading="lazy" draggable="false" />
+        </div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="6 of 11" data-title="Music">
+          <img src="os-music.png" alt="Music player with album art and playback controls" loading="lazy" draggable="false" />
+        </div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="7 of 11" data-title="Notes">
+          <img src="notes%20os.png" alt="Notes app with quick notes and thoughts" loading="lazy" draggable="false" />
+        </div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="8 of 11" data-title="Settings">
+          <img src="os-settings.png" alt="Settings panel with theme and display options" loading="lazy" draggable="false" />
+        </div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="9 of 11" data-title="Document Reader">
+          <img src="dr-os.png" alt="Document Reader showing project case studies" loading="lazy" draggable="false" />
+        </div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="10 of 11" data-title="AI Chat">
+          <img src="ai-chat-os.png" alt="AI Chat assistant powered by Groq" loading="lazy" draggable="false" />
+        </div>
+        <div class="slide" role="group" aria-roledescription="slide" aria-label="11 of 11" data-title="Agent">
+          <img src="agent-os.png" alt="Interactive AI agent interface" loading="lazy" draggable="false" />
+        </div>
+      </div>
+
+      <!-- Caption -->
+      <div class="caption-bar">
+        <div class="caption-text" id="caption">
+          <strong>Desktop</strong> <span>— the home screen with dock, menu bar, and open windows</span>
+        </div>
+        <div class="counter" aria-hidden="true">
+          <span class="current" id="counter-current">1</span> / 11
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation -->
+    <div class="controls">
+      <button class="nav-btn" id="btn-prev" aria-label="Previous screenshot" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+
+      <div class="dots" id="dots" role="tablist" aria-label="Screenshot navigation"></div>
+
+      <button class="nav-btn" id="btn-next" aria-label="Next screenshot" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    <a href="https://github.com/aryannavale01/os-portfolio">GitHub</a> &middot; Built with Next.js, TypeScript &amp; Tailwind CSS
+  </footer>
+
+<script>
+(function() {
+  'use strict';
+
+  const CAPTIONS = [
+    '<strong>Desktop</strong> <span>— the home screen with dock, menu bar, and open windows</span>',
+    '<strong>Finder</strong> <span>— browse projects, documents, and research files</span>',
+    '<strong>Terminal</strong> <span>— run commands and explore project details</span>',
+    '<strong>Safari</strong> <span>— browse live project demos and websites</span>',
+    '<strong>Mail</strong> <span>— send a message directly from the desktop</span>',
+    '<strong>Music</strong> <span>— a mini player with album art</span>',
+    '<strong>Notes</strong> <span>— quick notes and thoughts</span>',
+    '<strong>Settings</strong> <span>— system preferences, themes, display options</span>',
+    '<strong>Document Reader</strong> <span>— read case studies and project deep-dives</span>',
+    '<strong>AI Chat</strong> <span>— ask anything, powered by Groq AI</span>',
+    '<strong>Agent</strong> <span>— interactive AI agent interface</span>'
+  ];
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+  let isAnimating = false;
+
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  const counterCurrent = document.getElementById('counter-current');
+  const captionEl = document.getElementById('caption');
+  const titleEl = document.getElementById('carousel-title');
+  const dotsContainer = document.getElementById('dots');
+  const viewport = document.getElementById('slides-viewport');
+
+  // Build dots
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'dot-indicator' + (i === 0 ? ' active' : '');
+    dot.setAttribute('role', 'tab');
+    dot.setAttribute('aria-label', 'Go to screenshot ' + (i + 1));
+    dot.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+    dot.setAttribute('data-index', i);
+    dot.addEventListener('click', function() { goTo(i); });
+    dotsContainer.appendChild(dot);
+  }
+  const dots = dotsContainer.querySelectorAll('.dot-indicator');
+
+  function goTo(index) {
+    if (index === current || isAnimating || index < 0 || index >= total) return;
+    isAnimating = true;
+
+    const direction = index > current ? 1 : -1;
+    const prev = slides[current];
+    const next = slides[index];
+
+    // Set initial position of incoming slide
+    if (!prefersReduced) {
+      next.style.transform = 'translateX(' + (direction * 40) + 'px)';
+      next.style.opacity = '0';
+    }
+
+    // Activate next
+    next.classList.add('active');
+    prev.classList.remove('active');
+    if (!prefersReduced) prev.classList.add('exit-left');
+
+    // Force reflow then animate
+    void next.offsetWidth;
+    if (prefersReduced) {
+      prev.classList.remove('exit-left');
+    }
+
+    current = index;
+    updateUI();
+
+    setTimeout(function() {
+      prev.classList.remove('exit-left');
+      isAnimating = false;
+    }, prefersReduced ? 10 : 350);
+  }
+
+  function updateUI() {
+    counterCurrent.textContent = current + 1;
+    captionEl.innerHTML = CAPTIONS[current];
+    titleEl.textContent = CAPTIONS[current].replace(/<[^>]*>/g, '').replace(/^—\s*/, '');
+
+    dots.forEach(function(d, i) {
+      d.classList.toggle('active', i === current);
+      d.setAttribute('aria-selected', i === current ? 'true' : 'false');
+    });
+
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+  }
+
+  btnPrev.addEventListener('click', function() { goTo(current - 1); });
+  btnNext.addEventListener('click', function() { goTo(current + 1); });
+
+  // Keyboard
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); goTo(current + 1); }
+  });
+
+  // Touch swipe
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let swiping = false;
+
+  viewport.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    swiping = true;
+  }, { passive: true });
+
+  viewport.addEventListener('touchend', function(e) {
+    if (!swiping) return;
+    swiping = false;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+
+    // Only swipe if horizontal movement dominates
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      if (dx < 0) goTo(current + 1);
+      else goTo(current - 1);
+    }
+  }, { passive: true });
+
+  // Mouse drag swipe (desktop)
+  let dragStartX = 0;
+  let dragging = false;
+
+  viewport.addEventListener('mousedown', function(e) {
+    if (e.button !== 0) return;
+    dragStartX = e.clientX;
+    dragging = true;
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+  });
+
+  window.addEventListener('mouseup', function(e) {
+    if (!dragging) return;
+    dragging = false;
+    const dx = e.clientX - dragStartX;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0) goTo(current + 1);
+      else goTo(current - 1);
+    }
+  });
+
+  // Init
+  updateUI();
+})();
+</script>
+</body>
+</html>
