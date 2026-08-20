@@ -22,51 +22,51 @@ browser.
 
 ## Screenshots
 
-> Swipe through to see every app. Each screenshot shows a real, working window
-> — not a mockup.
+> Every screenshot shows a real, working window — not a mockup.
 
-<table>
-  <tr>
-    <td align="center"><strong>Desktop</strong><br/><sub>The home screen — dock, menu bar, and open windows</sub></td>
-    <td align="center"><strong>Finder</strong><br/><sub>Browse projects, documents, and research files</sub></td>
-    <td align="center"><strong>Terminal</strong><br/><sub>Run commands, explore project details</sub></td>
-  </tr>
-  <tr>
-    <td><img src="public/os-screenshots/os-desktop.png" alt="Desktop" width="100%" /></td>
-    <td><img src="public/os-screenshots/os-finder.png" alt="Finder" width="100%" /></td>
-    <td><img src="public/os-screenshots/os-terminal.png" alt="Terminal" width="100%" /></td>
-  </tr>
-  <tr>
-    <td align="center"><strong>Safari</strong><br/><sub>Browse live project demos and websites</sub></td>
-    <td align="center"><strong>Mail</strong><br/><sub>Send a message directly from the desktop</sub></td>
-    <td align="center"><strong>Music</strong><br/><sub>A mini music player with album art</sub></td>
-  </tr>
-  <tr>
-    <td><img src="public/os-screenshots/os-safari.png" alt="Safari" width="100%" /></td>
-    <td><img src="public/os-screenshots/os-mail.png" alt="Mail" width="100%" /></td>
-    <td><img src="public/os-screenshots/os-music.png" alt="Music" width="100%" /></td>
-  </tr>
-  <tr>
-    <td align="center"><strong>Notes</strong><br/><sub>Quick notes and thoughts</sub></td>
-    <td align="center"><strong>Settings</strong><br/><sub>System preferences — themes, display options</sub></td>
-    <td align="center"><strong>Document Reader</strong><br/><sub>Read case studies and project deep-dives</sub></td>
-  </tr>
-  <tr>
-    <td><img src="public/os-screenshots/notes os.png" alt="Notes" width="100%" /></td>
-    <td><img src="public/os-screenshots/os-settings.png" alt="Settings" width="100%" /></td>
-    <td><img src="public/os-screenshots/dr-os.png" alt="Document Reader" width="100%" /></td>
-  </tr>
-  <tr>
-    <td align="center"><strong>AI Chat</strong><br/><sub>Ask anything — powered by Groq AI</sub></td>
-    <td align="center"><strong>Agent</strong><br/><sub>Interactive AI agent interface</sub></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td><img src="public/os-screenshots/ai-chat-os.png" alt="AI Chat" width="100%" /></td>
-    <td><img src="public/os-screenshots/agent-os.png" alt="Agent" width="100%" /></td>
-    <td></td>
-  </tr>
-</table>
+### Desktop
+
+![Desktop — the home screen with dock, menu bar, and open windows](public/os-screenshots/os-desktop.png)
+
+### Finder
+
+![Finder — browse projects, documents, and research files](public/os-screenshots/os-finder.png)
+
+### Terminal
+
+![Terminal — run commands and explore project details](public/os-screenshots/os-terminal.png)
+
+### Safari
+
+![Safari — browse live project demos and websites](public/os-screenshots/os-safari.png)
+
+### Mail
+
+![Mail — send a message directly from the desktop](public/os-screenshots/os-mail.png)
+
+### Music
+
+![Music — a mini player with album art](public/os-screenshots/os-music.png)
+
+### Notes
+
+![Notes — quick notes and thoughts](public/os-screenshots/notes%20os.png)
+
+### Settings
+
+![Settings — system preferences, themes, display options](public/os-screenshots/os-settings.png)
+
+### Document Reader
+
+![Document Reader — read case studies and project deep-dives](public/os-screenshots/dr-os.png)
+
+### AI Chat
+
+![AI Chat — ask anything, powered by Groq](public/os-screenshots/ai-chat-os.png)
+
+### Agent
+
+![Agent — interactive AI agent interface](public/os-screenshots/agent-os.png)
 
 ---
 
