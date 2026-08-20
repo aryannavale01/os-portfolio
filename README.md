@@ -22,11 +22,22 @@ browser.
 
 ## Screenshots
 
-Every screenshot shows a real, working window — not a mockup. Browse all 11 apps with the interactive carousel:
-
-**[View Screenshots Carousel →](https://aryannavale01.github.io/os-portfolio/)**
+Every screenshot shows a real, working window — not a mockup.
 
 ![macOS Desktop — dock, menu bar, and open application windows](public/os-screenshots/os-desktop.png)
+
+**[View full interactive carousel with all 11 apps →](https://aryannavale01.github.io/os-portfolio/)**
+
+| | | |
+|:---:|:---:|:---:|
+| **Finder** | **Terminal** | **Safari** |
+| ![Finder](public/os-screenshots/os-finder.png) | ![Terminal](public/os-screenshots/os-terminal.png) | ![Safari](public/os-screenshots/os-safari.png) |
+| **Mail** | **Music** | **Notes** |
+| ![Mail](public/os-screenshots/os-mail.png) | ![Music](public/os-screenshots/os-music.png) | ![Notes](public/os-screenshots/notes%20os.png) |
+| **Settings** | **Document Reader** | **AI Chat** |
+| ![Settings](public/os-screenshots/os-settings.png) | ![Document Reader](public/os-screenshots/dr-os.png) | ![AI Chat](public/os-screenshots/ai-chat-os.png) |
+| **Agent** | | |
+| ![Agent](public/os-screenshots/agent-os.png) | | |
 
 ---
 
