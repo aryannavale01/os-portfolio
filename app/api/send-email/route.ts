@@ -72,12 +72,16 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('Resend error:', error);
-      return NextResponse.json({error: 'Failed to send email.'}, {status: 500});
+      return NextResponse.json(
+        {error: error.message || 'Failed to send email.'},
+        {status: 500},
+      );
     }
 
     return NextResponse.json({success: true});
   } catch (err) {
     console.error('Send email error:', err);
-    return NextResponse.json({error: 'Invalid request.'}, {status: 400});
+    const message = err instanceof Error ? err.message : 'Invalid request.';
+    return NextResponse.json({error: message}, {status: 400});
   }
 }
